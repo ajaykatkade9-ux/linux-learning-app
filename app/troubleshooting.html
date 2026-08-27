@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Linux Production Troubleshooting</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      color: #1f2937;
+      background: #f5f7fb;
+    }
+
+    .container {
+      width: min(1000px, 100%);
+      margin: auto;
+    }
+
+    .back {
+      color: #1d4ed8;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .hero,
+    .card {
+      padding: 25px;
+      margin: 22px 0;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .hero {
+      color: white;
+      background: linear-gradient(135deg, #111827, #b91c1c);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.3;
+    }
+
+    h2 {
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    pre {
+      padding: 17px;
+      overflow-x: auto;
+      color: #d1fae5;
+      background: #111827;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+
+    code {
+      font-family: Consolas, monospace;
+    }
+
+    .note,
+    .warning,
+    .success {
+      padding: 16px;
+      margin: 18px 0;
+      border-radius: 10px;
+    }
+
+    .note {
+      background: #eff6ff;
+      border-left: 5px solid #2563eb;
+    }
+
+    .warning {
+      background: #fff7ed;
+      border-left: 5px solid #ea580c;
+    }
+
+    .success {
+      background: #ecfdf5;
+      border-left: 5px solid #16a34a;
+    }
+
+    table {
+      width: 100%;
+      margin: 18px 0;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #d1d5db;
+    }
+
+    th {
+      background: #e5e7eb;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .complete-button {
+      padding: 13px 20px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      background: #15803d;
+      border: 0;
+      border-radius: 9px;
+    }
+
+    .complete-button:hover {
+      background: #166534;
+    }
+
+    .docs a {
+      display: block;
+      margin: 10px 0;
+      color: #1d4ed8;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      .hero,
+      .card {
+        padding: 19px;
+      }
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<main class="container">
+
+  <a class="back" href="linux.html">
+    ← Back to Linux Course
+  </a>
+
+  <section class="hero">
+    <h1>🔥 Linux Production Troubleshooting</h1>
+
+    <p>
+      Diagnose real server failures using a safe,
+      evidence-first and layer-by-layer workflow.
+    </p>
+  </section>
+
+  <section class="card">
+
+    <h2>⚡ 60-Second Troubleshooting Method</h2>
+
+    <ol>
+      <li>Confirm the exact symptom and affected users.</li>
+      <li>Record when the issue started.</li>
+      <li>Check recent deployments and configuration changes.</li>
+      <li>Measure before restarting or changing anything.</li>
+      <li>Move through CPU, memory, disk, network and application layers.</li>
+      <li>Compare working and failing systems or requests.</li>
+      <li>Apply the smallest reversible fix.</li>
+      <li>Verify service health from the user’s perspective.</li>
+      <li>Document the root cause and prevention action.</li>
+    </ol>
+
+    <div class="warning">
+      Restarting immediately may temporarily restore service but can
+      destroy useful evidence. Capture status, logs and metrics first.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>1. First Five-Minute Server Check</h2>
+
+    <pre><code>date
+hostnamectl
+uptime
+who
+w
+
+systemctl --failed
+journalctl -p warning --since "30 minutes ago"
+
+free -h
+df -hT
+df -i
+
+top
+ps aux --sort=-%cpu | head
+ps aux --sort=-%mem | head
+
+ip -br address
+ip route
+ss -s
+sudo ss -lntup</code></pre>
+
+    <p>Always capture the exact time:</p>
+
+    <pre><code>date --iso-8601=seconds
+timedatectl</code></pre>
+
+    <div class="note">
+      Accurate time is essential when correlating application,
+      kernel, database, proxy and monitoring logs.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>2. Server Unreachable</h2>
+
+    <h3>Diagnostic order</h3>
+
+    <ol>
+      <li>Confirm hostname and IP address.</li>
+      <li>Check monitoring or cloud-instance state.</li>
+      <li>Test network reachability.</li>
+      <li>Check the required port.</li>
+      <li>Check host and external firewall rules.</li>
+      <li>Use console access if SSH is unavailable.</li>
+    </ol>
+
+    <h3>From the client</h3>
+
+    <pre><code>getent ahosts SERVER_NAME
+ping -c 4 SERVER_IP
+tracepath SERVER_IP
+nc -vz SERVER_IP PORT
+curl -v --connect-timeout 5 \
+  http://SERVER_IP:PORT</code></pre>
+
+    <h3>From the server console</h3>
+
+    <pre><code>ip -br address
+ip route
+ip neigh
+sudo ss -lntup
+systemctl --failed
+sudo nft list ruleset</code></pre>
+
+    <table>
+      <tr>
+        <th>Symptom</th>
+        <th>Likely direction</th>
+      </tr>
+
+      <tr>
+        <td>Connection refused</td>
+        <td>Host reachable, but service not listening or actively rejecting</td>
+      </tr>
+
+      <tr>
+        <td>Connection timeout</td>
+        <td>Routing, firewall, security group or packet loss</td>
+      </tr>
+
+      <tr>
+        <td>No route to host</td>
+        <td>Missing route, gateway, interface or firewall rejection</td>
+      </tr>
+    </table>
+
+  </section>
+
+  <section class="card">
+
+    <h2>3. High CPU Usage</h2>
+
+    <pre><code>uptime
+top
+mpstat -P ALL 1 5
+pidstat -u 1 5
+
+ps -eo pid,ppid,user,stat,pcpu,pmem,comm \
+  --sort=-pcpu | head -20</code></pre>
+
+    <p>Inspect threads of a process:</p>
+
+    <pre><code>top -H -p PID
+
+ps -L -p PID \
+  -o pid,tid,psr,stat,pcpu,comm \
+  --sort=-pcpu</code></pre>
+
+    <p>Check whether CPU time is user, system, I/O wait or steal:</p>
+
+    <pre><code>vmstat 1 5
+mpstat 1 5</code></pre>
+
+    <ul>
+      <li><strong>us:</strong> application code</li>
+      <li><strong>sy:</strong> kernel activity</li>
+      <li><strong>wa:</strong> waiting for I/O</li>
+      <li><strong>st:</strong> hypervisor stole CPU time</li>
+    </ul>
+
+    <p>Optional deeper profiling:</p>
+
+    <pre><code>sudo perf top
+sudo strace -c -p PID</code></pre>
+
+    <div class="warning">
+      Do not kill the highest-CPU process until you know its role,
+      dependencies and impact.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>4. High Load Average</h2>
+
+    <p>
+      Load average counts runnable tasks and tasks in uninterruptible
+      sleep. High load does not always mean high CPU usage.
+    </p>
+
+    <pre><code>uptime
+cat /proc/loadavg
+nproc
+vmstat 1 5
+
+ps -eo state,pid,ppid,wchan:32,comm \
+  | awk '$1 ~ /D|R/'</code></pre>
+
+    <p>Check storage pressure:</p>
+
+    <pre><code>iostat -xz 1 5
+pidstat -d 1 5
+sudo dmesg -T | tail -100</code></pre>
+
+    <table>
+      <tr>
+        <th>CPU usage</th>
+        <th>Load</th>
+        <th>Likely direction</th>
+      </tr>
+
+      <tr>
+        <td>High</td>
+        <td>High</td>
+        <td>CPU-bound workload</td>
+      </tr>
+
+      <tr>
+        <td>Low</td>
+        <td>High</td>
+        <td>I/O wait, blocked storage or network filesystem</td>
+      </tr>
+
+      <tr>
+        <td>High steal</td>
+        <td>High</td>
+        <td>Virtualization host contention</td>
+      </tr>
+    </table>
+
+  </section>
+
+  <section class="card">
+
+    <h2>5. Memory Exhaustion</h2>
+
+    <pre><code>free -h
+cat /proc/meminfo
+vmstat 1 5
+
+ps -eo pid,user,rss,vsz,pmem,comm \
+  --sort=-rss | head -20</code></pre>
+
+    <p>Inspect a specific process:</p>
+
+    <pre><code>cat /proc/PID/status
+cat /proc/PID/smaps_rollup
+pmap -x PID | tail -20</code></pre>
+
+    <p>Check swap activity:</p>
+
+    <pre><code>swapon --show
+cat /proc/swaps
+vmstat 1 10</code></pre>
+
+    <div class="note">
+      Low “free” memory is not automatically a problem. Linux uses
+      otherwise unused RAM for cache. Check <code>available</code>,
+      swap activity, reclaim pressure and application behaviour.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>6. OOM Kills</h2>
+
+    <p>Search kernel logs:</p>
+
+    <pre><code>sudo journalctl -k \
+  | grep -Ei 'oom|out of memory|killed process'
+
+sudo dmesg -T \
+  | grep -Ei 'oom|out of memory|killed process'</code></pre>
+
+    <p>Inspect the process or service:</p>
+
+    <pre><code>systemctl show SERVICE_NAME \
+  -p MemoryCurrent \
+  -p MemoryMax \
+  -p MemoryHigh \
+  -p OOMPolicy \
+  -p OOMScoreAdjust
+
+cat /proc/PID/oom_score
+cat /proc/PID/oom_score_adj
+cat /proc/PID/cgroup</code></pre>
+
+    <p>For the relevant cgroup v2 directory:</p>
+
+    <pre><code>cat memory.current
+cat memory.max
+cat memory.events
+cat memory.stat</code></pre>
+
+    <ol>
+      <li>Confirm whether it was system-wide or cgroup OOM.</li>
+      <li>Identify the killed process.</li>
+      <li>Compare usage with the configured limit.</li>
+      <li>Check for leaks, traffic spikes and oversized caches.</li>
+      <li>Right-size the application and limit after measurement.</li>
+    </ol>
+
+  </section>
+
+  <section class="card">
+
+    <h2>7. Disk Full</h2>
+
+    <pre><code>df -hT
+findmnt
+lsblk -f
+
+sudo du -xhd1 / 2&gt;/dev/null \
+  | sort -h
+
+sudo du -xhd1 /var 2&gt;/dev/null \
+  | sort -h</code></pre>
+
+    <p>Find large files without crossing filesystems:</p>
+
+    <pre><code>sudo find /var \
+  -xdev \
+  -type f \
+  -size +500M \
+  -printf '%s %p\n' 2&gt;/dev/null \
+  | sort -n</code></pre>
+
+    <p>Check journal usage:</p>
+
+    <pre><code>journalctl --disk-usage
+sudo du -sh /var/log/* 2&gt;/dev/null</code></pre>
+
+    <div class="warning">
+      Do not blindly delete logs, database files or application data.
+      Identify ownership, retention policy and recovery impact first.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>8. Inode Exhaustion</h2>
+
+    <p>
+      A filesystem can have free storage space but still reject new
+      files when all inodes are used.
+    </p>
+
+    <pre><code>df -i
+df -hT
+
+sudo du --inodes -x -d1 /var \
+  2&gt;/dev/null | sort -n</code></pre>
+
+    <p>Count files in a suspected directory:</p>
+
+    <pre><code>sudo find /suspected/path \
+  -xdev \
+  -type f \
+  -printf '.' 2&gt;/dev/null \
+  | wc -c</code></pre>
+
+    <p>Common causes:</p>
+
+    <ul>
+      <li>Session files</li>
+      <li>Mail queues</li>
+      <li>Application cache files</li>
+      <li>Unrotated small logs</li>
+      <li>Temporary files</li>
+      <li>Container storage layers</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>9. Filesystem Mount Failure</h2>
+
+    <pre><code>lsblk -f
+sudo blkid
+findmnt
+findmnt --verify
+cat /etc/fstab
+
+systemctl --failed \
+  --type=mount
+
+sudo journalctl -b \
+  | grep -Ei 'mount|filesystem|fsck'
+
+sudo dmesg -T \
+  | grep -Ei 'I/O error|filesystem|ext4|xfs'</code></pre>
+
+    <p>Check a specific mount unit:</p>
+
+    <pre><code>systemctl status \
+  path-to-mount.mount
+
+journalctl -u \
+  path-to-mount.mount</code></pre>
+
+    <p>Verify:</p>
+
+    <ul>
+      <li>Correct UUID or device</li>
+      <li>Correct filesystem type</li>
+      <li>Mount-point directory exists</li>
+      <li>Storage device is visible</li>
+      <li>Network storage is reachable</li>
+      <li>Filesystem is not corrupted</li>
+    </ul>
+
+    <div class="warning">
+      Never run filesystem repair against a mounted production
+      filesystem. Confirm backups and follow the filesystem-specific
+      recovery procedure.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>10. Service Down</h2>
+
+    <pre><code>systemctl status SERVICE_NAME \
+  --no-pager -l
+
+systemctl is-active SERVICE_NAME
+systemctl is-enabled SERVICE_NAME
+systemctl --failed
+
+journalctl -u SERVICE_NAME \
+  --since "30 minutes ago"
+
+systemctl show SERVICE_NAME \
+  -p Result \
+  -p ExecMainStatus \
+  -p ExecMainCode \
+  -p MainPID</code></pre>
+
+    <p>Inspect the complete unit:</p>
+
+    <pre><code>systemctl cat SERVICE_NAME
+systemctl show SERVICE_NAME
+systemctl list-dependencies SERVICE_NAME</code></pre>
+
+    <p>Validate the application configuration before restarting:</p>
+
+    <pre><code>APPLICATION_BINARY --test-config</code></pre>
+
+    <div class="note">
+      The exact configuration-test command depends on the application.
+      Examples include <code>nginx -t</code> and <code>sshd -t</code>.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>11. Port Unavailable</h2>
+
+    <pre><code>sudo ss -lntup
+sudo ss -ltnp 'sport = :PORT'
+sudo lsof -i :PORT
+sudo fuser -v PORT/tcp
+
+curl -v http://127.0.0.1:PORT
+nc -vz 127.0.0.1 PORT</code></pre>
+
+    <p>Verify the listening address:</p>
+
+    <ul>
+      <li><code>127.0.0.1:PORT</code> — accessible locally only</li>
+      <li><code>0.0.0.0:PORT</code> — listening on all IPv4 addresses</li>
+      <li><code>[::]:PORT</code> — listening on IPv6 and possibly IPv4</li>
+    </ul>
+
+    <p>Check firewall:</p>
+
+    <pre><code>sudo nft list ruleset
+sudo ufw status verbose
+sudo firewall-cmd --list-all</code></pre>
+
+    <ol>
+      <li>Confirm the process is running.</li>
+      <li>Confirm the port is listening.</li>
+      <li>Test locally.</li>
+      <li>Test from the same network.</li>
+      <li>Check host and external firewalls.</li>
+      <li>Check proxy and load-balancer health.</li>
+    </ol>
+
+  </section>
+
+  <section class="card">
+
+    <h2>12. DNS Failure</h2>
+
+    <pre><code>cat /etc/resolv.conf
+grep '^hosts:' /etc/nsswitch.conf
+
+getent ahosts example.com
+resolvectl status
+resolvectl query example.com
+
+dig example.com
+dig @DNS_SERVER example.com
+dig +trace example.com</code></pre>
+
+    <p>Separate DNS from network failure:</p>
+
+    <pre><code>ping -c 3 IP_ADDRESS
+curl -v http://IP_ADDRESS
+getent hosts example.com</code></pre>
+
+    <table>
+      <tr>
+        <th>Test result</th>
+        <th>Direction</th>
+      </tr>
+
+      <tr>
+        <td>IP works, name fails</td>
+        <td>Resolver, DNS server, search domain or DNS record</td>
+      </tr>
+
+      <tr>
+        <td>IP and name both fail</td>
+        <td>General network, routing or firewall issue</td>
+      </tr>
+
+      <tr>
+        <td>One resolver works</td>
+        <td>Configured DNS server problem</td>
+      </tr>
+    </table>
+
+  </section>
+
+  <section class="card">
+
+    <h2>13. Network Connectivity Failure</h2>
+
+    <pre><code>ip -br link
+ip -br address
+ip route
+ip rule
+ip neigh
+
+ping -c 4 DEFAULT_GATEWAY
+tracepath DESTINATION_IP
+ss -s
+
+sudo ethtool INTERFACE
+sudo journalctl -k \
+  | grep -Ei 'link|network|firmware|nic'</code></pre>
+
+    <p>Check route selection:</p>
+
+    <pre><code>ip route get DESTINATION_IP</code></pre>
+
+    <p>Check NetworkManager when used:</p>
+
+    <pre><code>nmcli device status
+nmcli connection show
+journalctl -u NetworkManager \
+  --since "30 minutes ago"</code></pre>
+
+    <p>Troubleshoot layer by layer:</p>
+
+    <ol>
+      <li>Interface link</li>
+      <li>IP address and subnet</li>
+      <li>Default or specific route</li>
+      <li>Neighbour resolution</li>
+      <li>Firewall</li>
+      <li>DNS</li>
+      <li>Application port</li>
+    </ol>
+
+  </section>
+
+  <section class="card">
+
+    <h2>14. SSH Failure</h2>
+
+    <h3>From the client</h3>
+
+    <pre><code>ssh -vvv USER@SERVER
+nc -vz SERVER 22
+getent ahosts SERVER</code></pre>
+
+    <h3>From server console</h3>
+
+    <pre><code>sudo sshd -t
+sudo sshd -T
+sudo ss -ltnp | grep ':22'
+
+sudo systemctl status ssh sshd
+sudo journalctl \
+  -u ssh \
+  -u sshd \
+  --since "30 minutes ago"</code></pre>
+
+    <p>Check the user and key path:</p>
+
+    <pre><code>getent passwd USERNAME
+passwd -S USERNAME
+namei -l \
+  /home/USERNAME/.ssh/authorized_keys
+
+ls -ld /home/USERNAME/.ssh
+ls -l \
+  /home/USERNAME/.ssh/authorized_keys</code></pre>
+
+    <p>Also verify:</p>
+
+    <ul>
+      <li>Firewall and cloud security rules</li>
+      <li>Correct username and key</li>
+      <li>Account is not locked or expired</li>
+      <li>AllowUsers and AllowGroups rules</li>
+      <li>SELinux or AppArmor denials</li>
+      <li>Filesystem has free space and inodes</li>
+    </ul>
+
+    <div class="warning">
+      Keep the existing administrator session open while testing SSH
+      changes from a second terminal.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h22>15. Permission Denied</h2>
+
+    <pre><code>id
+id USERNAME
+
+ls -ld /path
+namei -l /path/to/file
+stat /path/to/file
+getfacl /path/to/file
+
+findmnt -T /path/to/file \
+  -o TARGET,SOURCE,FSTYPE,OPTIONS</code></pre>
+
+    <p>Check mandatory access controls:</p>
+
+    <pre><code>ls -lZ /path/to/file
+getenforce
+sudo ausearch -m AVC -ts recent
+
+sudo aa-status
+sudo journalctl -k \
+  | grep -i apparmor</code></pre>
+
+    <p>Possible causes:</p>
+
+    <ul>
+      <li>Owner or group mismatch</li>
+      <li>Missing directory execute permission</li>
+      <li>ACL override</li>
+      <li>SELinux context or policy denial</li>
+      <li>AppArmor profile denial</li>
+      <li>Read-only or noexec mount</li>
+      <li>Service running as a different account</li>
+    </ul>
+
+    <div class="warning">
+      Avoid using <code>chmod 777</code> as a troubleshooting fix.
+      Identify the exact required access and grant the minimum permission.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>16. Package Installation Failure</h2>
+
+    <h3>Debian and Ubuntu investigation</h3>
+
+    <pre><code>sudo apt update
+apt-cache policy PACKAGE_NAME
+dpkg --audit
+sudo apt-get check
+
+ps aux \
+  | grep -E 'apt|dpkg' \
+  | grep -v grep
+
+df -h
+df -i</code></pre>
+
+    <p>After confirming no package manager is running:</p>
+
+    <pre><code>sudo dpkg --configure -a
+sudo apt --fix-broken install</code></pre>
+
+    <h3>RHEL-family investigation</h3>
+
+    <pre><code>sudo dnf repolist
+sudo dnf check
+sudo dnf list PACKAGE_NAME
+sudo dnf history
+sudo rpm -Va</code></pre>
+
+    <p>Check repository and network access:</p>
+
+    <pre><code>getent hosts REPOSITORY_HOST
+curl -I REPOSITORY_URL
+timedatectl</code></pre>
+
+    <div class="warning">
+      Never delete package-manager lock files just because an error
+      mentions a lock. First verify whether another package operation
+      is genuinely running.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>17. Boot Failure</h2>
+
+    <p>When the system boots into rescue or emergency mode:</p>
+
+    <pre><code>systemctl --failed
+systemctl status
+journalctl -xb
+journalctl -p err -b
+journalctl -k -b
+
+lsblk -f
+findmnt
+findmnt --verify
+cat /etc/fstab</code></pre>
+
+    <p>Inspect the previous boot:</p>
+
+    <pre><code>journalctl --list-boots
+journalctl -b -1 -p warning
+journalctl -k -b -1</code></pre>
+
+    <p>Analyze boot time:</p>
+
+    <pre><code>systemd-analyze
+systemd-analyze blame
+systemd-analyze critical-chain</code></pre>
+
+    <p>Common causes:</p>
+
+    <ul>
+      <li>Invalid <code>/etc/fstab</code> entry</li>
+      <li>Missing storage device</li>
+      <li>Filesystem corruption</li>
+      <li>Broken initramfs</li>
+      <li>Kernel or driver problem</li>
+      <li>Failed required service</li>
+      <li>Incorrect bootloader configuration</li>
+    </ul>
+
+    <div class="warning">
+      Bootloader, initramfs and filesystem recovery commands are
+      distribution-specific. Confirm the exact system and preserve
+      recovery access before changing them.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>18. Slow Application</h2>
+
+    <p>Measure every layer:</p>
+
+    <ol>
+      <li>Client and DNS time</li>
+      <li>Network connection time</li>
+      <li>Proxy or load balancer</li>
+      <li>Application processing</li>
+      <li>Database or external dependency</li>
+      <li>CPU, memory and storage</li>
+    </ol>
+
+    <pre><code>curl -sS -o /dev/null \
+  -w 'dns=%{time_namelookup}
+connect=%{time_connect}
+tls=%{time_appconnect}
+first_byte=%{time_starttransfer}
+total=%{time_total}\n' \
+  https://APPLICATION_URL</code></pre>
+
+    <p>Inspect the server:</p>
+
+    <pre><code>uptime
+vmstat 1 5
+iostat -xz 1 5
+pidstat -u -r -d 1 5
+ss -s
+
+systemctl status SERVICE_NAME
+journalctl -u SERVICE_NAME \
+  --since "30 minutes ago"</code></pre>
+
+    <p>Optional deeper inspection:</p>
+
+    <pre><code>sudo strace -c -p PID
+sudo perf top -p PID
+sudo lsof -p PID</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>19. Log Investigation</h2>
+
+    <pre><code>journalctl --list-boots
+journalctl -b
+journalctl -b -1
+journalctl -k
+journalctl -p warning
+
+journalctl \
+  --since "2026-08-26 10:00:00" \
+  --until "2026-08-26 10:15:00"
+
+journalctl -u SERVICE_NAME
+journalctl _PID=PID
+journalctl -f</code></pre>
+
+    <p>Useful options:</p>
+
+    <pre><code>journalctl --no-pager
+journalctl -n 100
+journalctl -o short-iso
+journalctl -o verbose
+journalctl --disk-usage</code></pre>
+
+    <p>Traditional logs may exist under:</p>
+
+    <pre><code>/var/log/syslog
+/var/log/messages
+/var/log/auth.log
+/var/log/secure
+/var/log/kern.log
+/var/log/audit/audit.log</code></pre>
+
+    <h3>Investigation approach</h3>
+
+    <ol>
+      <li>Define the exact time window.</li>
+      <li>Start with application and service logs.</li>
+      <li>Correlate proxy, database and kernel logs.</li>
+      <li>Search by request ID, user, PID, IP or error code.</li>
+      <li>Compare with deployment and monitoring events.</li>
+    </ol>
+
+  </section>
+
+  <section class="card">
+
+    <h2>20. Deleted-Open-File Disk Issue</h2>
+
+    <p>
+      A process can keep disk blocks allocated after a file has been
+      deleted. This can make <code>df</code> show high usage while
+      <code>du</code> cannot find the data.
+    </p>
+
+    <pre><code>df -h
+sudo du -xsh /
+sudo lsof +L1</code></pre>
+
+    <p>Inspect a specific process:</p>
+
+    <pre><code>sudo ls -l /proc/PID/fd
+sudo lsof -p PID | grep deleted</code></pre>
+
+    <h3>Safe resolution flow</h3>
+
+    <ol>
+      <li>Identify the process and deleted descriptor.</li>
+      <li>Confirm whether it is a service, database or critical workload.</li>
+      <li>Preserve needed data or logs.</li>
+      <li>Gracefully restart or reload the owning process.</li>
+      <li>Confirm space is released with <code>df -h</code>.</li>
+      <li>Fix log rotation or application behaviour.</li>
+    </ol>
+
+    <div class="warning">
+      Do not terminate an important database or production process
+      without understanding its recovery behaviour.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>21. Environment Variable Issues</h2>
+
+    <p>Inspect the current shell:</p>
+
+    <pre><code>env | sort
+printenv VARIABLE_NAME
+echo "$PATH"
+type -a COMMAND_NAME
+command -v COMMAND_NAME</code></pre>
+
+    <p>Inspect a running process carefully:</p>
+
+    <pre><code>sudo tr '\0' '\n' \
+  &lt; /proc/PID/environ</code></pre>
+
+    <p>Inspect a systemd service:</p>
+
+    <pre><code>systemctl cat SERVICE_NAME
+
+systemctl show SERVICE_NAME \
+  -p User \
+  -p Group \
+  -p Environment \
+  -p EnvironmentFiles \
+  -p WorkingDirectory \
+  -p ExecStart</code></pre>
+
+    <p>Common causes:</p>
+
+    <ul>
+      <li>Variable set in a shell profile but not in systemd</li>
+      <li>Different PATH for interactive and service accounts</li>
+      <li>Missing EnvironmentFile</li>
+      <li>Incorrect quoting</li>
+      <li>Service not restarted after configuration change</li>
+      <li>Secret injected into the wrong environment</li>
+    </ul>
+
+    <div class="warning">
+      Process environments may contain credentials and tokens.
+      Never paste complete environment output into public logs or chat.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>22. Evidence Collection Before Changes</h2>
+
+    <pre><code>date --iso-8601=seconds
+hostnamectl
+uptime
+
+systemctl --failed
+journalctl -p warning \
+  --since "30 minutes ago"
+
+free -h
+df -hT
+df -i
+vmstat 1 5
+
+ip -br address
+ip route
+ss -s
+sudo ss -lntup
+
+ps auxf
+sudo dmesg -T | tail -100</code></pre>
+
+    <p>Record:</p>
+
+    <ul>
+      <li>Exact symptom and error</li>
+      <li>Start time and duration</li>
+      <li>Affected hosts and users</li>
+      <li>Recent deployments and configuration changes</li>
+      <li>Commands run and their results</li>
+      <li>Fix applied and validation performed</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>🧪 Hands-On Troubleshooting Labs</h2>
+
+    <h3>Lab 1 — Baseline collection</h3>
+
+    <pre><code>uptime
+free -h
+df -hT
+df -i
+systemctl --failed
+journalctl -p warning -n 20</code></pre>
+
+    <h3>Lab 2 — Process analysis</h3>
+
+    <pre><code>ps -eo pid,ppid,user,stat,pcpu,pmem,comm \
+  --sort=-pcpu | head
+
+ps -eo pid,ppid,user,stat,pcpu,pmem,comm \
+  --sort=-pmem | head</code></pre>
+
+    <h3>Lab 3 — Network path</h3>
+
+    <pre><code>ip -br address
+ip route
+ip route get 1.1.1.1
+getent hosts example.com
+curl -I https://example.com</code></pre>
+
+    <h3>Lab 4 — Service investigation</h3>
+
+    <pre><code>systemctl status ssh sshd
+systemctl cat ssh.service
+systemctl cat sshd.service
+journalctl -u ssh -u sshd -n 30</code></pre>
+
+    <h3>Lab 5 — Disk comparison</h3>
+
+    <pre><code>df -hT
+df -i
+du -xhd1 /var 2&gt;/dev/null | sort -h
+sudo lsof +L1</code></pre>
+
+    <h3>Lab 6 — Boot analysis</h3>
+
+    <pre><code>systemd-analyze
+systemd-analyze blame | head -20
+systemd-analyze critical-chain
+journalctl --list-boots</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>🎯 Interview Questions</h2>
+
+    <h3>What is your first troubleshooting step?</h3>
+
+    <p>
+      Confirm the exact symptom, scope and start time, then collect
+      evidence before changing the system.
+    </p>
+
+    <h3>High load but low CPU—what could cause it?</h3>
+
+    <p>
+      Processes may be blocked in uninterruptible sleep, commonly due
+      to storage, device or network-filesystem I/O.
+    </p>
+
+    <h3>Why can df and du show different usage?</h3>
+
+    <p>
+      Deleted files may still be held open by processes, files may be
+      hidden beneath mount points, or the commands may be measuring
+      different filesystem boundaries.
+    </p>
+
+    <h3>Connection refused vs timeout?</h3>
+
+    <p>
+      Refused usually means the host responded but the port was not
+      accepting connections. Timeout commonly indicates dropped traffic,
+      routing failure or an unreachable host.
+    </p>
+
+    <h3>How do you confirm an OOM kill?</h3>
+
+    <p>
+      Inspect kernel logs and cgroup memory events, identify the killed
+      process and compare usage against system or service limits.
+    </p>
+
+    <h3>Why might an application work manually but fail in systemd?</h3>
+
+    <p>
+      systemd can use a different user, working directory, environment,
+      PATH, resource limit or security sandbox.
+    </p>
+
+    <h3>Why avoid chmod 777?</h3>
+
+    <p>
+      It grants excessive access and can hide the real ownership, ACL,
+      SELinux, AppArmor or mount problem.
+    </p>
+
+    <h3>Why collect logs before restarting?</h3>
+
+    <p>
+      Restarting can clear process state, rotate logs and remove evidence
+      needed to identify the root cause.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Production Troubleshooting Checklist</h2>
+
+    <ul>
+      <li>Confirm the exact symptom.</li>
+      <li>Record the time and affected scope.</li>
+      <li>Check recent changes.</li>
+      <li>Capture metrics and logs before restarting.</li>
+      <li>Check CPU, memory, disk, network and application layers.</li>
+      <li>Distinguish symptoms from root causes.</li>
+      <li>Use the smallest reversible fix.</li>
+      <li>Validate from the end-user perspective.</li>
+      <li>Monitor after recovery.</li>
+      <li>Document root cause and prevention work.</li>
+    </ul>
+
+  </section>
+
+  <section class="card docs">
+
+    <h2>📖 Official Documentation</h2>
+
+    <a href="https://www.freedesktop.org/software/systemd/man/systemctl.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      systemd — systemctl
+    </a>
+
+    <a href="https://www.freedesktop.org/software/systemd/man/journalctl.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      systemd — journalctl
+    </a>
+
+    <a href="https://www.freedesktop.org/software/systemd/man/systemd-analyze.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      systemd — systemd-analyze
+    </a>
+
+    <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/monitoring_and_managing_system_status_and_performance/index"
+       target="_blank"
+       rel="noopener noreferrer">
+      Red Hat — Monitoring System Status and Performance
+    </a>
+
+    <a href="https://docs.kernel.org/filesystems/proc.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Kernel — /proc Filesystem
+    </a>
+
+    <a href="https://man7.org/linux/man-pages/man1/top.1.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Manual — top(1)
+    </a>
+
+    <a href="https://man7.org/linux/man-pages/man1/fuser.1.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Manual — fuser(1)
+    </a>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Completion Standard</h2>
+
+    <p>You should be able to troubleshoot:</p>
+
+    <ul>
+      <li>Server unreachable</li>
+      <li>High CPU and high load</li>
+      <li>Memory exhaustion and OOM kills</li>
+      <li>Disk and inode exhaustion</li>
+      <li>Filesystem mount failure</li>
+      <li>Service and port failures</li>
+      <li>DNS and network connectivity</li>
+      <li>SSH and permission failures</li>
+      <li>Package and boot failures</li>
+      <li>Slow applications and logs</li>
+      <li>Deleted-open files</li>
+      <li>Environment variable problems</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Topic Progress</h2>
+
+    <p id="completeStatus">
+      Mark this topic complete after studying all scenarios,
+      commands, labs and interview questions.
+    </p>
+
+    <button class="complete-button"
+            onclick="markTopicComplete()">
+      Mark Topic Complete
+    </button>
+
+  </section>
+
+</main>
+
+<script>
+  const currentTopic = "Linux Troubleshooting";
+
+  function loadTopicCompletion() {
+    if (
+      localStorage.getItem(currentTopic) === "done"
+    ) {
+      document.getElementById("completeStatus")
+        .innerHTML = "✅ <b>Completed</b>";
+    }
+  }
+
+  function markTopicComplete() {
+    localStorage.setItem(currentTopic, "done");
+
+    document.getElementById("completeStatus")
+      .innerHTML = "✅ <b>Completed</b>";
+  }
+
+  loadTopicCompletion();
+</script>
+
+</body>
+</html>

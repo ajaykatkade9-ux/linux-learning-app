@@ -1,0 +1,45 @@
+.bi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1em;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.bi::before {
+  content: "•";
+  font-family: inherit !important;
+}
+
+.bi-terminal::before { content: ">_"; font-size: 0.72em; letter-spacing: -0.08em; }
+.bi-house-door::before { content: "⌂"; }
+.bi-book::before { content: "▤"; }
+.bi-arrow-repeat::before { content: "↻"; }
+.bi-tools::before { content: "⚙"; }
+.bi-bullseye::before { content: "◎"; }
+.bi-bar-chart::before { content: "▥"; }
+.bi-journal-text::before,
+.bi-journal-code::before { content: "≡"; }
+.bi-floppy::before { content: "▣"; }
+.bi-file-earmark-text::before { content: "▧"; }
+.bi-moon-stars::before { content: "◐"; }
+.bi-sun::before { content: "☀"; }
+.bi-lightning-charge::before { content: "ϟ"; }
+.bi-list::before,
+.bi-list-ul::before { content: "☰"; }
+.bi-calendar-check::before,
+.bi-calendar2-check::before { content: "✓"; }
+.bi-play-fill::before { content: "▶"; font-size: 0.82em; }
+.bi-arrow-right::before { content: "→"; }
+.bi-chevron-right::before { content: "›"; }
+.bi-copy::before { content: "□"; }
+.bi-check2::before { content: "✓"; }
+.bi-arrow-up::before { content: "↑"; }
+.bi-download::before { content: "↓"; }
+.bi-upload::before { content: "↑"; }
+.bi-shield-check::before { content: "◇"; }
+.bi-chat-dots::before { content: "✦"; }
+.bi-person::before { content: "●"; font-size: 0.72em; }
+.bi-trash::before { content: "×"; font-size: 1.15em; }

@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Linux Interview Preparation</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      color: #1f2937;
+      background: #f5f7fb;
+    }
+
+    .container {
+      width: min(1000px, 100%);
+      margin: auto;
+    }
+
+    .back {
+      color: #1d4ed8;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .hero,
+    .card {
+      padding: 25px;
+      margin: 22px 0;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .hero {
+      color: white;
+      background: linear-gradient(135deg, #111827, #7e22ce);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.3;
+    }
+
+    h2 {
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    details {
+      padding: 15px;
+      margin: 14px 0;
+      background: #f8fafc;
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+    }
+
+    summary {
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    pre {
+      padding: 17px;
+      overflow-x: auto;
+      color: #d1fae5;
+      background: #111827;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+
+    code {
+      font-family: Consolas, monospace;
+    }
+
+    .note,
+    .warning,
+    .success {
+      padding: 16px;
+      margin: 18px 0;
+      border-radius: 10px;
+    }
+
+    .note {
+      background: #eff6ff;
+      border-left: 5px solid #2563eb;
+    }
+
+    .warning {
+      background: #fff7ed;
+      border-left: 5px solid #ea580c;
+    }
+
+    .success {
+      background: #ecfdf5;
+      border-left: 5px solid #16a34a;
+    }
+
+    table {
+      width: 100%;
+      margin: 18px 0;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #d1d5db;
+    }
+
+    th {
+      background: #e5e7eb;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .complete-button {
+      padding: 13px 20px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      background: #15803d;
+      border: 0;
+      border-radius: 9px;
+    }
+
+    .complete-button:hover {
+      background: #166534;
+    }
+
+    .docs a {
+      display: block;
+      margin: 10px 0;
+      color: #1d4ed8;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      .hero,
+      .card {
+        padding: 19px;
+      }
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+  <script defer src="interview-prep.js"></script>
+</head>
+
+<body>
+
+<main class="container">
+
+  <a class="back" href="linux.html">
+    ← Back to Linux Course
+  </a>
+
+  <section class="hero">
+    <h1>🎯 Linux Interview Preparation</h1>
+
+    <p>
+      Concept, command, architecture, troubleshooting,
+      production incident and mock-interview practice.
+    </p>
+  </section>
+
+  <section class="card">
+
+    <h2>⚡ Strong Answer Framework</h2>
+
+    <p>For troubleshooting questions, answer in this order:</p>
+
+    <ol>
+      <li><strong>Clarify:</strong> symptom, scope, time and impact.</li>
+      <li><strong>Check:</strong> recent changes and current system state.</li>
+      <li><strong>Measure:</strong> use commands and explain what each proves.</li>
+      <li><strong>Isolate:</strong> identify the failing layer.</li>
+      <li><strong>Fix:</strong> apply the smallest safe change.</li>
+      <li><strong>Verify:</strong> test from the user’s perspective.</li>
+      <li><strong>Prevent:</strong> monitoring, documentation and automation.</li>
+    </ol>
+
+    <div class="success">
+      A strong interview answer explains both the command and the
+      evidence you expect from its output.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>1. Linux Concept Questions</h2>
+
+    <details>
+      <summary>1. What is the Linux kernel?</summary>
+
+      <p>
+        The kernel is the privileged core of Linux. It manages CPU
+        scheduling, memory, devices, filesystems, networking, security
+        and the system-call interface used by applications.
+      </p>
+    </details>
+
+    <details>
+      <summary>2. Kernel vs shell?</summary>
+
+      <p>
+        The kernel manages protected system resources. A shell is a
+        user-space command interpreter such as Bash that starts programs,
+        performs expansion and connects commands using pipes and redirection.
+      </p>
+    </details>
+
+    <details>
+      <summary>3. Process vs thread?</summary>
+
+      <p>
+        A process has its own virtual address space and resources.
+        Threads are execution units inside a process and normally share
+        its memory, open files and other resources.
+      </p>
+    </details>
+
+    <details>
+      <summary>4. What are PID and PPID?</summary>
+
+      <p>
+        PID identifies a process. PPID identifies its parent process.
+        They can be inspected using:
+      </p>
+
+      <pre><code>ps -o pid,ppid,stat,comm -p PID
+cat /proc/PID/status</code></pre>
+    </details>
+
+    <details>
+      <summary>5. Zombie vs orphan process?</summary>
+
+      <p>
+        A zombie has exited but its parent has not collected its exit
+        status. An orphan is still running after its parent exits and is
+        adopted by a subreaper or PID 1.
+      </p>
+    </details>
+
+    <details>
+      <summary>6. What is load average?</summary>
+
+      <p>
+        Load average represents the average number of runnable tasks and
+        tasks in uninterruptible sleep over 1, 5 and 15 minutes. It must
+        be interpreted with CPU count and I/O activity.
+      </p>
+    </details>
+
+    <details>
+      <summary>7. What is an inode?</summary>
+
+      <p>
+        An inode stores filesystem metadata such as ownership,
+        permissions, timestamps and data-block references. The filename
+        is stored in a directory entry that points to the inode.
+      </p>
+    </details>
+
+    <details>
+      <summary>8. Hard link vs symbolic link?</summary>
+
+      <p>
+        A hard link is another directory entry for the same inode.
+        A symbolic link is a separate file containing a path to another
+        file. Symbolic links can cross filesystems; normal hard links cannot.
+      </p>
+    </details>
+
+    <details>
+      <summary>9. What do Linux permission numbers mean?</summary>
+
+      <p>
+        Read is 4, write is 2 and execute is 1. Values are added for
+        owner, group and others. For example, 750 means owner rwx,
+        group r-x and others no access.
+      </p>
+    </details>
+
+    <details>
+      <summary>10. What is systemd?</summary>
+
+      <p>
+        systemd is a system and service manager. It manages units,
+        dependencies, startup ordering, service supervision, resource
+        limits, timers, mounts, sockets and related system state.
+      </p>
+    </details>
+
+    <details>
+      <summary>11. /proc vs /sys?</summary>
+
+      <p>
+        <code>/proc</code> mainly exposes process and kernel runtime
+        information. <code>/sys</code> exposes kernel objects, devices,
+        drivers and their relationships.
+      </p>
+    </details>
+
+    <details>
+      <summary>12. Namespace vs cgroup?</summary>
+
+      <p>
+        A namespace isolates what a process can see. A cgroup accounts
+        for and controls how many CPU, memory, I/O or process resources
+        a group of processes can use.
+      </p>
+    </details>
+
+    <details>
+      <summary>13. Container vs virtual machine?</summary>
+
+      <p>
+        A container runs isolated processes that share the host kernel.
+        A virtual machine normally boots a separate guest kernel using
+        virtualized hardware.
+      </p>
+    </details>
+
+    <details>
+      <summary>14. What is swap?</summary>
+
+      <p>
+        Swap is disk-backed space used for selected memory pages.
+        It can provide additional memory flexibility but is much slower
+        than RAM and does not fix application memory leaks.
+      </p>
+    </details>
+
+    <details>
+      <summary>15. What is a file descriptor?</summary>
+
+      <p>
+        A file descriptor is a per-process integer representing an open
+        kernel resource such as a file, directory, socket or pipe.
+      </p>
+    </details>
+
+  </section>
+
+  <section class="card">
+
+    <h2>2. Command Questions</h2>
+
+    <details>
+      <summary>1. Find the largest files under /var</summary>
+
+      <pre><code>sudo find /var \
+  -xdev \
+  -type f \
+  -printf '%s %p\n' \
+  2&gt;/dev/null \
+  | sort -n \
+  | tail -20</code></pre>
+    </details>
+
+    <details>
+      <summary>2. Find which process listens on a port</summary>
+
+      <pre><code>sudo ss -ltnp 'sport = :PORT'
+sudo lsof -i :PORT
+sudo fuser -v PORT/tcp</code></pre>
+    </details>
+
+    <details>
+      <summary>3. Show top CPU-consuming processes</summary>
+
+      <pre><code>ps -eo pid,ppid,user,stat,pcpu,pmem,comm \
+  --sort=-pcpu | head -20</code></pre>
+    </details>
+
+    <details>
+      <summary>4. Show top memory-consuming processes</summary>
+
+      <pre><code>ps -eo pid,user,rss,vsz,pmem,comm \
+  --sort=-rss | head -20</code></pre>
+    </details>
+
+    <details>
+      <summary>5. Check filesystem space and inode usage</summary>
+
+      <pre><code>df -hT
+df -i</code></pre>
+    </details>
+
+    <details>
+      <summary>6. Find deleted files still held open</summary>
+
+      <pre><code>sudo lsof +L1</code></pre>
+    </details>
+
+    <details>
+      <summary>7. Check service logs from the last 30 minutes</summary>
+
+      <pre><code>journalctl -u SERVICE_NAME \
+  --since "30 minutes ago"</code></pre>
+    </details>
+
+    <details>
+      <summary>8. Check logs from the previous boot</summary>
+
+      <pre><code>journalctl --list-boots
+journalctl -b -1
+journalctl -k -b -1</code></pre>
+    </details>
+
+    <details>
+      <summary>9. Check routing for a destination</summary>
+
+      <pre><code>ip route get DESTINATION_IP</code></pre>
+    </details>
+
+    <details>
+      <summary>10. Test DNS using the system resolver</summary>
+
+      <pre><code>getent ahosts example.com
+resolvectl query example.com</code></pre>
+    </details>
+
+    <details>
+      <summary>11. Inspect every directory permission in a path</summary>
+
+      <pre><code>namei -l /path/to/file
+getfacl /path/to/file</code></pre>
+    </details>
+
+    <details>
+      <summary>12. Find files modified in the last day</summary>
+
+      <pre><code>find /path \
+  -type f \
+  -mtime -1 \
+  -print</code></pre>
+    </details>
+
+    <details>
+      <summary>13. Check open file descriptors of a process</summary>
+
+      <pre><code>ls -l /proc/PID/fd
+sudo lsof -p PID
+cat /proc/PID/limits</code></pre>
+    </details>
+
+    <details>
+      <summary>14. Check a user’s identity and groups</summary>
+
+      <pre><code>id USERNAME
+groups USERNAME
+getent passwd USERNAME
+getent group GROUPNAME</code></pre>
+    </details>
+
+    <details>
+      <summary>15. Search recursively and case-insensitively</summary>
+
+      <pre><code>grep -Rni \
+  --exclude-dir=.git \
+  'SEARCH_TEXT' \
+  /path</code></pre>
+    </details>
+
+  </section>
+
+  <section class="card">
+
+    <h2>3. Troubleshooting Questions</h2>
+
+    <details>
+      <summary>1. How would you troubleshoot high CPU?</summary>
+
+      <pre><code>uptime
+top
+mpstat -P ALL 1 5
+pidstat -u 1 5
+
+ps -eo pid,ppid,stat,pcpu,comm \
+  --sort=-pcpu | head</code></pre>
+
+      <p>
+        Identify the process and thread, determine user vs system CPU,
+        inspect logs and recent changes, profile safely, then validate
+        whether the workload is expected.
+      </p>
+    </details>
+
+    <details>
+      <summary>2. How would you troubleshoot high load but low CPU?</summary>
+
+      <pre><code>vmstat 1 5
+iostat -xz 1 5
+
+ps -eo state,pid,ppid,wchan:32,comm \
+  | awk '$1 ~ /D|R/'</code></pre>
+
+      <p>
+        Look for processes in uninterruptible sleep and storage or
+        network-filesystem latency.
+      </p>
+    </details>
+
+    <details>
+      <summary>3. How would you troubleshoot memory exhaustion?</summary>
+
+      <pre><code>free -h
+vmstat 1 5
+
+ps -eo pid,user,rss,vsz,pmem,comm \
+  --sort=-rss | head
+
+sudo journalctl -k \
+  | grep -Ei 'oom|out of memory|killed process'</code></pre>
+    </details>
+
+    <details>
+      <summary>4. Disk is full—what do you check?</summary>
+
+      <pre><code>df -hT
+df -i
+
+sudo du -xhd1 /var \
+  2&gt;/dev/null | sort -h
+
+sudo lsof +L1</code></pre>
+
+      <p>
+        Separate block exhaustion, inode exhaustion, large data and
+        deleted-open files before deleting anything.
+      </p>
+    </details>
+
+    <details>
+      <summary>5. A systemd service will not start</summary>
+
+      <pre><code>systemctl status SERVICE_NAME \
+  --no-pager -l
+
+journalctl -u SERVICE_NAME \
+  --since "30 minutes ago"
+
+systemctl cat SERVICE_NAME
+systemctl show SERVICE_NAME \
+  -p Result -p ExecMainStatus</code></pre>
+    </details>
+
+    <details>
+      <summary>6. DNS resolution is failing</summary>
+
+      <pre><code>cat /etc/resolv.conf
+grep '^hosts:' /etc/nsswitch.conf
+resolvectl status
+
+getent ahosts example.com
+dig @DNS_SERVER example.com</code></pre>
+
+      <p>
+        Test direct IP connectivity to separate DNS failure from general
+        network failure.
+      </p>
+    </details>
+
+    <details>
+      <summary>7. SSH is unavailable</summary>
+
+      <pre><code>ssh -vvv USER@SERVER
+
+sudo sshd -t
+sudo ss -ltnp | grep ':22'
+sudo systemctl status ssh sshd
+sudo journalctl -u ssh -u sshd</code></pre>
+
+      <p>
+        Check routing, firewall, daemon, user, keys, permissions and
+        SELinux/AppArmor. Keep any working SSH session open.
+      </p>
+    </details>
+
+    <details>
+      <summary>8. Application gets permission denied</summary>
+
+      <pre><code>id
+namei -l /path/to/file
+getfacl /path/to/file
+findmnt -T /path/to/file
+
+ls -lZ /path/to/file
+sudo ausearch -m AVC -ts recent</code></pre>
+    </details>
+
+    <details>
+      <summary>9. Filesystem will not mount</summary>
+
+      <pre><code>lsblk -f
+sudo blkid
+findmnt --verify
+cat /etc/fstab
+
+sudo journalctl -b \
+  | grep -Ei 'mount|filesystem|fsck'</code></pre>
+    </details>
+
+    <details>
+      <summary>10. Server fails after reboot</summary>
+
+      <pre><code>systemctl --failed
+journalctl -xb
+journalctl -p err -b
+
+lsblk -f
+findmnt --verify
+systemd-analyze critical-chain</code></pre>
+    </details>
+
+  </section>
+
+  <section class="card">
+
+    <h2>4. Scenario-Based Questions</h2>
+
+    <details>
+      <summary>1. Application works manually but fails in systemd</summary>
+
+      <p>Compare:</p>
+
+      <ul>
+        <li>User and group</li>
+        <li>Environment and PATH</li>
+        <li>Working directory</li>
+        <li>Resource limits</li>
+        <li>Filesystem access</li>
+        <li>systemd sandboxing</li>
+      </ul>
+
+      <pre><code>systemctl cat SERVICE_NAME
+
+systemctl show SERVICE_NAME \
+  -p User \
+  -p Group \
+  -p Environment \
+  -p WorkingDirectory \
+  -p ExecStart \
+  -p LimitNOFILE</code></pre>
+    </details>
+
+    <details>
+      <summary>2. Service works locally but not remotely</summary>
+
+      <pre><code>sudo ss -ltnp
+curl http://127.0.0.1:PORT
+curl http://SERVER_IP:PORT
+
+sudo nft list ruleset
+ip route</code></pre>
+
+      <p>
+        Check whether it listens only on loopback, then verify host
+        firewall, external firewall, routing and load balancer.
+      </p>
+    </details>
+
+    <details>
+      <summary>3. df shows full but du does not</summary>
+
+      <pre><code>df -hT
+sudo du -xsh /
+sudo lsof +L1
+findmnt</code></pre>
+
+      <p>
+        Look for deleted-open files, hidden data beneath mounts or
+        different filesystem boundaries.
+      </p>
+    </details>
+
+    <details>
+      <summary>4. kill -9 does not remove a process</summary>
+
+      <pre><code>ps -o pid,ppid,stat,wchan:30,comm -p PID
+cat /proc/PID/status</code></pre>
+
+      <p>
+        It may be in uninterruptible kernel sleep or already be a
+        zombie waiting for its parent to collect its exit status.
+      </p>
+    </details>
+
+    <details>
+      <summary>5. Application becomes unavailable after every reboot</summary>
+
+      <pre><code>systemctl is-enabled SERVICE_NAME
+systemctl status SERVICE_NAME
+systemctl list-dependencies SERVICE_NAME
+journalctl -b -u SERVICE_NAME
+systemd-analyze critical-chain</code></pre>
+
+      <p>
+        Check enablement, dependency ordering, storage mounts,
+        network-online requirements, secrets and startup configuration.
+      </p>
+    </details>
+
+    <details>
+      <summary>6. Container exits immediately</summary>
+
+      <pre><code>docker ps -a
+docker logs CONTAINER_NAME
+
+docker inspect \
+  --format '{{json .State}}' \
+  CONTAINER_NAME
+
+docker inspect \
+  --format '{{json .Config.Entrypoint}} {{json .Config.Cmd}}' \
+  CONTAINER_NAME</code></pre>
+    </details>
+
+    <details>
+      <summary>7. Container is OOM-killed</summary>
+
+      <pre><code>docker inspect \
+  --format '{{.State.OOMKilled}}' \
+  CONTAINER_NAME
+
+docker stats --no-stream
+
+sudo journalctl -k \
+  | grep -Ei 'oom|out of memory|killed process'</code></pre>
+    </details>
+
+    <details>
+      <summary>8. Application is intermittently slow</summary>
+
+      <p>
+        Correlate latency with CPU, memory, storage, network, database,
+        dependency and deployment metrics. Compare normal and slow
+        request traces using a precise time window.
+      </p>
+
+      <pre><code>vmstat 1 5
+iostat -xz 1 5
+pidstat -u -r -d 1 5
+ss -s
+journalctl -u SERVICE_NAME \
+  --since "30 minutes ago"</code></pre>
+    </details>
+
+  </section>
+
+  <section class="card">
+
+    <h2>5. Production Incident Questions</h2>
+
+    <details>
+      <summary>Incident 1 — Root filesystem reaches 100%</summary>
+
+      <ol>
+        <li>Confirm impact using <code>df -hT</code> and <code>df -i</code>.</li>
+        <li>Identify the filesystem and largest directories.</li>
+        <li>Check deleted-open files.</li>
+        <li>Protect critical services and preserve evidence.</li>
+        <li>Apply a safe recovery action.</li>
+        <li>Verify writes and application health.</li>
+        <li>Fix retention, rotation or growth monitoring.</li>
+      </ol>
+    </details>
+
+    <details>
+      <summary>Incident 2 — Server load rises after deployment</summary>
+
+      <ol>
+        <li>Record deployment time and affected hosts.</li>
+        <li>Compare CPU, memory, I/O and request rate before and after.</li>
+        <li>Identify hot processes and threads.</li>
+        <li>Check errors, retries and dependency latency.</li>
+        <li>Roll back if the deployment is the confirmed cause.</li>
+        <li>Validate recovery and create regression tests.</li>
+      </ol>
+    </details>
+
+    <details>
+      <summary>Incident 3 — SSH unavailable on every production server</summary>
+
+      <ol>
+        <li>Use approved console or out-of-band access.</li>
+        <li>Check whether a shared firewall or configuration change occurred.</li>
+        <li>Validate SSH configuration before reloading.</li>
+        <li>Restore access using a controlled canary host.</li>
+        <li>Verify named-account and key authentication.</li>
+        <li>Review change controls and staged rollout safeguards.</li>
+      </ol>
+    </details>
+
+    <details>
+      <summary>Incident 4 — Service is healthy but users receive errors</summary>
+
+      <p>
+        “Running” only confirms the process state. Check the complete
+        request path: DNS, load balancer, proxy, port, application health,
+        database, external dependencies and user-specific authorization.
+      </p>
+    </details>
+
+    <details>
+      <summary>Incident 5 — Memory leak causes daily restarts</summary>
+
+      <ol>
+        <li>Graph memory growth over time.</li>
+        <li>Separate RSS, cache and cgroup usage.</li>
+        <li>Capture application profiles before restart.</li>
+        <li>Use a temporary limit or controlled restart only as mitigation.</li>
+        <li>Fix the leak and validate under realistic load.</li>
+      </ol>
+    </details>
+
+  </section>
+
+  <section class="card">
+
+    <h2>6. Architecture Explanation Questions</h2>
+
+    <details>
+      <summary>1. Explain the Linux boot process</summary>
+
+      <ol>
+        <li>Firmware performs hardware initialization.</li>
+        <li>Bootloader selects and loads the kernel and initramfs.</li>
+        <li>Kernel initializes CPU, memory and drivers.</li>
+        <li>Initramfs prepares the real root filesystem.</li>
+        <li>Kernel starts PID 1, commonly systemd.</li>
+        <li>systemd starts targets, services, mounts and sockets.</li>
+      </ol>
+    </details>
+
+    <details>
+      <summary>2. Explain what happens when a command runs</summary>
+
+      <ol>
+        <li>Shell parses and expands the command.</li>
+        <li>Shell resolves the executable using PATH or a direct path.</li>
+        <li>A child process is created.</li>
+        <li>The executable is loaded with <code>execve</code>.</li>
+        <li>Dynamic libraries are mapped when required.</li>
+        <li>The process uses system calls for kernel operations.</li>
+        <li>The parent collects the exit status.</li>
+      </ol>
+    </details>
+
+    <details>
+      <summary>3. Explain a network request to a Linux service</summary>
+
+      <ol>
+        <li>DNS resolves the hostname.</li>
+        <li>The client selects a route and creates a socket.</li>
+        <li>Packets travel through network interfaces and firewalls.</li>
+        <li>The server kernel matches the destination port to a socket.</li>
+        <li>The application accepts and processes the request.</li>
+        <li>The response follows the routing path back.</li>
+      </ol>
+    </details>
+
+    <details>
+      <summary>4. Explain systemd service management</summary>
+
+      <p>
+        systemd reads unit configuration and dependencies, creates the
+        service process with the configured user, environment, limits
+        and sandbox, monitors its state and records service logs in the
+        journal.
+      </p>
+    </details>
+
+    <details>
+      <summary>5. Explain Linux container architecture</summary>
+
+      <p>
+        Containers are host-kernel processes. Namespaces isolate their
+        views, cgroups control resources, capabilities reduce privilege,
+        seccomp filters system calls, mandatory access controls enforce
+        policy and layered filesystems provide image and writable layers.
+      </p>
+    </details>
+
+    <details>
+      <summary>6. Explain Linux storage from disk to file</summary>
+
+      <p>
+        A physical or virtual block device may contain partitions,
+        RAID, encryption or LVM. A filesystem organizes files and
+        metadata on the resulting block device, and a mount attaches
+        that filesystem to the directory tree.
+      </p>
+    </details>
+
+  </section>
+
+  <section class="card">
+
+    <h2>7. Debugging Methodology</h2>
+
+    <h3>Layer-by-layer model</h3>
+
+    <ol>
+      <li>Client and user input</li>
+      <li>DNS</li>
+      <li>Network route and firewall</li>
+      <li>Port and socket</li>
+      <li>Service manager</li>
+      <li>Application</li>
+      <li>Database and dependencies</li>
+      <li>CPU, memory and storage</li>
+      <li>Kernel and hardware</li>
+    </ol>
+
+    <h3>Evidence categories</h3>
+
+    <table>
+      <tr>
+        <th>Evidence</th>
+        <th>Examples</th>
+      </tr>
+
+      <tr>
+        <td>State</td>
+        <td>systemctl, ps, ss, ip, findmnt</td>
+      </tr>
+
+      <tr>
+        <td>Logs</td>
+        <td>journalctl, application and audit logs</td>
+      </tr>
+
+      <tr>
+        <td>Metrics</td>
+        <td>CPU, memory, latency, errors and saturation</td>
+      </tr>
+
+      <tr>
+        <td>Changes</td>
+        <td>Deployment, package, configuration and infrastructure changes</td>
+      </tr>
+
+      <tr>
+        <td>Comparison</td>
+        <td>Working host, previous version or normal time window</td>
+      </tr>
+    </table>
+
+    <div class="warning">
+      Avoid random changes. Every command should test a hypothesis,
+      reduce the possible causes or safely validate recovery.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>8. Mock Interview — Junior Level</h2>
+
+    <ol>
+      <li>What is Linux?</li>
+      <li>Explain absolute and relative paths.</li>
+      <li>What do chmod, chown and chgrp do?</li>
+      <li>How do you find a running process?</li>
+      <li>How do you check disk space?</li>
+      <li>How do you read service logs?</li>
+      <li>What is the difference between kill -TERM and kill -KILL?</li>
+      <li>How do you check an IP address and route?</li>
+      <li>How do you create and inspect a symbolic link?</li>
+      <li>How do you schedule a recurring command?</li>
+    </ol>
+
+    <h3>Expected level</h3>
+
+    <p>
+      Explain the concept accurately, provide the main command and
+      mention one important safety consideration.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>9. Mock Interview — Mid Level</h2>
+
+    <ol>
+      <li>Explain the Linux boot process.</li>
+      <li>Why can load average be high while CPU is low?</li>
+      <li>How would you troubleshoot a failed systemd service?</li>
+      <li>How do permissions, ACLs and SELinux interact?</li>
+      <li>Why can df and du disagree?</li>
+      <li>How would you investigate an OOM kill?</li>
+      <li>Explain PID, mount and network namespaces.</li>
+      <li>Explain LVM and online volume expansion.</li>
+      <li>How do you troubleshoot intermittent DNS failures?</li>
+      <li>How would you make a Bash automation script production-safe?</li>
+    </ol>
+
+    <h3>Expected level</h3>
+
+    <p>
+      Use a structured diagnostic flow, explain expected evidence,
+      avoid unsafe fixes and include verification.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>10. Mock Interview — Senior / Production Level</h2>
+
+    <ol>
+      <li>
+        A fleet-wide SSH configuration change locks out administrators.
+        Explain containment, recovery and prevention.
+      </li>
+
+      <li>
+        An application is healthy according to systemd but users receive
+        timeouts. Walk through the complete request path.
+      </li>
+
+      <li>
+        A deployment doubles CPU usage without increasing traffic.
+        Explain investigation and rollback criteria.
+      </li>
+
+      <li>
+        A container is repeatedly OOM-killed despite apparently low
+        host memory usage. Explain system and cgroup analysis.
+      </li>
+
+      <li>
+        Storage latency rises only during backups. Explain measurement,
+        resource contention and remediation.
+      </li>
+
+      <li>
+        Design monitoring for CPU, memory, disk, network, services,
+        logs and user-visible availability.
+      </li>
+
+      <li>
+        Explain how you would write and test a production incident
+        runbook.
+      </li>
+
+      <li>
+        Explain a post-incident review without blaming individuals.
+      </li>
+    </ol>
+
+    <h3>Expected level</h3>
+
+    <p>
+      Include impact, incident coordination, evidence preservation,
+      safe mitigation, root-cause analysis, validation, monitoring,
+      automation and long-term prevention.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>📊 Self-Scoring Rubric</h2>
+
+    <table>
+      <tr>
+        <th>Score</th>
+        <th>Meaning</th>
+      </tr>
+
+      <tr>
+        <td>0</td>
+        <td>Cannot explain the topic</td>
+      </tr>
+
+      <tr>
+        <td>1</td>
+        <td>Knows a command but cannot explain its output</td>
+      </tr>
+
+      <tr>
+        <td>2</td>
+        <td>Explains concept and basic command correctly</td>
+      </tr>
+
+      <tr>
+        <td>3</td>
+        <td>Uses a structured troubleshooting flow</td>
+      </tr>
+
+      <tr>
+        <td>4</td>
+        <td>Includes safety, verification and alternatives</td>
+      </tr>
+
+      <tr>
+        <td>5</td>
+        <td>Explains production tradeoffs and prevention clearly</td>
+      </tr>
+    </table>
+
+    <p>
+      Target score: at least <strong>4/5</strong> for every major
+      Linux topic before a production-focused interview.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Final Interview Checklist</h2>
+
+    <ul>
+      <li>Answer the exact question first.</li>
+      <li>Explain concepts in plain language.</li>
+      <li>Give commands with expected evidence.</li>
+      <li>Mention production safety.</li>
+      <li>Use a structured debugging sequence.</li>
+      <li>Separate symptoms from root causes.</li>
+      <li>Explain how you verify recovery.</li>
+      <li>Include monitoring and prevention.</li>
+      <li>Say when a command or feature is distribution-specific.</li>
+      <li>Never pretend to know something you do not know.</li>
+    </ul>
+
+  </section>
+
+  <section class="card docs">
+
+    <h2>📖 Official Study References</h2>
+
+    <a href="https://docs.kernel.org/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Kernel Documentation
+    </a>
+
+    <a href="https://man7.org/linux/man-pages/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Manual Pages
+    </a>
+
+    <a href="https://www.freedesktop.org/software/systemd/man/"
+       target="_blank"
+       rel="noopener noreferrer">
+      systemd Manual Pages
+    </a>
+
+    <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/monitoring_and_managing_system_status_and_performance/index"
+       target="_blank"
+       rel="noopener noreferrer">
+      Red Hat — Monitoring and Performance
+    </a>
+
+    <a href="https://docs.docker.com/engine/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Docker Engine Documentation
+    </a>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Completion Standard</h2>
+
+    <p>You should be able to:</p>
+
+    <ul>
+      <li>Answer beginner and advanced Linux concepts.</li>
+      <li>Select correct diagnostic commands.</li>
+      <li>Explain command output and expected evidence.</li>
+      <li>Solve scenario-based questions safely.</li>
+      <li>Describe production incidents and recovery.</li>
+      <li>Explain Linux architecture clearly.</li>
+      <li>Use a repeatable debugging methodology.</li>
+      <li>Complete junior, mid and senior mock rounds.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Topic Progress</h2>
+
+    <p id="completeStatus">
+      Mark this topic complete after answering the questions
+      without opening the answers.
+    </p>
+
+    <button class="complete-button"
+            onclick="markTopicComplete()">
+      Mark Topic Complete
+    </button>
+
+  </section>
+
+</main>
+
+<script>
+  const currentTopic = "Linux Interview Preparation";
+
+  function loadTopicCompletion() {
+    if (
+      localStorage.getItem(currentTopic) === "done"
+    ) {
+      document.getElementById("completeStatus")
+        .innerHTML = "✅ <b>Completed</b>";
+    }
+  }
+
+  function markTopicComplete() {
+    localStorage.setItem(currentTopic, "done");
+
+    document.getElementById("completeStatus")
+      .innerHTML = "✅ <b>Completed</b>";
+  }
+
+  loadTopicCompletion();
+</script>
+
+</body>
+</html>

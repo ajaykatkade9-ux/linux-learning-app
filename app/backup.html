@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Export and restore Linux study notes, progress and revision history.">
+  <title>Backup & Restore</title>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+  <main class="container">
+    <a class="back" href="index.html">← Home</a>
+
+    <section class="hero backup-hero">
+      <p class="hero-kicker">Protect your learning data</p>
+      <h1>Backup & Restore</h1>
+      <p>
+        Keep a portable copy of your notes, topic progress, study streak
+        and spaced-repetition history.
+      </p>
+    </section>
+
+    <section class="backup-overview" aria-label="Stored data summary">
+      <article class="backup-summary-card">
+        <span>Completed topics</span>
+        <strong id="backupCompleted">0</strong>
+        <small>of 22 topics</small>
+      </article>
+      <article class="backup-summary-card">
+        <span>Revision records</span>
+        <strong id="backupReviews">0</strong>
+        <small>scheduled topics</small>
+      </article>
+      <article class="backup-summary-card">
+        <span>Saved notes</span>
+        <strong id="backupNoteSize">0</strong>
+        <small>characters</small>
+      </article>
+      <article class="backup-summary-card">
+        <span>Study streak</span>
+        <strong id="backupStreak">0</strong>
+        <small>days</small>
+      </article>
+    </section>
+
+    <section class="backup-actions-grid">
+      <article class="card backup-action-card">
+        <span class="backup-card-icon" aria-hidden="true">
+          <i class="bi bi-download"></i>
+        </span>
+        <p class="panel-kicker">Step 1</p>
+        <h2>Export your data</h2>
+        <p>
+          Download one JSON file containing all study information stored
+          by this app in the current browser.
+        </p>
+
+        <ul class="backup-check-list">
+          <li>Quick Notes</li>
+          <li>Topic completion</li>
+          <li>Revision schedule</li>
+          <li>Study streak</li>
+        </ul>
+
+        <button class="primary-button" type="button" onclick="exportData()">
+          Download backup
+        </button>
+        <p class="backup-last-run" id="lastBackupText">No backup recorded yet.</p>
+      </article>
+
+      <article class="card backup-action-card">
+        <span class="backup-card-icon" aria-hidden="true">
+          <i class="bi bi-upload"></i>
+        </span>
+        <p class="panel-kicker">Step 2</p>
+        <h2>Restore a backup</h2>
+        <p>
+          Choose a backup created by this app. The file is validated before
+          anything is restored.
+        </p>
+
+        <label class="backup-file-picker" for="backupFile">
+          <strong>Choose backup file</strong>
+          <span>JSON files only · processed locally</span>
+        </label>
+        <input type="file" id="backupFile" accept="application/json,.json">
+
+        <div class="backup-file-state" id="backupFileState">
+          No file selected
+        </div>
+
+        <button
+          class="primary-button"
+          id="restoreButton"
+          type="button"
+          onclick="restoreData()"
+          disabled
+        >
+          Restore selected backup
+        </button>
+      </article>
+    </section>
+
+    <section class="card backup-info-card">
+      <div>
+        <p class="panel-kicker success">Safe and portable</p>
+        <h2>How your backup works</h2>
+        <p>
+          Your JSON file is generated and restored locally in the browser.
+          Keep it in a trusted folder because it can contain personal notes.
+        </p>
+      </div>
+      <a class="secondary-button" href="notes.html">Review Quick Notes</a>
+    </section>
+
+    <div class="backup-status" id="status" role="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    const topicKeys = [
+      "Linux Foundations",
+      "Linux Boot Process",
+      "Linux Storage",
+      "Processes & Services",
+      "Linux Permissions",
+      "Linux Networking",
+      "Linux Troubleshooting",
+      "Logs & Journal",
+      "Package Management",
+      "Shell Scripting",
+      "Cron & Scheduling",
+      "Memory & Swap",
+      "CPU & Load",
+      "SSH & Remote Access",
+      "Files & Text Processing",
+      "Linux Security",
+      "Advanced Linux Internals",
+      "DevOps / Container Linux",
+      "Linux Interview Preparation",
+      "Linux Hands-On Labs",
+      "Linux Official Documentation",
+      "Environment & PATH"
+    ];
+
+    const backupFileInput = document.getElementById("backupFile");
+    const backupFileState = document.getElementById("backupFileState");
+    const restoreButton = document.getElementById("restoreButton");
+    const status = document.getElementById("status");
+    let pendingBackup = null;
+
+    function formatDate(value) {
+      if (!value) return "No backup recorded yet.";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "No backup recorded yet.";
+      return "Last exported " + date.toLocaleString();
+    }
+
+    function updateBackupSummary() {
+      const completed = topicKeys.filter(
+        topic => localStorage.getItem(topic) === "done"
+      ).length;
+      const reviewRecords = Object.keys(localStorage).filter(
+        key => key.startsWith("review_")
+      ).length;
+      const notesLength = (localStorage.getItem("devopsNotes") || "").length;
+
+      document.getElementById("backupCompleted").textContent = completed;
+      document.getElementById("backupReviews").textContent = reviewRecords;
+      document.getElementById("backupNoteSize").textContent = notesLength;
+      document.getElementById("backupStreak").textContent =
+        localStorage.getItem("studyStreak") || "0";
+      document.getElementById("lastBackupText").textContent =
+        formatDate(localStorage.getItem("lastBackupAt"));
+    }
+
+    function setBackupStatus(message, kind = "success") {
+      status.textContent = message;
+      status.dataset.kind = kind;
+    }
+
+    function collectBackup() {
+      const backup = {};
+      for (let index = 0; index < localStorage.length; index++) {
+        const key = localStorage.key(index);
+        backup[key] = localStorage.getItem(key);
+      }
+      return backup;
+    }
+
+    function exportData() {
+      const exportedAt = new Date().toISOString();
+      localStorage.setItem("lastBackupAt", exportedAt);
+      const backup = collectBackup();
+      const blob = new Blob(
+        [JSON.stringify(backup, null, 2)],
+        { type: "application/json" }
+      );
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download =
+        "devops-study-backup-" + exportedAt.slice(0, 10) + ".json";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      updateBackupSummary();
+      setBackupStatus("✅ Backup downloaded successfully.");
+    }
+
+    function validateBackup(value) {
+      return (
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        Object.keys(value).length > 0 &&
+        Object.values(value).every(
+          item => typeof item === "string" || item === null
+        )
+      );
+    }
+
+    backupFileInput.addEventListener("change", function () {
+      const file = backupFileInput.files[0];
+      pendingBackup = null;
+      restoreButton.disabled = true;
+
+      if (!file) {
+        backupFileState.textContent = "No file selected";
+        return;
+      }
+
+      if (!file.name.toLowerCase().endsWith(".json")) {
+        backupFileState.textContent = "❌ Please choose a JSON backup file.";
+        setBackupStatus("Invalid file type.", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function (event) {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (!validateBackup(parsed)) throw new Error("Invalid backup structure");
+
+          pendingBackup = parsed;
+          restoreButton.disabled = false;
+          backupFileState.textContent =
+            `✅ ${file.name} · ${Object.keys(parsed).length} records ready`;
+          setBackupStatus("Backup validated. Ready to restore.");
+        } catch (error) {
+          backupFileState.textContent = "❌ This is not a valid study backup.";
+          setBackupStatus("Backup validation failed.", "error");
+        }
+      };
+
+      reader.readAsText(file);
+    });
+
+    function restoreData() {
+      if (!pendingBackup) {
+        setBackupStatus("Choose and validate a backup first.", "error");
+        return;
+      }
+
+      if (!confirm("Restore this backup? Matching current values will be overwritten.")) {
+        return;
+      }
+
+      Object.entries(pendingBackup).forEach(([key, value]) => {
+        if (value === null) {
+          localStorage.removeItem(key);
+        } else {
+          localStorage.setItem(key, value);
+        }
+      });
+
+      updateBackupSummary();
+      setBackupStatus("✅ Backup restored successfully. Your study data is ready.");
+    }
+
+    updateBackupSummary();
+  </script>
+</body>
+</html>

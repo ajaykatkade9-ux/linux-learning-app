@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SSH & Remote Administration</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+  line-height:1.6;
+}
+
+.container {
+  max-width:950px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  padding:25px;
+  margin:18px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+pre {
+  background:#f1f1f1;
+  padding:15px;
+  border-radius:8px;
+  overflow-x:auto;
+}
+
+button {
+  padding:12px 18px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.answer {
+  display:none;
+  margin-top:15px;
+}
+
+a {
+  text-decoration:none;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>🔑 SSH & Remote Administration</h1>
+
+<p>
+Secure Shell, authentication, SSH keys, remote administration,
+file transfer, troubleshooting and production security practices.
+</p>
+
+
+<div class="card">
+<h2>⚡ 60-Second Revision</h2>
+
+<pre>
+SSH Client
+    ↓
+TCP Connection
+    ↓
+SSH Server
+    ↓
+Server Identity Verification
+    ↓
+User Authentication
+    ↓
+Encrypted Session
+    ↓
+Remote Shell / Command
+</pre>
+
+<p>Default SSH port:</p>
+
+<pre>22/tcp</pre>
+</div>
+
+
+<div class="card">
+<h2>1. SSH Basics</h2>
+
+<p>
+SSH provides encrypted communication between systems.
+</p>
+
+Basic connection:
+
+<pre>ssh USER@SERVER</pre>
+
+Custom port:
+
+<pre>ssh -p PORT USER@SERVER</pre>
+
+Run one remote command:
+
+<pre>ssh USER@SERVER "hostname"</pre>
+</div>
+
+
+<div class="card">
+<h2>2. SSH Client and Server</h2>
+
+<p>
+The local machine normally runs the SSH client.
+The remote machine runs an SSH server such as OpenSSH sshd.
+</p>
+
+Check client:
+
+<pre>ssh -V</pre>
+
+Check server where applicable:
+
+<pre>systemctl status ssh
+
+systemctl status sshd</pre>
+
+<p>
+Service naming depends on the distribution.
+</p>
+</div>
+
+
+<div class="card">
+<h2>3. Password Authentication</h2>
+
+<p>
+SSH can authenticate users with passwords when the server permits it.
+</p>
+
+<pre>ssh USER@SERVER</pre>
+
+<p>
+For production systems, key-based authentication is commonly preferred
+because it supports stronger operational practices.
+</p>
+</div>
+
+
+<div class="card">
+<h2>4. Public-Key Authentication</h2>
+
+<p>
+SSH key authentication normally uses a key pair:
+</p>
+
+<ul>
+<li><b>Private key</b> — stays with the client and must be protected</li>
+<li><b>Public key</b> — can be installed on the remote account</li>
+</ul>
+
+Concept:
+
+<pre>
+Private Key
+   ↓
+Client proves identity
+   ↓
+Server checks authorized public key
+   ↓
+Authentication succeeds
+</pre>
+</div>
+
+
+<div class="card">
+<h2>5. Generate an SSH Key</h2>
+
+<p>For a personal lab key:</p>
+
+<pre>ssh-keygen -t ed25519</pre>
+
+<p>Inspect:</p>
+
+<pre>ls -la ~/.ssh</pre>
+
+<p>
+Never publish or casually copy your private key.
+</p>
+</div>
+
+
+<div class="card">
+<h2>6. authorized_keys</h2>
+
+<p>
+Public keys allowed to authenticate to an account are commonly stored in:
+</p>
+
+<pre>~/.ssh/authorized_keys</pre>
+
+Inspect permissions:
+
+<pre>ls -ld ~/.ssh
+
+ls -l ~/.ssh/authorized_keys</pre>
+
+<p>
+Incorrect ownership or permissions can cause key authentication failures.
+</p>
+</div>
+
+
+<div class="card">
+<h2>7. Install a Public Key</h2>
+
+<p>Where available:</p>
+
+<pre>ssh-copy-id USER@SERVER</pre>
+
+<p>
+This installs your public key into the remote user's
+authorized_keys configuration.
+</p>
+</div>
+
+
+<div class="card">
+<h2>8. known_hosts</h2>
+
+<p>
+SSH records identities of remote hosts in:
+</p>
+
+<pre>~/.ssh/known_hosts</pre>
+
+<p>
+This helps detect cases where the identity presented by a server
+unexpectedly changes.
+</p>
+
+Inspect:
+
+<pre>ls -l ~/.ssh/known_hosts</pre>
+</div>
+
+
+<div class="card">
+<h2>9. SSH Client Configuration</h2>
+
+<p>Client settings can be placed in:</p>
+
+<pre>~/.ssh/config</pre>
+
+Example:
+
+<pre>Host dev-server
+    HostName 10.0.0.20
+    User devops
+    Port 22</pre>
+
+Then connect using:
+
+<pre>ssh dev-server</pre>
+</div>
+
+
+<div class="card">
+<h2>10. SSH Server Configuration</h2>
+
+<p>
+A common server configuration file is:
+</p>
+
+<pre>/etc/ssh/sshd_config</pre>
+
+Inspect without changing anything:
+
+<pre>grep -v '^#' /etc/ssh/sshd_config | grep -v '^$'</pre>
+
+<p>
+Exact configuration and included files can vary by distribution.
+</p>
+</div>
+
+
+<div class="card">
+<h2>11. Test SSH Configuration</h2>
+
+<p>
+Before applying server-side SSH configuration changes,
+validate configuration where supported:
+</p>
+
+<pre>sshd -t</pre>
+
+<p>
+Invalid SSH configuration can lock administrators out of remote systems,
+so production changes should be handled carefully.
+</p>
+</div>
+
+
+<div class="card">
+<h2>12. SSH Permissions</h2>
+
+<p>
+Common secure permission patterns often include:
+</p>
+
+<pre>chmod 700 ~/.ssh
+
+chmod 600 ~/.ssh/authorized_keys</pre>
+
+<p>Check ownership too:</p>
+
+<pre>ls -ld ~/.ssh
+
+ls -l ~/.ssh</pre>
+
+<p>
+Do not blindly change permissions on production accounts;
+first understand the existing ownership and configuration.
+</p>
+</div>
+
+
+<div class="card">
+<h2>13. Debugging SSH</h2>
+
+<p>Verbose client output:</p>
+
+<pre>ssh -v USER@SERVER</pre>
+
+More detail:
+
+<pre>ssh -vv USER@SERVER</pre>
+
+Even more:
+
+<pre>ssh -vvv USER@SERVER</pre>
+
+<p>
+Verbose output helps identify whether failure occurs during
+network connection, host verification or authentication.
+</p>
+</div>
+
+
+<div class="card">
+<h2>14. Check SSH Port</h2>
+
+<p>On the server:</p>
+
+<pre>ss -ltnp | grep ':22'</pre>
+
+<p>Service status:</p>
+
+<pre>systemctl status ssh
+
+systemctl status sshd</pre>
+</div>
+
+
+<div class="card">
+<h2>15. SSH Logs</h2>
+
+<p>Depending on distribution:</p>
+
+<pre>journalctl -u ssh
+
+journalctl -u sshd</pre>
+
+<p>
+Authentication-related events may also appear in distribution-specific
+security or authentication logs.
+</p>
+</div>
+
+
+<div class="card">
+<h2>16. SCP</h2>
+
+<p>Copy a local file to a remote host:</p>
+
+<pre>scp FILE USER@SERVER:/remote/path/</pre>
+
+<p>Copy a remote file locally:</p>
+
+<pre>scp USER@SERVER:/remote/file .</pre>
+
+<p>Custom SSH port:</p>
+
+<pre>scp -P PORT FILE USER@SERVER:/remote/path/</pre>
+</div>
+
+
+<div class="card">
+<h2>17. SFTP</h2>
+
+<pre>sftp USER@SERVER</pre>
+
+<p>
+SFTP provides file transfer over SSH.
+</p>
+</div>
+
+
+<div class="card">
+<h2>18. SSH Agent</h2>
+
+<p>
+An SSH agent can hold usable key identities for the current session.
+</p>
+
+Inspect:
+
+<pre>ssh-add -l</pre>
+
+<p>
+Agent usage is especially common when managing multiple SSH connections.
+</p>
+</div>
+
+
+<div class="card">
+<h2>19. SSH Tunneling Concept</h2>
+
+<p>
+SSH can securely forward network connections through an SSH session.
+</p>
+
+Conceptual local-forward format:
+
+<pre>ssh -L LOCAL_PORT:DESTINATION:DEST_PORT USER@SERVER</pre>
+
+<p>
+This is useful for securely reaching services through a controlled host.
+We will cover tunneling more deeply later in networking labs.
+</p>
+</div>
+
+
+<div class="card">
+<h2>20. Bastion / Jump Host Concept</h2>
+
+<p>
+Production environments may expose only a controlled bastion or jump host
+instead of every internal server directly.
+</p>
+
+OpenSSH supports jump hosts using:
+
+<pre>ssh -J JUMP_HOST USER@TARGET</pre>
+
+<p>
+This is common in cloud and private-network environments.
+</p>
+</div>
+
+
+<div class="card">
+<h2>21. SSH Security Principles</h2>
+
+<ul>
+<li>Use least privilege</li>
+<li>Protect private keys</li>
+<li>Avoid sharing credentials</li>
+<li>Use dedicated accounts where appropriate</li>
+<li>Limit unnecessary remote access</li>
+<li>Keep SSH software updated</li>
+<li>Review authentication logs</li>
+<li>Use key authentication appropriately</li>
+<li>Avoid normal application workloads running as root</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 1 — Connection Refused</h2>
+
+<p>You run:</p>
+
+<pre>ssh USER@SERVER</pre>
+
+and receive connection refused.
+
+Check:
+
+<pre>ping -c 2 SERVER
+
+ip route get SERVER_IP
+
+systemctl status ssh
+
+systemctl status sshd
+
+ss -ltnp | grep ':22'</pre>
+
+<p>Possible causes:</p>
+
+<ul>
+<li>SSH service stopped</li>
+<li>Wrong port</li>
+<li>Service not listening</li>
+<li>Host firewall</li>
+<li>Incorrect destination</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 2 — Connection Timeout</h2>
+
+<p>Check:</p>
+
+<pre>ping -c 2 SERVER_IP
+
+ip route get SERVER_IP
+
+tracepath SERVER_IP</pre>
+
+<p>Possible causes:</p>
+
+<ul>
+<li>Routing failure</li>
+<li>Firewall dropping traffic</li>
+<li>Remote host unavailable</li>
+<li>Network path failure</li>
+<li>Cloud security control</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 3 — Permission Denied (publickey)</h2>
+
+<p>Debug from client:</p>
+
+<pre>ssh -vvv USER@SERVER</pre>
+
+<p>On server, check:</p>
+
+<pre>id USER
+
+ls -ld /home/USER
+
+ls -ld /home/USER/.ssh
+
+ls -l /home/USER/.ssh/authorized_keys</pre>
+
+<p>Investigate:</p>
+
+<ul>
+<li>Wrong username</li>
+<li>Wrong key</li>
+<li>Public key missing</li>
+<li>Bad ownership</li>
+<li>Bad permissions</li>
+<li>Server authentication configuration</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 4 — Host Key Changed</h2>
+
+<p>
+SSH warns that the remote host identification changed.
+</p>
+
+<p>
+Do not automatically bypass the warning.
+First determine whether:
+</p>
+
+<ul>
+<li>The server was legitimately rebuilt</li>
+<li>The IP now belongs to another system</li>
+<li>DNS changed</li>
+<li>The server's host keys legitimately changed</li>
+<li>There is an unexpected security issue</li>
+</ul>
+
+<p>
+Verify the new server identity through a trusted method before updating
+your local known_hosts entry.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 5 — Works for Root, Fails for App User</h2>
+
+<pre>id APP_USER
+
+ls -ld /home/APP_USER
+
+ls -ld /home/APP_USER/.ssh
+
+ls -l /home/APP_USER/.ssh/authorized_keys</pre>
+
+<p>
+Check user existence, shell, home directory,
+permissions and authentication configuration.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 6 — SSH Suddenly Slow</h2>
+
+<p>Check:</p>
+
+<pre>ssh -vv USER@SERVER
+
+getent hosts SERVER
+
+ping -c 4 SERVER</pre>
+
+<p>
+Potential causes include DNS delays, network latency,
+server resource pressure or authentication dependencies.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🧪 Safe Hands-On Lab</h2>
+
+<p>Inspect your local SSH configuration:</p>
+
+<pre>ssh -V
+
+ls -la ~/.ssh 2>/dev/null
+
+cat ~/.ssh/config 2>/dev/null || true
+
+ssh-add -l 2>/dev/null || true</pre>
+</div>
+
+
+<div class="card">
+<h2>🧪 SSH Key Lab</h2>
+
+<p>
+If you do not already have a test key and want a separate lab key,
+you can create one without overwriting your normal key:
+</p>
+
+<pre>ssh-keygen -t ed25519 -f ~/devops-study-lab-key</pre>
+
+<p>Inspect only:</p>
+
+<pre>ls -l ~/devops-study-lab-key*
+
+cat ~/devops-study-lab-key.pub</pre>
+
+<p>
+The file without <b>.pub</b> is the private key.
+Keep it private.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+<li>What is SSH?</li>
+<li>What port does SSH commonly use?</li>
+<li>How does SSH key authentication work?</li>
+<li>What is a private key?</li>
+<li>What is a public key?</li>
+<li>What is authorized_keys?</li>
+<li>What is known_hosts?</li>
+<li>Why is host verification important?</li>
+<li>What is ~/.ssh/config?</li>
+<li>What is sshd_config?</li>
+<li>How do you debug an SSH connection?</li>
+<li>What does ssh -vvv do?</li>
+<li>How do you check whether SSH is listening?</li>
+<li>What is SCP?</li>
+<li>What is SFTP?</li>
+<li>What is an SSH agent?</li>
+<li>What is SSH tunneling?</li>
+<li>What is a bastion host?</li>
+<li>What is a jump host?</li>
+<li>How would you troubleshoot Connection Refused?</li>
+<li>How would you troubleshoot Connection Timeout?</li>
+<li>How would you troubleshoot Permission denied (publickey)?</li>
+<li>What would you do if the SSH host key unexpectedly changed?</li>
+</ol>
+</div>
+
+
+<div class="card">
+<h2>🧩 Quick Recall</h2>
+
+<h3>SSH says Connection Refused. What do you check first?</h3>
+
+<button onclick="toggle('a1')">Show Answer</button>
+
+<div id="a1" class="answer">
+
+<pre>systemctl status ssh
+systemctl status sshd
+ss -ltnp | grep ':22'
+ip route get SERVER_IP</pre>
+
+</div>
+
+
+<h3>SSH says Permission denied (publickey). What should you investigate?</h3>
+
+<button onclick="toggle('a2')">Show Answer</button>
+
+<div id="a2" class="answer">
+
+<p>
+Username, selected key, authorized_keys,
+home/.ssh ownership and permissions,
+plus server authentication configuration.
+</p>
+
+</div>
+
+
+<h3>What is known_hosts used for?</h3>
+
+<button onclick="toggle('a3')">Show Answer</button>
+
+<div id="a3" class="answer">
+
+<p>
+It stores identities of previously contacted SSH hosts
+and helps detect unexpected server identity changes.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="card">
+<h2>🗣️ Strong Interview Answer</h2>
+
+<p>
+“When troubleshooting SSH, I separate the problem into network,
+SSH service and authentication layers. I first verify that I am
+reaching the correct server and port, then check whether sshd is
+running and listening. If the TCP connection succeeds, I use verbose
+SSH output to determine whether the failure is host verification,
+username, key selection or server-side authentication. For key issues,
+I also verify authorized_keys, ownership and permissions.”
+</p>
+</div>
+
+
+<div class="card">
+<h2>📖 Official Documentation</h2>
+
+<p>Local manuals:</p>
+
+<pre>man ssh
+man ssh_config
+man sshd
+man sshd_config
+man ssh-keygen
+man ssh-copy-id
+man ssh-agent
+man ssh-add
+man scp
+man sftp</pre>
+
+<p>
+Also use the OpenSSH project documentation and your distribution's
+official SSH/server administration documentation for deeper details.
+</p>
+</div>
+
+
+<div class="card">
+<h2>✅ Completion Standard</h2>
+
+<ul>
+<li>Explain SSH client/server architecture</li>
+<li>Understand password vs key authentication</li>
+<li>Explain public and private keys</li>
+<li>Understand authorized_keys</li>
+<li>Understand known_hosts</li>
+<li>Use SSH client configuration</li>
+<li>Use verbose SSH debugging</li>
+<li>Understand SCP and SFTP</li>
+<li>Understand SSH agent basics</li>
+<li>Explain tunneling and jump-host concepts</li>
+<li>Troubleshoot refused, timeout and authentication failures</li>
+<li>Explain safe handling of host-key-change warnings</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>✅ Topic Progress</h2>
+
+<p id="completeStatus">
+Mark this topic complete when you are confident with it.
+</p>
+
+<button onclick="markTopicComplete()">
+Mark Topic Complete
+</button>
+</div>
+
+</div>
+
+
+<script>
+const currentTopic = "SSH & Remote Access";
+
+function toggle(id) {
+  const element = document.getElementById(id);
+
+  element.style.display =
+    element.style.display === "block"
+      ? "none"
+      : "block";
+}
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Linux Boot Process & systemd</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+  line-height:1.6;
+}
+
+.container {
+  max-width:950px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  padding:25px;
+  margin:18px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+pre {
+  background:#f1f1f1;
+  padding:15px;
+  border-radius:8px;
+  overflow-x:auto;
+}
+
+button {
+  padding:12px 18px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.answer {
+  display:none;
+  margin-top:15px;
+}
+
+a {
+  text-decoration:none;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>🚀 Linux Boot Process & systemd</h1>
+
+<p>
+From power-on to a running Linux system, including GRUB, kernel,
+initramfs, systemd, services, targets and production boot troubleshooting.
+</p>
+
+
+<div class="card">
+<h2>⚡ 60-Second Revision</h2>
+
+<pre>
+Power ON
+   ↓
+BIOS / UEFI
+   ↓
+Boot Device
+   ↓
+GRUB
+   ↓
+Linux Kernel
+   ↓
+initramfs
+   ↓
+Root Filesystem
+   ↓
+systemd (PID 1)
+   ↓
+Targets + Services
+   ↓
+Login / Application Ready
+</pre>
+</div>
+
+
+<div class="card">
+<h2>1. BIOS vs UEFI</h2>
+
+<p>
+BIOS or UEFI performs early hardware initialization and selects
+a bootable device.
+</p>
+
+<ul>
+<li><b>BIOS</b> — older firmware model</li>
+<li><b>UEFI</b> — modern firmware model</li>
+<li>UEFI commonly uses an EFI System Partition</li>
+</ul>
+
+<p>Check firmware mode:</p>
+
+<pre>ls /sys/firmware/efi</pre>
+
+<p>
+If the directory exists, the system was typically booted using UEFI.
+</p>
+</div>
+
+
+<div class="card">
+<h2>2. GRUB Bootloader</h2>
+
+<p>
+GRUB selects and loads the Linux kernel and its initial RAM filesystem.
+</p>
+
+<p>Common files:</p>
+
+<pre>/etc/default/grub
+/boot/grub/
+/boot/grub/grub.cfg</pre>
+
+<p>Inspect boot directory:</p>
+
+<pre>ls -lh /boot</pre>
+</div>
+
+
+<div class="card">
+<h2>3. Linux Kernel</h2>
+
+<p>
+The kernel initializes core system resources such as:
+</p>
+
+<ul>
+<li>CPU</li>
+<li>Memory</li>
+<li>Device drivers</li>
+<li>Storage</li>
+<li>Networking</li>
+<li>Process management</li>
+</ul>
+
+<p>Check running kernel:</p>
+
+<pre>uname -r
+
+uname -a</pre>
+</div>
+
+
+<div class="card">
+<h2>4. initramfs</h2>
+
+<p>
+initramfs is a temporary early userspace filesystem loaded into memory
+during boot.
+</p>
+
+<p>
+It provides tools and drivers required before the real root filesystem
+can be mounted.
+</p>
+
+<p>Inspect files:</p>
+
+<pre>ls -lh /boot/initrd*</pre>
+</div>
+
+
+<div class="card">
+<h2>5. Root Filesystem</h2>
+
+<p>
+After required storage drivers and devices are available,
+Linux mounts the actual root filesystem.
+</p>
+
+<pre>findmnt /
+
+mount | grep ' on / '</pre>
+</div>
+
+
+<div class="card">
+<h2>6. PID 1</h2>
+
+<p>
+On most modern Linux distributions, systemd becomes PID 1.
+</p>
+
+<pre>ps -p 1 -o pid,ppid,comm,args</pre>
+
+<p>
+PID 1 is responsible for bringing up userspace services and managing
+the system lifecycle.
+</p>
+</div>
+
+
+<div class="card">
+<h2>7. systemd Units</h2>
+
+<p>
+systemd manages several types of units.
+</p>
+
+<ul>
+<li>service</li>
+<li>socket</li>
+<li>target</li>
+<li>timer</li>
+<li>mount</li>
+<li>automount</li>
+<li>path</li>
+</ul>
+
+<p>List loaded units:</p>
+
+<pre>systemctl list-units</pre>
+
+<p>List services:</p>
+
+<pre>systemctl list-units --type=service</pre>
+</div>
+
+
+<div class="card">
+<h2>8. Managing Services</h2>
+
+<pre>systemctl status SERVICE_NAME
+
+systemctl start SERVICE_NAME
+
+systemctl stop SERVICE_NAME
+
+systemctl restart SERVICE_NAME
+
+systemctl reload SERVICE_NAME
+
+systemctl enable SERVICE_NAME
+
+systemctl disable SERVICE_NAME</pre>
+
+<p>
+<b>start</b> affects the current runtime.
+<b>enable</b> controls whether the unit is configured to start automatically
+through its installation relationships.
+</p>
+</div>
+
+
+<div class="card">
+<h2>9. systemd Targets</h2>
+
+<p>
+Targets group units together and represent system states.
+</p>
+
+<pre>systemctl get-default
+
+systemctl list-units --type=target
+
+systemctl list-unit-files --type=target</pre>
+
+<p>Common targets include:</p>
+
+<ul>
+<li>multi-user.target</li>
+<li>graphical.target</li>
+<li>rescue.target</li>
+<li>emergency.target</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>10. Dependencies</h2>
+
+<p>
+Services may depend on other units.
+</p>
+
+<pre>systemctl list-dependencies SERVICE_NAME
+
+systemctl cat SERVICE_NAME</pre>
+
+<p>
+Important directives can include:
+</p>
+
+<ul>
+<li>Requires=</li>
+<li>Wants=</li>
+<li>After=</li>
+<li>Before=</li>
+</ul>
+
+<p>
+Remember: ordering and dependency relationships are related,
+but they are not exactly the same thing.
+</p>
+</div>
+
+
+<div class="card">
+<h2>11. Boot Performance</h2>
+
+<pre>systemd-analyze
+
+systemd-analyze blame
+
+systemd-analyze critical-chain</pre>
+
+<p>
+These commands help identify units that contribute to slow startup.
+</p>
+</div>
+
+
+<div class="card">
+<h2>12. Boot Logs</h2>
+
+<p>Current boot:</p>
+
+<pre>journalctl -b</pre>
+
+<p>Kernel messages:</p>
+
+<pre>journalctl -k
+
+dmesg</pre>
+
+<p>Errors from current boot:</p>
+
+<pre>journalctl -b -p err</pre>
+
+<p>Failed units:</p>
+
+<pre>systemctl --failed</pre>
+</div>
+
+
+<div class="card">
+<h2>13. Previous Boot</h2>
+
+<p>List boots known to the journal:</p>
+
+<pre>journalctl --list-boots</pre>
+
+<p>Previous boot:</p>
+
+<pre>journalctl -b -1</pre>
+
+<p>
+Very useful when a server crashed or rebooted and is healthy again now.
+</p>
+</div>
+
+
+<div class="card">
+<h2>14. Rescue vs Emergency Mode</h2>
+
+<h3>Rescue Mode</h3>
+
+<p>
+A minimal recovery environment with more services and filesystems
+available than emergency mode.
+</p>
+
+<pre>systemctl rescue</pre>
+
+<h3>Emergency Mode</h3>
+
+<p>
+An even more minimal recovery environment intended for serious
+boot or filesystem problems.
+</p>
+
+<pre>systemctl emergency</pre>
+</div>
+
+
+<div class="card">
+<h2>15. Service Unit Files</h2>
+
+<p>Inspect a unit:</p>
+
+<pre>systemctl cat SERVICE_NAME</pre>
+
+<p>Typical structure:</p>
+
+<pre>[Unit]
+Description=Example Application
+After=network.target
+
+[Service]
+ExecStart=/opt/app/start.sh
+Restart=on-failure
+User=appuser
+
+[Install]
+WantedBy=multi-user.target</pre>
+</div>
+
+
+<div class="card">
+<h2>16. daemon-reload</h2>
+
+<p>
+After creating or modifying systemd unit files:
+</p>
+
+<pre>systemctl daemon-reload</pre>
+
+<p>
+Then restart or start the affected service if required.
+</p>
+</div>
+
+
+<div class="card">
+<h2>17. Boot-Enabled Services</h2>
+
+<pre>systemctl list-unit-files --state=enabled
+
+systemctl is-enabled SERVICE_NAME
+
+systemctl is-active SERVICE_NAME</pre>
+
+<p>
+Enabled and active are different concepts.
+A service may be enabled but currently stopped.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 1 — Application Missing After Reboot</h2>
+
+<p>
+A server reboot completes successfully, but the application is unavailable.
+</p>
+
+<pre>systemctl --failed
+
+systemctl status APP_SERVICE
+
+systemctl is-enabled APP_SERVICE
+
+journalctl -u APP_SERVICE -b
+
+ss -tulpn</pre>
+
+<p>Check:</p>
+
+<ul>
+<li>Did the service start?</li>
+<li>Is it enabled when it should be?</li>
+<li>Did a dependency fail?</li>
+<li>Is the application port listening?</li>
+<li>Are environment/config files available?</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 2 — Server Boots Very Slowly</h2>
+
+<pre>systemd-analyze
+
+systemd-analyze blame
+
+systemd-analyze critical-chain
+
+journalctl -b</pre>
+
+<p>
+Find slow services, dependency delays, filesystem waits,
+network waits or failed startup retries.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 3 — Service Fails During Boot</h2>
+
+<pre>systemctl status SERVICE_NAME
+
+journalctl -u SERVICE_NAME -b
+
+systemctl list-dependencies SERVICE_NAME
+
+systemctl cat SERVICE_NAME</pre>
+
+<p>Investigate:</p>
+
+<ul>
+<li>Dependency order</li>
+<li>Missing files</li>
+<li>Permissions</li>
+<li>Environment variables</li>
+<li>Network/storage readiness</li>
+<li>Invalid ExecStart</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 4 — Filesystem Prevents Normal Boot</h2>
+
+<p>Possible investigation points:</p>
+
+<pre>journalctl -b
+
+systemctl --failed
+
+findmnt
+
+cat /etc/fstab
+
+lsblk -f</pre>
+
+<p>
+A bad or unavailable filesystem entry can cause boot delays or failures,
+depending on configuration.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 5 — Server Rebooted Unexpectedly</h2>
+
+<p>After the server comes back:</p>
+
+<pre>who -b
+
+uptime
+
+journalctl --list-boots
+
+journalctl -b -1
+
+journalctl -k -b -1</pre>
+
+<p>
+Correlate previous-boot logs with kernel events, OOM messages,
+hardware/storage errors and application events.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🧪 Hands-On Lab</h2>
+
+<p>Run:</p>
+
+<pre>ps -p 1 -o pid,comm,args
+
+systemctl get-default
+
+systemctl --failed
+
+systemctl list-units --type=service --state=running
+
+systemd-analyze
+
+systemd-analyze blame
+
+journalctl -b -n 30
+
+uname -r
+
+findmnt /</pre>
+</div>
+
+
+<div class="card">
+<h2>🧪 Service Investigation Lab</h2>
+
+<p>Pick an existing service:</p>
+
+<pre>systemctl status cron
+
+systemctl cat cron
+
+systemctl is-enabled cron
+
+systemctl list-dependencies cron
+
+journalctl -u cron -n 30</pre>
+
+<p>
+If your distribution uses a different service name, choose another
+existing service.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+<li>Explain the Linux boot process step by step.</li>
+<li>What is BIOS?</li>
+<li>What is UEFI?</li>
+<li>What does GRUB do?</li>
+<li>What is initramfs?</li>
+<li>What happens after the kernel loads?</li>
+<li>Why is systemd commonly PID 1?</li>
+<li>What is a systemd unit?</li>
+<li>What is a systemd target?</li>
+<li>What is the difference between start and enable?</li>
+<li>What is the difference between active and enabled?</li>
+<li>What does systemctl daemon-reload do?</li>
+<li>How do you identify failed services?</li>
+<li>How do you inspect logs from the current boot?</li>
+<li>How do you inspect logs from the previous boot?</li>
+<li>How do you investigate slow boot?</li>
+<li>What is rescue mode?</li>
+<li>What is emergency mode?</li>
+<li>How would you troubleshoot an application that does not return after reboot?</li>
+<li>How would you investigate an unexpected server reboot?</li>
+</ol>
+</div>
+
+
+<div class="card">
+<h2>🧩 Quick Recall</h2>
+
+<h3>What is the Linux boot flow?</h3>
+
+<button onclick="toggle('answer1')">Show Answer</button>
+
+<div id="answer1" class="answer">
+<p>
+BIOS/UEFI → bootloader/GRUB → kernel → initramfs →
+root filesystem → systemd/PID 1 → targets/services → login/application.
+</p>
+</div>
+
+<h3>What is the difference between start and enable?</h3>
+
+<button onclick="toggle('answer2')">Show Answer</button>
+
+<div id="answer2" class="answer">
+<p>
+Start changes the current service runtime state.
+Enable configures the unit's startup relationships for future boots or target activation.
+</p>
+</div>
+
+<h3>Server rebooted and app is down. What are your first checks?</h3>
+
+<button onclick="toggle('answer3')">Show Answer</button>
+
+<div id="answer3" class="answer">
+<pre>systemctl --failed
+systemctl status APP_SERVICE
+journalctl -u APP_SERVICE -b
+systemctl is-enabled APP_SERVICE
+ss -tulpn</pre>
+</div>
+</div>
+
+
+<div class="card">
+<h2>🗣️ Strong Interview Answer</h2>
+
+<p>
+“When Linux powers on, BIOS or UEFI initializes the hardware and
+selects a boot device. The bootloader, commonly GRUB, loads the Linux
+kernel and initramfs. The kernel initializes hardware and core resources,
+then the real root filesystem becomes available. On most modern
+distributions, systemd starts as PID 1 and brings up the required
+targets, services and dependencies until the system reaches its
+configured operating state.”
+</p>
+</div>
+
+
+<div class="card">
+<h2>📖 Official Documentation</h2>
+
+<ul>
+<li>
+<a href="https://systemd.io/" target="_blank">
+systemd Official Documentation →
+</a>
+</li>
+
+<li>
+<a href="https://docs.kernel.org/" target="_blank">
+Linux Kernel Documentation →
+</a>
+</li>
+
+<li>
+<a href="https://www.gnu.org/software/grub/manual/" target="_blank">
+GNU GRUB Manual →
+</a>
+</li>
+</ul>
+
+<p>Local documentation:</p>
+
+<pre>man systemd
+man systemctl
+man systemd.unit
+man systemd.service
+man systemd.target
+man journalctl
+man boot
+man kernel-command-line</pre>
+</div>
+
+
+<div class="card">
+<h2>✅ Completion Standard</h2>
+
+<ul>
+<li>Explain the complete boot flow without notes</li>
+<li>Explain BIOS vs UEFI</li>
+<li>Explain GRUB</li>
+<li>Explain kernel and initramfs roles</li>
+<li>Explain PID 1</li>
+<li>Manage systemd services</li>
+<li>Understand targets and dependencies</li>
+<li>Read current and previous boot logs</li>
+<li>Investigate failed services</li>
+<li>Investigate slow boot</li>
+<li>Explain rescue and emergency mode</li>
+<li>Troubleshoot post-reboot application failures</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>✅ Topic Progress</h2>
+
+<p id="completeStatus">
+Mark this topic complete when you are confident with it.
+</p>
+
+<button onclick="markTopicComplete()">
+Mark Topic Complete
+</button>
+</div>
+
+</div>
+
+
+<script>
+const currentTopic = "Linux Boot Process";
+
+function toggle(id) {
+  const element = document.getElementById(id);
+  element.style.display =
+    element.style.display === "block" ? "none" : "block";
+}
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

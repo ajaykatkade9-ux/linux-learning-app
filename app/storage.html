@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Linux Storage & Filesystems</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+  line-height:1.6;
+}
+
+.container {
+  max-width:950px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  padding:25px;
+  margin:18px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+pre {
+  background:#f1f1f1;
+  padding:15px;
+  border-radius:8px;
+  overflow-x:auto;
+}
+
+button {
+  padding:12px 18px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.answer {
+  display:none;
+  margin-top:15px;
+}
+
+.warning {
+  background:#fff7e6;
+  padding:15px;
+  border-radius:8px;
+}
+
+a {
+  text-decoration:none;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>💾 Linux Storage & Filesystems</h1>
+
+<p>
+Disks, partitions, filesystems, mounts, inodes, LVM, swap,
+RAID/NFS basics and production storage troubleshooting.
+</p>
+
+
+<div class="card">
+<h2>⚡ 60-Second Revision</h2>
+
+<pre>
+Physical / Virtual Disk
+        ↓
+     Partition
+        ↓
+    Filesystem
+        ↓
+    Mount Point
+        ↓
+Directory / Application Data
+</pre>
+
+<p>
+Useful troubleshooting flow:
+</p>
+
+<pre>
+lsblk
+  ↓
+lsblk -f
+  ↓
+findmnt
+  ↓
+df -h
+  ↓
+df -i
+  ↓
+du
+  ↓
+lsof +L1
+</pre>
+</div>
+
+
+<div class="card">
+<h2>1. Block Devices</h2>
+
+<p>
+Storage devices appear as block devices.
+</p>
+
+<pre>lsblk
+
+lsblk -f
+
+lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS</pre>
+
+<p>Common device names:</p>
+
+<pre>/dev/sda
+/dev/sdb
+/dev/nvme0n1</pre>
+</div>
+
+
+<div class="card">
+<h2>2. Disk vs Partition</h2>
+
+<p>
+A disk is the complete storage device.
+A partition is a logical section of that disk.
+</p>
+
+Example:
+
+<pre>/dev/sda      Disk
+/dev/sda1     Partition
+/dev/sda2     Partition</pre>
+
+<p>Inspect safely:</p>
+
+<pre>lsblk
+
+cat /proc/partitions</pre>
+</div>
+
+
+<div class="card">
+<h2>3. MBR vs GPT</h2>
+
+<ul>
+<li><b>MBR</b> — older partitioning scheme</li>
+<li><b>GPT</b> — modern partitioning scheme</li>
+<li>GPT supports larger disks and more flexible partition layouts</li>
+<li>GPT is commonly used with UEFI systems</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>4. Filesystems</h2>
+
+<p>
+A filesystem organizes files and directories on storage.
+</p>
+
+Common Linux filesystems include:
+
+<ul>
+<li>ext4</li>
+<li>XFS</li>
+<li>Btrfs</li>
+<li>tmpfs</li>
+</ul>
+
+Inspect:
+
+<pre>lsblk -f
+
+findmnt
+
+df -T</pre>
+</div>
+
+
+<div class="card">
+<h2>5. Mounting</h2>
+
+<p>
+A filesystem becomes accessible through a mount point.
+</p>
+
+Inspect mounts:
+
+<pre>mount
+
+findmnt
+
+findmnt /
+
+findmnt /home</pre>
+
+<p>Concept:</p>
+
+<pre>Device → Filesystem → Mount Point → Files</pre>
+</div>
+
+
+<div class="card">
+<h2>6. /etc/fstab</h2>
+
+<p>
+The filesystem table describes filesystems that should be mounted
+according to system configuration.
+</p>
+
+<pre>cat /etc/fstab</pre>
+
+Typical fields:
+
+<pre>DEVICE  MOUNT_POINT  TYPE  OPTIONS  DUMP  PASS</pre>
+
+<p>
+UUIDs are often preferred over unstable device names.
+</p>
+
+Inspect UUIDs:
+
+<pre>blkid
+
+lsblk -f</pre>
+</div>
+
+
+<div class="card">
+<h2>7. df vs du</h2>
+
+<h3>df</h3>
+
+<p>Shows filesystem-level usage:</p>
+
+<pre>df -h</pre>
+
+<h3>du</h3>
+
+<p>Shows file/directory usage:</p>
+
+<pre>du -sh /var
+
+du -sh /var/* 2>/dev/null
+
+du -xhd1 /var 2>/dev/null</pre>
+
+<p>
+This difference is extremely important in production troubleshooting.
+</p>
+</div>
+
+
+<div class="card">
+<h2>8. Inodes</h2>
+
+<p>
+An inode stores filesystem metadata about a file.
+A filesystem can run out of inodes even while space remains.
+</p>
+
+Check:
+
+<pre>df -i</pre>
+
+Symptoms can include:
+
+<pre>No space left on device</pre>
+
+even when:
+
+<pre>df -h</pre>
+
+shows free capacity.
+</div>
+
+
+<div class="card">
+<h2>9. Deleted Files Still Consuming Space</h2>
+
+<p>
+Deleting a file does not immediately release its blocks if a running
+process still has that file open.
+</p>
+
+Check:
+
+<pre>lsof +L1</pre>
+
+<p>
+This is a classic reason why <b>df</b> and <b>du</b> can disagree.
+</p>
+</div>
+
+
+<div class="card">
+<h2>10. Disk Usage Investigation</h2>
+
+<pre>df -h
+
+du -xhd1 / 2>/dev/null
+
+du -xhd1 /var 2>/dev/null
+
+find /var/log -type f -size +100M 2>/dev/null
+
+lsof +L1</pre>
+
+<p>
+Start broad, identify the affected filesystem,
+then narrow down to directories and files.
+</p>
+</div>
+
+
+<div class="card">
+<h2>11. Swap</h2>
+
+<p>
+Swap provides disk-backed virtual memory that can be used under memory pressure.
+</p>
+
+Inspect:
+
+<pre>swapon --show
+
+free -h
+
+cat /proc/swaps</pre>
+
+<p>
+Swap is much slower than RAM and should not be treated as a replacement
+for sufficient memory.
+</p>
+</div>
+
+
+<div class="card">
+<h2>12. LVM Overview</h2>
+
+<p>
+Logical Volume Manager adds a flexible abstraction layer over storage.
+</p>
+
+<pre>
+Disk / Partition
+      ↓
+Physical Volume (PV)
+      ↓
+Volume Group (VG)
+      ↓
+Logical Volume (LV)
+      ↓
+Filesystem
+      ↓
+Mount Point
+</pre>
+
+Inspect safely:
+
+<pre>pvs
+
+vgs
+
+lvs</pre>
+</div>
+
+
+<div class="card">
+<h2>13. Why LVM Is Useful</h2>
+
+<ul>
+<li>Flexible logical volumes</li>
+<li>Storage can be pooled into volume groups</li>
+<li>Volumes can often be extended</li>
+<li>Useful for server storage management</li>
+<li>Supports snapshot-related workflows</li>
+</ul>
+
+<p>
+Actual resize operations should be practiced only in a disposable lab environment.
+</p>
+</div>
+
+
+<div class="card">
+<h2>14. RAID Basics</h2>
+
+<p>
+RAID combines multiple storage devices for performance,
+redundancy or both.
+</p>
+
+<ul>
+<li><b>RAID 0</b> — striping, no redundancy</li>
+<li><b>RAID 1</b> — mirroring</li>
+<li><b>RAID 5</b> — distributed parity</li>
+<li><b>RAID 10</b> — mirror + stripe combination</li>
+</ul>
+
+<p>
+RAID is not a backup.
+</p>
+</div>
+
+
+<div class="card">
+<h2>15. NFS Basics</h2>
+
+<p>
+NFS allows filesystems to be shared over a network.
+</p>
+
+Inspect NFS mounts:
+
+<pre>findmnt -t nfs,nfs4
+
+mount | grep nfs</pre>
+
+<p>
+Production NFS issues can involve network connectivity,
+DNS, server availability, permissions and stale mounts.
+</p>
+</div>
+
+
+<div class="card">
+<h2>16. Filesystem Information</h2>
+
+<pre>df -T
+
+lsblk -f
+
+findmnt
+
+stat -f /</pre>
+
+<p>
+These commands help identify filesystem type, device and mount relationships.
+</p>
+</div>
+
+
+<div class="card">
+<h2>17. Mount Options</h2>
+
+<p>Inspect:</p>
+
+<pre>findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS</pre>
+
+Common concepts include:
+
+<ul>
+<li>rw / ro</li>
+<li>noexec</li>
+<li>nosuid</li>
+<li>nodev</li>
+<li>defaults</li>
+</ul>
+
+<p>
+Mount options can affect application behavior and security.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 1 — Disk 100% Full</h2>
+
+<pre>df -h
+
+du -xhd1 / 2>/dev/null
+
+du -xhd1 /var 2>/dev/null
+
+find /var/log -type f -size +100M 2>/dev/null
+
+lsof +L1</pre>
+
+<p>Investigate:</p>
+
+<ul>
+<li>Growing application logs</li>
+<li>Temporary files</li>
+<li>Database data</li>
+<li>Container data</li>
+<li>Backup files</li>
+<li>Deleted-open files</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 2 — No Space Left but Disk Has Space</h2>
+
+<p>First check:</p>
+
+<pre>df -h
+
+df -i</pre>
+
+<p>Possible reasons:</p>
+
+<ul>
+<li>Inode exhaustion</li>
+<li>Another filesystem is full</li>
+<li>Application-specific quota or limit</li>
+<li>Deleted-open file situation</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 3 — df and du Do Not Match</h2>
+
+<pre>df -h
+
+du -xsh /path
+
+lsof +L1</pre>
+
+<p>
+A common cause is a deleted file that is still held open by a process.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 4 — Mount Missing After Reboot</h2>
+
+<pre>findmnt
+
+lsblk -f
+
+cat /etc/fstab
+
+systemctl --failed
+
+journalctl -b | grep -i mount</pre>
+
+<p>Check:</p>
+
+<ul>
+<li>Correct UUID/device</li>
+<li>Filesystem type</li>
+<li>Mount point exists</li>
+<li>Storage is available</li>
+<li>fstab syntax/options</li>
+<li>Network storage dependencies</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 5 — Filesystem Became Read-Only</h2>
+
+<p>Check:</p>
+
+<pre>findmnt -o TARGET,SOURCE,FSTYPE,OPTIONS
+
+mount
+
+dmesg | tail -100
+
+journalctl -k -n 100</pre>
+
+<p>
+A filesystem may become read-only due to configuration or underlying
+filesystem/storage errors. Kernel logs are important here.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 6 — NFS Application Hangs</h2>
+
+<pre>findmnt -t nfs,nfs4
+
+mount | grep nfs
+
+ping NFS_SERVER
+
+getent hosts NFS_SERVER
+
+ss -tan</pre>
+
+<p>Investigate:</p>
+
+<ul>
+<li>NFS server availability</li>
+<li>Network path</li>
+<li>DNS resolution</li>
+<li>Mount options</li>
+<li>Storage server health</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🧪 Safe Hands-On Lab</h2>
+
+<div class="warning">
+<b>Safety:</b> Do not run mkfs, fdisk, parted or destructive storage
+commands against your laptop's real disks.
+</div>
+
+<p>Use read-only inspection commands:</p>
+
+<pre>lsblk
+
+lsblk -f
+
+df -h
+
+df -T
+
+df -i
+
+findmnt
+
+findmnt /
+
+blkid
+
+free -h
+
+swapon --show</pre>
+</div>
+
+
+<div class="card">
+<h2>🧪 Disk Usage Lab</h2>
+
+<pre>mkdir -p ~/storage-lab
+
+cd ~/storage-lab
+
+dd if=/dev/zero of=testfile bs=1M count=10 status=none
+
+ls -lh testfile
+
+du -h testfile
+
+df -h .
+
+stat testfile
+
+rm testfile</pre>
+
+<p>
+This creates only a small 10 MB regular file inside your home filesystem.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🧪 Inode Lab</h2>
+
+<pre>mkdir -p ~/storage-lab/inodes
+
+cd ~/storage-lab/inodes
+
+touch file{1..100}
+
+ls | wc -l
+
+df -i .
+
+rm -f file*</pre>
+
+<p>
+This helps demonstrate that every file consumes an inode.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+<li>What is a block device?</li>
+<li>What is the difference between a disk and partition?</li>
+<li>What is the difference between MBR and GPT?</li>
+<li>What is a filesystem?</li>
+<li>What is a mount point?</li>
+<li>What is /etc/fstab?</li>
+<li>Why are UUIDs useful in fstab?</li>
+<li>What is the difference between df and du?</li>
+<li>What is an inode?</li>
+<li>How can you get No space left on device when df shows free space?</li>
+<li>Why can df and du show different usage?</li>
+<li>What does lsof +L1 help identify?</li>
+<li>What is swap?</li>
+<li>What is LVM?</li>
+<li>What is a Physical Volume?</li>
+<li>What is a Volume Group?</li>
+<li>What is a Logical Volume?</li>
+<li>What is RAID?</li>
+<li>Why is RAID not a backup?</li>
+<li>What is NFS?</li>
+<li>How would you troubleshoot a filesystem that fails to mount after reboot?</li>
+<li>How would you troubleshoot disk usage reaching 100%?</li>
+</ol>
+</div>
+
+
+<div class="card">
+<h2>🧩 Quick Recall</h2>
+
+<h3>What is the storage flow?</h3>
+
+<button onclick="toggle('a1')">Show Answer</button>
+
+<div id="a1" class="answer">
+<p>
+Disk → Partition → Filesystem → Mount Point → Files/Application Data
+</p>
+</div>
+
+<h3>df has free space but writes fail with No space left. What should you check?</h3>
+
+<button onclick="toggle('a2')">Show Answer</button>
+
+<div id="a2" class="answer">
+<pre>df -h
+df -i
+findmnt
+lsof +L1</pre>
+</div>
+
+<h3>Why might df and du disagree?</h3>
+
+<button onclick="toggle('a3')">Show Answer</button>
+
+<div id="a3" class="answer">
+<p>
+One classic cause is a deleted file that is still open by a running process.
+Filesystem-level allocation remains until the process closes the file descriptor.
+</p>
+</div>
+</div>
+
+
+<div class="card">
+<h2>🗣️ Strong Interview Answer</h2>
+
+<p>
+“When troubleshooting Linux storage, I first identify the affected
+filesystem using df and lsblk. I then check filesystem type and mounts
+with findmnt, inspect directory usage with du, verify inode availability
+with df -i, and check for deleted files still held open using lsof +L1.
+For reboot-related mount problems I also verify /etc/fstab, UUIDs,
+storage availability and boot logs.”
+</p>
+</div>
+
+
+<div class="card">
+<h2>📖 Official Documentation</h2>
+
+<p>Local Linux documentation:</p>
+
+<pre>man lsblk
+man blkid
+man mount
+man findmnt
+man fstab
+man df
+man du
+man stat
+man swapon
+man lvm
+man lsof
+man filesystems</pre>
+
+<p>
+For deeper filesystem and storage internals, use Linux Kernel
+documentation and your distribution's official server documentation.
+</p>
+</div>
+
+
+<div class="card">
+<h2>✅ Completion Standard</h2>
+
+<ul>
+<li>Explain disk → partition → filesystem → mount point</li>
+<li>Use lsblk, df, du and findmnt confidently</li>
+<li>Explain /etc/fstab</li>
+<li>Explain inodes</li>
+<li>Explain df vs du</li>
+<li>Understand deleted-open files</li>
+<li>Explain swap</li>
+<li>Explain PV → VG → LV</li>
+<li>Understand RAID basics</li>
+<li>Understand NFS basics</li>
+<li>Troubleshoot disk-full incidents</li>
+<li>Troubleshoot missing mounts after reboot</li>
+<li>Investigate filesystem and storage errors using logs</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>✅ Topic Progress</h2>
+
+<p id="completeStatus">
+Mark this topic complete when you are confident with it.
+</p>
+
+<button onclick="markTopicComplete()">
+Mark Topic Complete
+</button>
+</div>
+
+</div>
+
+
+<script>
+const currentTopic = "Linux Storage";
+
+function toggle(id) {
+  const element = document.getElementById(id);
+
+  element.style.display =
+    element.style.display === "block"
+      ? "none"
+      : "block";
+}
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

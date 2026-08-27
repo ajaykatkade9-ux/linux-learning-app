@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Linux Files & Text Processing</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+  line-height:1.6;
+}
+
+.container {
+  max-width:950px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  padding:25px;
+  margin:18px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+pre {
+  background:#f1f1f1;
+  padding:15px;
+  border-radius:8px;
+  overflow-x:auto;
+}
+
+code {
+  font-weight:bold;
+}
+
+a {
+  text-decoration:none;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>📂 Files & Text Processing</h1>
+
+<p>
+Master Linux file operations, searching, filtering, pipelines,
+log analysis and command-line text processing.
+</p>
+
+
+<div class="card">
+
+<h2>⚡ 60-Second Revision</h2>
+
+<pre>
+Find File
+   ↓
+Read Content
+   ↓
+Filter Data
+   ↓
+Extract Fields
+   ↓
+Transform
+   ↓
+Sort / Count
+   ↓
+Troubleshoot
+</pre>
+
+<p>
+Core tools:
+<b>find, grep, awk, sed, cut, sort, uniq, xargs, head, tail and pipes.</b>
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>1. Basic File Operations</h2>
+
+<pre>
+pwd
+ls -lah
+
+touch file.txt
+
+mkdir directory
+
+cp file.txt copy.txt
+
+mv copy.txt directory/
+
+rm file.txt
+
+rm -r directory
+
+stat FILE
+
+file FILE
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>2. Reading Files</h2>
+
+<pre>
+cat file.txt
+
+less file.txt
+
+head file.txt
+
+head -20 file.txt
+
+tail file.txt
+
+tail -50 file.txt
+
+tail -f application.log
+</pre>
+
+<p>
+For production logs, <b>less</b> and <b>tail -f</b>
+are extremely useful.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>3. Finding Files</h2>
+
+<pre>
+find /etc -name "*.conf"
+
+find /var/log -type f
+
+find /var/log -type f -size +100M
+
+find /tmp -type f -mtime +7
+
+find / -name "application.log" 2>/dev/null
+</pre>
+
+<h3>Important find filters</h3>
+
+<ul>
+<li>-name — filename</li>
+<li>-type — file type</li>
+<li>-size — file size</li>
+<li>-mtime — modification time</li>
+<li>-user — owner</li>
+<li>-perm — permissions</li>
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>4. grep</h2>
+
+<p>
+grep searches text and is one of the most frequently used
+Linux troubleshooting commands.
+</p>
+
+<pre>
+grep "ERROR" app.log
+
+grep -i "error" app.log
+
+grep -n "error" app.log
+
+grep -v "INFO" app.log
+
+grep -R "ERROR" /var/log/
+
+grep -E "ERROR|WARN" app.log
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>5. Regular Expressions</h2>
+
+<pre>
+grep '^ERROR' app.log
+
+grep 'failed$' app.log
+
+grep -E '[0-9]+' file.txt
+
+grep -E 'ERROR|WARNING' app.log
+</pre>
+
+<p>
+You do not need to memorize every regex feature,
+but you should understand basic matching.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>6. Pipes</h2>
+
+<p>
+A pipe sends stdout from one command into stdin of another.
+</p>
+
+<pre>
+COMMAND1 | COMMAND2
+</pre>
+
+Examples:
+
+<pre>
+ps aux | grep nginx
+
+cat /etc/passwd | grep root
+
+df -h | grep "/"
+
+journalctl | grep -i error
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>7. Redirection</h2>
+
+<pre>
+command > output.txt
+
+command >> output.txt
+
+command 2> error.txt
+
+command > output.txt 2>&1
+
+command < input.txt
+</pre>
+
+<p>
+Remember:
+</p>
+
+<pre>
+0 = stdin
+1 = stdout
+2 = stderr
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>8. awk</h2>
+
+<p>
+awk is excellent for extracting columns and structured text.
+</p>
+
+<pre>
+awk '{print $1}' file.txt
+
+awk '{print $1,$3}' file.txt
+
+awk -F: '{print $1}' /etc/passwd
+
+df -h | awk '{print $1,$5}'
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>9. sed</h2>
+
+<p>
+sed is commonly used for text replacement and automation.
+</p>
+
+<pre>
+sed 's/old/new/' file.txt
+
+sed 's/old/new/g' file.txt
+
+sed -n '1,10p' file.txt
+</pre>
+
+Example:
+
+<pre>
+echo "environment=dev" |
+sed 's/dev/prod/'
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>10. cut</h2>
+
+<pre>
+cut -d: -f1 /etc/passwd
+
+cut -d, -f1 data.csv
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>11. sort & uniq</h2>
+
+<pre>
+sort file.txt
+
+sort -n numbers.txt
+
+sort -r file.txt
+
+uniq file.txt
+
+sort file.txt | uniq
+
+sort file.txt | uniq -c
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>12. xargs</h2>
+
+<p>
+xargs converts input into command arguments.
+</p>
+
+<pre>
+find /tmp -name "*.tmp" | xargs ls -l
+</pre>
+
+Safer form:
+
+<pre>
+find /tmp -name "*.tmp" -print0 |
+xargs -0 ls -l
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>13. tee</h2>
+
+<p>
+tee displays output and writes it to a file at the same time.
+</p>
+
+<pre>
+echo "hello" | tee file.txt
+
+command | tee output.log
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>14. Production Log Analysis</h2>
+
+<p>
+Find recent HTTP 500 responses:
+</p>
+
+<pre>
+grep " 500 " access.log | tail -50
+</pre>
+
+Find most common client IP addresses:
+
+<pre>
+awk '{print $1}' access.log |
+sort |
+uniq -c |
+sort -nr |
+head
+</pre>
+
+Find largest files:
+
+<pre>
+find /var -type f -printf '%s %p\n' 2>/dev/null |
+sort -nr |
+head
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>15. Useful DevOps Pipelines</h2>
+
+<h3>Top CPU processes</h3>
+
+<pre>
+ps aux --sort=-%cpu | head
+</pre>
+
+<h3>Top memory processes</h3>
+
+<pre>
+ps aux --sort=-%mem | head
+</pre>
+
+<h3>Count errors</h3>
+
+<pre>
+grep -i "error" application.log | wc -l
+</pre>
+
+<h3>Watch errors live</h3>
+
+<pre>
+tail -f application.log |
+grep --line-buffered -i error
+</pre>
+
+<h3>Find large logs</h3>
+
+<pre>
+find /var/log -type f -size +100M
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔥 Production Scenario</h2>
+
+<p>
+Users report HTTP 500 errors after a deployment.
+The application log contains millions of lines.
+How would you investigate quickly?
+</p>
+
+<h3>Approach</h3>
+
+<pre>
+tail -200 application.log
+
+grep -i "error" application.log |
+tail -100
+
+grep "500" access.log |
+tail -100
+
+grep -E "ERROR|Exception|Failed" application.log |
+tail -100
+</pre>
+
+<p>
+Then correlate:
+</p>
+
+<ul>
+<li>Timestamp</li>
+<li>Request ID</li>
+<li>User request</li>
+<li>Application error</li>
+<li>Database/service dependency</li>
+<li>Recent deployment changes</li>
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔥 Production Scenario 2</h2>
+
+<p>
+The disk is filling rapidly and you need to find which logs are responsible.
+</p>
+
+<pre>
+df -h
+
+du -sh /var/log/* |
+sort -h
+
+find /var/log -type f -size +100M
+
+lsof +L1
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>🧪 Hands-On Lab</h2>
+
+<pre>
+mkdir -p ~/text-lab
+cd ~/text-lab
+
+printf "INFO server started\nERROR database failed\nINFO retry\nERROR timeout\n" > app.log
+
+cat app.log
+
+grep ERROR app.log
+
+grep -i error app.log
+
+grep -n ERROR app.log
+
+awk '{print $1}' app.log
+
+awk '{print $1}' app.log |
+sort |
+uniq -c
+
+sed 's/ERROR/CRITICAL/g' app.log
+
+tail -2 app.log
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+
+<li>What is a Linux pipe?</li>
+
+<li>What is the difference between stdout and stderr?</li>
+
+<li>What is the difference between grep and find?</li>
+
+<li>How do you search recursively for text?</li>
+
+<li>How would you find files larger than 100 MB?</li>
+
+<li>What is awk commonly used for?</li>
+
+<li>What is sed commonly used for?</li>
+
+<li>What does xargs do?</li>
+
+<li>How do you continuously monitor a log file?</li>
+
+<li>How would you count unique IP addresses in an access log?</li>
+
+<li>What is the difference between > and >>?</li>
+
+<li>What does 2>&1 mean?</li>
+
+</ol>
+
+</div>
+
+
+<div class="card">
+
+<h2>🗣️ Interview Example</h2>
+
+<p>
+“If I need to troubleshoot a large production log,
+I normally narrow the data progressively.
+I first limit the relevant time or recent lines,
+then use grep to identify errors, awk to extract useful fields,
+sort and uniq to identify patterns, and correlate timestamps
+with application or infrastructure events.”
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>📖 Official Documentation</h2>
+
+<ul>
+
+<li>
+<a href="https://www.gnu.org/software/coreutils/manual/" target="_blank">
+GNU Coreutils Manual →
+</a>
+</li>
+
+<li>
+<a href="https://www.gnu.org/software/grep/manual/" target="_blank">
+GNU grep Manual →
+</a>
+</li>
+
+<li>
+<a href="https://www.gnu.org/software/gawk/manual/" target="_blank">
+GNU awk Manual →
+</a>
+</li>
+
+<li>
+<a href="https://www.gnu.org/software/sed/manual/" target="_blank">
+GNU sed Manual →
+</a>
+</li>
+
+<li>
+<a href="https://www.gnu.org/software/findutils/manual/" target="_blank">
+GNU Findutils Manual →
+</a>
+</li>
+
+</ul>
+
+<p>Local documentation:</p>
+
+<pre>
+man grep
+man find
+man awk
+man sed
+man xargs
+man sort
+man tail
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>✅ Completion Standard</h2>
+
+<p>You should be able to:</p>
+
+<ul>
+
+<li>Find files quickly</li>
+
+<li>Search large logs</li>
+
+<li>Build command pipelines</li>
+
+<li>Understand stdin/stdout/stderr</li>
+
+<li>Extract columns with awk</li>
+
+<li>Transform text with sed</li>
+
+<li>Sort and count production data</li>
+
+<li>Investigate large log files efficiently</li>
+
+<li>Explain your troubleshooting approach in an interview</li>
+
+</ul>
+
+</div>
+
+
+<div id="topicCompleteBox">
+
+<h2>✅ Topic Progress</h2>
+
+<p id="completeStatus">
+Mark this topic complete when you are confident with it.
+</p>
+
+<button onclick="markTopicComplete()">
+Mark Topic Complete
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+const currentTopic =
+  "Files & Text Processing";
+
+function loadTopicCompletion() {
+
+  if (
+    localStorage.getItem(currentTopic)
+    === "done"
+  ) {
+
+    document.getElementById(
+      "completeStatus"
+    ).innerHTML =
+      "✅ <b>Completed</b>";
+
+  }
+}
+
+function markTopicComplete() {
+
+  localStorage.setItem(
+    currentTopic,
+    "done"
+  );
+
+  document.getElementById(
+    "completeStatus"
+  ).innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+
+</script>
+
+</body>
+</html>

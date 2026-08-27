@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Linux Security</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      color: #1f2937;
+      background: #f5f7fb;
+    }
+
+    .container {
+      width: min(1000px, 100%);
+      margin: auto;
+    }
+
+    .back {
+      color: #1d4ed8;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .hero,
+    .card {
+      padding: 25px;
+      margin: 22px 0;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .hero {
+      color: white;
+      background: linear-gradient(135deg, #111827, #7f1d1d);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.3;
+    }
+
+    h2 {
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    pre {
+      padding: 17px;
+      overflow-x: auto;
+      color: #d1fae5;
+      background: #111827;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+
+    code {
+      font-family: Consolas, monospace;
+    }
+
+    .note,
+    .warning,
+    .success {
+      padding: 16px;
+      margin: 18px 0;
+      border-radius: 10px;
+    }
+
+    .note {
+      background: #eff6ff;
+      border-left: 5px solid #2563eb;
+    }
+
+    .warning {
+      background: #fff7ed;
+      border-left: 5px solid #ea580c;
+    }
+
+    .success {
+      background: #ecfdf5;
+      border-left: 5px solid #16a34a;
+    }
+
+    table {
+      width: 100%;
+      margin: 18px 0;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #d1d5db;
+    }
+
+    th {
+      background: #e5e7eb;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .complete-button {
+      padding: 13px 20px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      background: #15803d;
+      border: 0;
+      border-radius: 9px;
+    }
+
+    .complete-button:hover {
+      background: #166534;
+    }
+
+    .docs a {
+      display: block;
+      margin: 10px 0;
+      color: #1d4ed8;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      .hero,
+      .card {
+        padding: 19px;
+      }
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<main class="container">
+
+  <a class="back" href="linux.html">
+    ← Back to Linux Course
+  </a>
+
+  <section class="hero">
+    <h1>🛡️ Linux Security</h1>
+
+    <p>
+      Learn how to reduce attack surface, protect access,
+      harden services, investigate security events and secure
+      production Linux systems.
+    </p>
+  </section>
+
+  <section class="card">
+
+    <h2>⚡ 60-Second Revision</h2>
+
+    <ul>
+      <li>Apply least privilege.</li>
+      <li>Disable unnecessary services and ports.</li>
+      <li>Patch operating systems and applications.</li>
+      <li>Use SSH keys and restrict privileged access.</li>
+      <li>Configure a host firewall.</li>
+      <li>Keep SELinux or AppArmor enforced.</li>
+      <li>Protect secrets and encrypt sensitive data.</li>
+      <li>Collect logs and audit important changes.</li>
+      <li>Harden systemd services and kernel settings.</li>
+      <li>Test backups and incident-response procedures.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>1. Linux Security Layers</h2>
+
+    <table>
+      <tr>
+        <th>Layer</th>
+        <th>Purpose</th>
+        <th>Examples</th>
+      </tr>
+
+      <tr>
+        <td>Physical</td>
+        <td>Prevent unauthorized hardware access</td>
+        <td>Datacenter access, encrypted disks, Secure Boot</td>
+      </tr>
+
+      <tr>
+        <td>Identity</td>
+        <td>Verify users and services</td>
+        <td>Passwords, SSH keys, MFA, service accounts</td>
+      </tr>
+
+      <tr>
+        <td>Authorization</td>
+        <td>Control allowed actions</td>
+        <td>Permissions, sudo, ACL, capabilities</td>
+      </tr>
+
+      <tr>
+        <td>Network</td>
+        <td>Restrict communication</td>
+        <td>nftables, firewalld, UFW, security groups</td>
+      </tr>
+
+      <tr>
+        <td>Application</td>
+        <td>Confine applications</td>
+        <td>SELinux, AppArmor, systemd sandboxing</td>
+      </tr>
+
+      <tr>
+        <td>Detection</td>
+        <td>Identify suspicious activity</td>
+        <td>journald, auditd, IDS, file-integrity monitoring</td>
+      </tr>
+
+      <tr>
+        <td>Recovery</td>
+        <td>Restore trusted operation</td>
+        <td>Backups, rebuilds, incident-response plans</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      Security is defence in depth. A firewall alone cannot protect
+      weak passwords, vulnerable software or excessive privileges.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>2. Security Baseline</h2>
+
+    <p>Identify the system before changing it:</p>
+
+    <pre><code>cat /etc/os-release
+uname -r
+hostnamectl
+uptime
+who
+w</code></pre>
+
+    <p>Find listening services:</p>
+
+    <pre><code>sudo ss -tulpn
+sudo systemctl --type=service --state=running
+sudo systemctl list-unit-files --state=enabled</code></pre>
+
+    <p>Check recently authenticated users:</p>
+
+    <pre><code>last
+lastlog
+sudo lastb
+sudo journalctl -u ssh --since today
+sudo journalctl -u sshd --since today</code></pre>
+
+    <p>
+      Service names differ between distributions. Ubuntu commonly
+      uses <code>ssh</code>; RHEL-family systems commonly use
+      <code>sshd</code>.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>3. Reduce Attack Surface</h2>
+
+    <p>
+      Every unnecessary package, service and open port increases
+      the number of components that must be protected.
+    </p>
+
+    <pre><code># Inspect a service
+systemctl status SERVICE_NAME
+systemctl cat SERVICE_NAME
+
+# Stop and disable only after confirming it is unnecessary
+sudo systemctl disable --now SERVICE_NAME
+
+# Prevent accidental activation when appropriate
+sudo systemctl mask SERVICE_NAME</code></pre>
+
+    <div class="warning">
+      Never disable SSH, networking, firewall or authentication
+      services on a remote production server without console access
+      and a tested recovery plan.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>4. Updates and Vulnerability Reduction</h2>
+
+    <h3>Debian and Ubuntu</h3>
+
+    <pre><code>sudo apt update
+apt list --upgradable
+sudo apt upgrade</code></pre>
+
+    <h3>RHEL, Rocky, AlmaLinux and Fedora</h3>
+
+    <pre><code>sudo dnf check-update
+sudo dnf upgrade</code></pre>
+
+    <p>Check whether a reboot may be required:</p>
+
+    <pre><code># Ubuntu/Debian
+test -f /var/run/reboot-required &amp;&amp; cat /var/run/reboot-required
+
+# RHEL-family when needs-restarting is available
+sudo needs-restarting -r</code></pre>
+
+    <div class="note">
+      Production patching requires tested backups, maintenance
+      windows, application health checks and rollback planning.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>5. SSH Hardening</h2>
+
+    <p>Main server configuration:</p>
+
+    <pre><code>/etc/ssh/sshd_config</code></pre>
+
+    <p>Inspect effective configuration:</p>
+
+    <pre><code>sudo sshd -T</code></pre>
+
+    <p>Common hardening directives:</p>
+
+    <pre><code>PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+MaxAuthTries 3
+X11Forwarding no
+AllowUsers deploy</code></pre>
+
+    <div class="warning">
+      Do not disable password login until key-based login has been
+      tested in a second terminal. Keep the original SSH session
+      open while testing.
+    </div>
+
+    <p>Validate before reload:</p>
+
+    <pre><code>sudo sshd -t
+
+# Ubuntu/Debian
+sudo systemctl reload ssh
+
+# RHEL-family
+sudo systemctl reload sshd</code></pre>
+
+    <p>Inspect authorized keys and permissions:</p>
+
+    <pre><code>ls -ld ~/.ssh
+ls -l ~/.ssh/authorized_keys
+
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys</code></pre>
+
+    <p>Recommended private-key permissions:</p>
+
+    <pre><code>chmod 600 ~/.ssh/id_ed25519</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>6. Host Firewall</h2>
+
+    <p>
+      Always allow the management connection before enabling or
+      replacing firewall rules on a remote server.
+    </p>
+
+    <h3>UFW</h3>
+
+    <pre><code>sudo ufw status verbose
+sudo ufw allow OpenSSH
+sudo ufw enable
+sudo ufw status numbered</code></pre>
+
+    <h3>firewalld</h3>
+
+    <pre><code>sudo firewall-cmd --get-active-zones
+sudo firewall-cmd --list-all
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload</code></pre>
+
+    <h3>nftables</h3>
+
+    <pre><code>sudo nft list ruleset
+sudo nft list tables
+sudo nft list ruleset -a</code></pre>
+
+    <div class="warning">
+      Never run a command that flushes the production firewall
+      remotely unless console access and a recovery procedure are
+      available.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>7. SELinux</h2>
+
+    <p>
+      SELinux applies Mandatory Access Control in addition to normal
+      Linux permissions.
+    </p>
+
+    <pre><code>getenforce
+sestatus
+ls -Z
+ps -eZ</code></pre>
+
+    <p>Modes:</p>
+
+    <ul>
+      <li><strong>Enforcing:</strong> policy is enforced and denials are logged.</li>
+      <li><strong>Permissive:</strong> denials are logged but not enforced.</li>
+      <li><strong>Disabled:</strong> SELinux policy is not active.</li>
+    </ul>
+
+    <p>Investigate recent denials:</p>
+
+    <pre><code>sudo ausearch -m AVC -ts recent
+sudo journalctl -t setroubleshoot --since today</code></pre>
+
+    <p>Restore expected labels:</p>
+
+    <pre><code>sudo restorecon -Rv /path/to/directory</code></pre>
+
+    <p>Create a persistent custom file-context rule:</p>
+
+    <pre><code>sudo semanage fcontext -a \
+  -t httpd_sys_content_t \
+  "/srv/site(/.*)?"
+
+sudo restorecon -Rv /srv/site</code></pre>
+
+    <p>Inspect and enable a required boolean:</p>
+
+    <pre><code>getsebool -a
+getsebool httpd_can_network_connect
+
+sudo setsebool -P \
+  httpd_can_network_connect on</code></pre>
+
+    <div class="warning">
+      Disabling SELinux is not a production fix. Read the denial,
+      correct labels or policy, test the application, and keep
+      enforcing mode enabled.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>8. AppArmor</h2>
+
+    <p>
+      AppArmor confines programs using profiles, commonly identified
+      by executable paths.
+    </p>
+
+    <pre><code>sudo aa-status
+sudo apparmor_status
+ls /etc/apparmor.d/</code></pre>
+
+    <p>Inspect denials:</p>
+
+    <pre><code>sudo journalctl -k | grep -i apparmor
+sudo journalctl -k | grep -i denied</code></pre>
+
+    <p>Profile modes:</p>
+
+    <pre><code>sudo aa-complain /path/to/program
+sudo aa-enforce /path/to/program</code></pre>
+
+    <p>Reload a modified profile:</p>
+
+    <pre><code>sudo apparmor_parser -r \
+  /etc/apparmor.d/PROFILE_NAME</code></pre>
+
+    <div class="note">
+      Use complain mode temporarily while developing or debugging a
+      profile. Return the validated profile to enforce mode.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>9. Linux Capabilities</h2>
+
+    <p>
+      Capabilities divide traditional root privileges into smaller
+      units. This allows a process to receive only the privilege it
+      requires.
+    </p>
+
+    <pre><code>getcap /path/to/binary
+sudo getcap -r / 2&gt;/dev/null
+capsh --print</code></pre>
+
+    <p>Example: allow a binary to bind a privileged port:</p>
+
+    <pre><code>sudo setcap \
+  cap_net_bind_service=+ep \
+  /path/to/binary</code></pre>
+
+    <p>Remove file capabilities:</p>
+
+    <pre><code>sudo setcap -r /path/to/binary</code></pre>
+
+    <div class="warning">
+      Capabilities are privileges. Grant only the required
+      capability, document it, and review it after package upgrades.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>10. PAM and Authentication</h2>
+
+    <p>
+      Pluggable Authentication Modules control authentication,
+      account restrictions, password policy and session handling.
+    </p>
+
+    <pre><code>ls /etc/pam.d/
+cat /etc/pam.d/sshd
+cat /etc/login.defs
+
+passwd -S USERNAME
+chage -l USERNAME</code></pre>
+
+    <p>Common controls include:</p>
+
+    <ul>
+      <li>Password-quality requirements</li>
+      <li>Failed-login lockouts</li>
+      <li>Password expiry</li>
+      <li>Session limits</li>
+      <li>Multi-factor authentication integrations</li>
+    </ul>
+
+    <div class="warning">
+      PAM configuration is distribution-specific. A syntax mistake
+      can block every login. Keep root console access and create a
+      backup before editing PAM files.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>11. sudo Security</h2>
+
+    <p>Always edit sudo policy through:</p>
+
+    <pre><code>sudo visudo</code></pre>
+
+    <p>Validate a separate sudoers file:</p>
+
+    <pre><code>sudo visudo -cf /etc/sudoers.d/FILE_NAME</code></pre>
+
+    <p>Inspect privileges:</p>
+
+    <pre><code>sudo -l
+sudo -l -U USERNAME</code></pre>
+
+    <p>Prefer specific commands:</p>
+
+    <pre><code>deploy ALL=(root) /usr/bin/systemctl restart myapp</code></pre>
+
+    <p>Avoid unrestricted rules such as:</p>
+
+    <pre><code>deploy ALL=(ALL) NOPASSWD: ALL</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>12. auditd</h2>
+
+    <p>
+      The Linux audit framework records selected security-relevant
+      events. It provides evidence but does not automatically block
+      an action.
+    </p>
+
+    <pre><code>sudo systemctl status auditd
+sudo auditctl -s
+sudo auditctl -l</code></pre>
+
+    <p>Authentication reports:</p>
+
+    <pre><code>sudo ausearch -m USER_LOGIN -ts today
+sudo aureport --auth
+sudo aureport --failed</code></pre>
+
+    <p>Temporary watch rule:</p>
+
+    <pre><code>sudo auditctl \
+  -w /etc/sudoers \
+  -p wa \
+  -k sudoers_changes</code></pre>
+
+    <p>Search by key:</p>
+
+    <pre><code>sudo ausearch -k sudoers_changes</code></pre>
+
+    <p>
+      Persistent rules normally belong under
+      <code>/etc/audit/rules.d/</code>.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>13. Protect Secrets and Sensitive Files</h2>
+
+    <p>Find overly broad permissions:</p>
+
+    <pre><code>find /path/to/application \
+  -type f \
+  -perm /o+r \
+  -print</code></pre>
+
+    <p>Example secret-file permissions:</p>
+
+    <pre><code>sudo chown appuser:appgroup /etc/myapp/secret.env
+sudo chmod 640 /etc/myapp/secret.env</code></pre>
+
+    <p>Important rules:</p>
+
+    <ul>
+      <li>Never store secrets in Git history.</li>
+      <li>Do not pass secrets through command-line arguments.</li>
+      <li>Do not print secrets in application or CI logs.</li>
+      <li>Use a secret manager when available.</li>
+      <li>Rotate credentials after suspected exposure.</li>
+      <li>Separate human credentials from service credentials.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>14. Disk and Data Encryption</h2>
+
+    <p>Inspect block-device filesystems:</p>
+
+    <pre><code>lsblk -f
+findmnt
+sudo blkid</code></pre>
+
+    <p>Inspect an existing LUKS device carefully:</p>
+
+    <pre><code>sudo cryptsetup luksDump /dev/DEVICE</code></pre>
+
+    <p>Security planning must include:</p>
+
+    <ul>
+      <li>Encryption at rest</li>
+      <li>Encryption in transit</li>
+      <li>Secure key storage</li>
+      <li>Recovery-key procedures</li>
+      <li>Encrypted and tested backups</li>
+      <li>Credential and certificate rotation</li>
+    </ul>
+
+    <div class="warning">
+      Incorrect cryptsetup operations can destroy access to data.
+      Practice using disposable lab disks before production use.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>15. Kernel and Network Hardening</h2>
+
+    <p>Inspect important runtime settings:</p>
+
+    <pre><code>sysctl kernel.randomize_va_space
+sysctl kernel.kptr_restrict
+sysctl kernel.dmesg_restrict
+sysctl fs.protected_hardlinks
+sysctl fs.protected_symlinks
+sysctl net.ipv4.conf.all.accept_redirects
+sysctl net.ipv4.conf.all.send_redirects
+sysctl net.ipv4.conf.all.rp_filter</code></pre>
+
+    <p>Persistent custom settings normally go under:</p>
+
+    <pre><code>/etc/sysctl.d/*.conf</code></pre>
+
+    <p>Validate and load configuration:</p>
+
+    <pre><code>sudo sysctl --system</code></pre>
+
+    <div class="warning">
+      Hardening values are workload-specific. Reverse-path filtering,
+      forwarding and namespace restrictions can break routers,
+      VPNs, containers or Kubernetes nodes. Test first.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>16. systemd Service Hardening</h2>
+
+    <p>Measure a service:</p>
+
+    <pre><code>systemd-analyze security SERVICE_NAME.service</code></pre>
+
+    <p>Common sandboxing directives:</p>
+
+    <pre><code>[Service]
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true</code></pre>
+
+    <p>Limit capabilities when required:</p>
+
+    <pre><code>CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE</code></pre>
+
+    <p>Create an override safely:</p>
+
+    <pre><code>sudo systemctl edit SERVICE_NAME.service
+sudo systemctl daemon-reload
+sudo systemctl restart SERVICE_NAME.service</code></pre>
+
+    <div class="warning">
+      Add restrictions gradually and test every application feature.
+      Some services legitimately require filesystem, kernel, device
+      or network access.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>17. File Integrity and Suspicious Activity</h2>
+
+    <p>Inspect SUID files:</p>
+
+    <pre><code>sudo find / \
+  -xdev \
+  -type f \
+  -perm -4000 \
+  -print 2&gt;/dev/null</code></pre>
+
+    <p>Inspect recent changes:</p>
+
+    <pre><code>sudo find /etc \
+  -type f \
+  -mtime -1 \
+  -print</code></pre>
+
+    <p>Review processes and connections:</p>
+
+    <pre><code>ps auxf
+sudo ss -tulpn
+sudo lsof -i
+sudo lsof +L1</code></pre>
+
+    <p>Distribution package verification:</p>
+
+    <pre><code># RPM-based systems
+sudo rpm -Va
+
+# Debian-based systems when debsums is installed
+sudo debsums -s</code></pre>
+
+    <div class="note">
+      Verification output requires analysis. Configuration changes
+      and package updates can produce legitimate differences.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>18. Production Scenario — SSH Login Failure</h2>
+
+    <ol>
+      <li>Do not close the working administrator session.</li>
+      <li>Validate SSH configuration.</li>
+      <li>Check service status and logs.</li>
+      <li>Check firewall and cloud security rules.</li>
+      <li>Verify user, shell, home and key permissions.</li>
+      <li>Check SELinux or AppArmor denials.</li>
+      <li>Test from a second terminal before reloading.</li>
+    </ol>
+
+    <pre><code>sudo sshd -t
+sudo sshd -T
+sudo systemctl status ssh sshd
+sudo journalctl -u ssh -u sshd --since "30 minutes ago"
+sudo ss -ltnp | grep ':22'
+getent passwd USERNAME
+namei -l /home/USERNAME/.ssh/authorized_keys</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>19. Production Scenario — Application Permission Denied</h2>
+
+    <ol>
+      <li>Capture the exact error and affected path.</li>
+      <li>Identify the service account.</li>
+      <li>Inspect every parent directory.</li>
+      <li>Check ACLs.</li>
+      <li>Check SELinux or AppArmor logs.</li>
+      <li>Apply the smallest necessary permission or policy change.</li>
+      <li>Retest and document the result.</li>
+    </ol>
+
+    <pre><code>systemctl show SERVICE_NAME -p User -p Group
+namei -l /path/to/file
+getfacl /path/to/file
+ls -lZ /path/to/file
+sudo ausearch -m AVC -ts recent
+sudo journalctl -k | grep -i denied</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>20. Production Scenario — Unexpected Open Port</h2>
+
+    <pre><code>sudo ss -ltnp
+sudo ss -lunp
+sudo lsof -i :PORT
+ps -fp PID
+sudo readlink -f /proc/PID/exe
+sudo systemctl status SERVICE_NAME
+sudo journalctl _PID=PID</code></pre>
+
+    <ol>
+      <li>Identify the process and binary.</li>
+      <li>Determine who started it and why.</li>
+      <li>Check related service, container and scheduled jobs.</li>
+      <li>Preserve logs and evidence.</li>
+      <li>Contain the system according to the incident plan.</li>
+      <li>Rotate exposed credentials.</li>
+      <li>Rebuild from trusted sources if compromise is confirmed.</li>
+    </ol>
+
+    <div class="warning">
+      During a suspected compromise, randomly deleting files or
+      killing processes may destroy evidence. Follow the approved
+      incident-response procedure.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>🧪 Hands-On Security Lab</h2>
+
+    <h3>Lab 1 — Read-Only Baseline</h3>
+
+    <pre><code>cat /etc/os-release
+uname -r
+sudo ss -tulpn
+systemctl --type=service --state=running
+last -n 10
+sudo journalctl -p warning --since today</code></pre>
+
+    <h3>Lab 2 — SSH Review</h3>
+
+    <pre><code>sudo sshd -t
+sudo sshd -T | grep -E \
+'permitrootlogin|passwordauthentication|pubkeyauthentication|maxauthtries'</code></pre>
+
+    <h3>Lab 3 — Security Module Review</h3>
+
+    <pre><code>cat /sys/kernel/security/lsm 2&gt;/dev/null
+getenforce 2&gt;/dev/null
+sudo aa-status 2&gt;/dev/null</code></pre>
+
+    <h3>Lab 4 — Service Hardening Report</h3>
+
+    <pre><code>systemd-analyze security
+systemd-analyze security ssh.service
+systemd-analyze security sshd.service</code></pre>
+
+    <h3>Lab 5 — Firewall Review</h3>
+
+    <pre><code>sudo nft list ruleset
+sudo ufw status verbose
+sudo firewall-cmd --list-all</code></pre>
+
+    <p>
+      Some commands will be unavailable depending on the distribution
+      and installed firewall or security framework.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>🎯 Interview Questions</h2>
+
+    <h3>What is defence in depth?</h3>
+    <p>
+      Multiple independent security controls protect the system so
+      the failure of one control does not expose everything.
+    </p>
+
+    <h3>DAC vs MAC?</h3>
+    <p>
+      DAC uses ownership and permission decisions controlled by
+      resource owners. MAC adds centrally enforced policy, such as
+      SELinux or AppArmor.
+    </p>
+
+    <h3>Why avoid direct root login?</h3>
+    <p>
+      Named accounts plus controlled sudo provide accountability,
+      smaller privilege scope and better auditing.
+    </p>
+
+    <h3>SELinux denial troubleshooting?</h3>
+    <p>
+      Reproduce the problem, inspect AVC logs, confirm labels and
+      booleans, apply the smallest correct policy change, and retest
+      in enforcing mode.
+    </p>
+
+    <h3>Why use capabilities?</h3>
+    <p>
+      They grant a process a specific privilege instead of the entire
+      root privilege set.
+    </p>
+
+    <h3>What does auditd provide?</h3>
+    <p>
+      It records selected system and security events for investigation
+      and compliance. It does not itself prevent the event.
+    </p>
+
+    <h3>First response to a suspected compromise?</h3>
+    <p>
+      Preserve evidence, follow the incident plan, contain affected
+      systems, protect credentials, determine scope and recover from a
+      trusted state.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Production Security Checklist</h2>
+
+    <ul>
+      <li>Only required ports are listening.</li>
+      <li>Unused services are disabled.</li>
+      <li>Security updates are applied through a tested process.</li>
+      <li>Direct root SSH login is disabled.</li>
+      <li>SSH keys and MFA are used where possible.</li>
+      <li>Firewall rules use least access.</li>
+      <li>SELinux or AppArmor is enforced.</li>
+      <li>sudo rules grant only required commands.</li>
+      <li>Secrets are protected and rotated.</li>
+      <li>Logs are centralized and monitored.</li>
+      <li>Important changes are audited.</li>
+      <li>Backups are encrypted and restoration is tested.</li>
+      <li>Service accounts cannot log in interactively unless required.</li>
+      <li>Incident-response access and procedures are tested.</li>
+    </ul>
+
+  </section>
+
+  <section class="card docs">
+
+    <h2>📖 Official Documentation</h2>
+
+    <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/using_selinux/index"
+       target="_blank"
+       rel="noopener noreferrer">
+      Red Hat — Using SELinux
+    </a>
+
+    <a href="https://documentation.ubuntu.com/security/docs/security-features/privilege-restriction/apparmor/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Ubuntu — AppArmor Security Documentation
+    </a>
+
+    <a href="https://man.openbsd.org/sshd_config"
+       target="_blank"
+       rel="noopener noreferrer">
+      OpenSSH — sshd_config Manual
+    </a>
+
+    <a href="https://docs.kernel.org/security/lsm.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Kernel — Linux Security Modules
+    </a>
+
+    <a href="https://wiki.nftables.org/wiki-nftables/index.php/Main_Page"
+       target="_blank"
+       rel="noopener noreferrer">
+      nftables Documentation
+    </a>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Completion Standard</h2>
+
+    <p>You should be able to:</p>
+
+    <ul>
+      <li>Audit users, services, ports and authentication logs.</li>
+      <li>Safely review and harden SSH.</li>
+      <li>Inspect firewall rules.</li>
+      <li>Troubleshoot SELinux and AppArmor denials.</li>
+      <li>Explain permissions, capabilities, PAM and auditd.</li>
+      <li>Review systemd and kernel security controls.</li>
+      <li>Investigate suspicious ports, processes and files.</li>
+      <li>Explain a safe production incident-response approach.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Topic Progress</h2>
+
+    <p id="completeStatus">
+      Mark this topic complete after studying the concepts,
+      commands, labs and interview questions.
+    </p>
+
+    <button class="complete-button"
+            onclick="markTopicComplete()">
+      Mark Topic Complete
+    </button>
+
+  </section>
+
+</main>
+
+<script>
+  const currentTopic = "Linux Security";
+
+  function loadTopicCompletion() {
+    if (
+      localStorage.getItem(currentTopic) === "done"
+    ) {
+      document.getElementById("completeStatus")
+        .innerHTML = "✅ <b>Completed</b>";
+    }
+  }
+
+  function markTopicComplete() {
+    localStorage.setItem(currentTopic, "done");
+
+    document.getElementById("completeStatus")
+      .innerHTML = "✅ <b>Completed</b>";
+  }
+
+  loadTopicCompletion();
+</script>
+
+</body>
+</html>

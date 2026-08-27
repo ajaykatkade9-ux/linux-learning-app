@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A focused daily Linux learning session with revision, practice and interview preparation.">
+  <title>Today's Study</title>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+  <main class="container">
+    <a class="back" href="index.html">← Home</a>
+
+    <section class="hero today-hero">
+      <div>
+        <p class="hero-kicker">Your focused daily plan</p>
+        <h1>Today's Study</h1>
+        <p id="todayDate">Learn, recall, practice and prepare for interviews.</p>
+      </div>
+      <div class="today-hero-meta" aria-label="Daily session summary">
+        <span><strong id="streak">0</strong> day streak</span>
+        <span>25–40 minutes</span>
+      </div>
+    </section>
+
+    <section class="today-overview">
+      <article class="card today-focus-card">
+        <div class="today-card-heading">
+          <div>
+            <p class="panel-kicker">Today's focus topic</p>
+            <h2 id="focusTopic">Loading topic…</h2>
+          </div>
+          <span class="today-topic-state" id="focusCompletionState">
+            Course topic
+          </span>
+        </div>
+
+        <p id="focusDescription">
+          Study the concept, commands, troubleshooting flow and interview questions.
+        </p>
+
+        <div class="today-action-row">
+          <a id="focusLink" class="primary-button" href="linux.html">
+            Open focus topic
+          </a>
+          <button
+            class="secondary-button"
+            id="focusReviewButton"
+            type="button"
+            onclick="toggleTodayStep('focus')"
+          >
+            Mark focus reviewed
+          </button>
+        </div>
+      </article>
+
+      <article class="card today-progress-card">
+        <p class="panel-kicker success">Session progress</p>
+        <div class="today-progress-heading">
+          <h2><span id="completedStepCount">0</span> of <span id="totalStepCount">6</span> done</h2>
+          <strong id="todayProgressPercent">0%</strong>
+        </div>
+
+        <div
+          class="today-progress-track"
+          id="todayProgressTrack"
+          role="progressbar"
+          aria-label="Today's session progress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <div class="today-progress-fill" id="todayProgressFill"></div>
+        </div>
+
+        <p id="sessionStatus" class="today-session-status" role="status" aria-live="polite">
+          Complete each step, then finish your session.
+        </p>
+
+        <button
+          class="success-button"
+          id="completeTodayButton"
+          type="button"
+          onclick="completeToday()"
+          disabled
+        >
+          Finish today's study
+        </button>
+      </article>
+    </section>
+
+    <section class="today-plan-heading">
+      <div>
+        <p class="panel-kicker">Daily learning loop</p>
+        <h2>Your study plan</h2>
+      </div>
+      <p>Open each activity, complete a focused task and mark it done.</p>
+    </section>
+
+    <section class="today-step-list" id="todaySteps" aria-label="Today's study activities"></section>
+  </main>
+
+  <script src="linux-course-progress.js"></script>
+  <script src="revision-data.js"></script>
+  <script>
+    const todayStepDefinitions = [
+      {
+        id: "revision",
+        number: "02",
+        title: "Quick revision",
+        description: "Recall one due topic using the 30-second, interview and production prompts.",
+        page: "revision.html",
+        action: "Start revision",
+        meta: "5–10 min"
+      },
+      {
+        id: "practice",
+        number: "03",
+        title: "Hands-on practice",
+        description: "Run a controlled Linux lab and verify the expected result.",
+        page: "practice.html",
+        action: "Open labs",
+        meta: "10–15 min"
+      },
+      {
+        id: "interview",
+        number: "04",
+        title: "Interview practice",
+        description: "Answer a concept or scenario question aloud before checking the answer.",
+        page: "interview.html",
+        action: "Practice answers",
+        meta: "5 min"
+      },
+      {
+        id: "challenge",
+        number: "05",
+        title: "Production challenge",
+        description: "Work through a random incident using evidence and safe troubleshooting steps.",
+        page: "challenge.html",
+        action: "Start challenge",
+        meta: "5–10 min"
+      },
+      {
+        id: "troubleshooting",
+        number: "06",
+        title: "Troubleshooting drill",
+        description: "Review one real Linux failure path and the commands that isolate it.",
+        page: "troubleshooting.html",
+        action: "Open troubleshooting",
+        meta: "5 min"
+      }
+    ];
+
+    const allTodayStepIds = [
+      "focus",
+      ...todayStepDefinitions.map(step => step.id)
+    ];
+
+    function localDateString(date = new Date()) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function yesterdayDateString() {
+      const date = new Date();
+      date.setDate(date.getDate() - 1);
+      return localDateString(date);
+    }
+
+    const currentDate = localDateString();
+    const sessionStorageKey = "todaySession_" + currentDate;
+    const availableTopics = Object.entries(linuxTopicProgressMap).map(
+      ([page, name]) => ({ page, name })
+    );
+    const yearStart = new Date(new Date().getFullYear(), 0, 0);
+    const dayNumber = Math.floor((new Date() - yearStart) / 86400000);
+    const focusTopicData =
+      availableTopics[(dayNumber - 1) % availableTopics.length] ||
+      { name: "Linux Foundations", page: "linux-foundations.html" };
+
+    function getSessionState() {
+      try {
+        return JSON.parse(localStorage.getItem(sessionStorageKey) || "{}") || {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveSessionState(state) {
+      localStorage.setItem(sessionStorageKey, JSON.stringify(state));
+    }
+
+    function getDueRevisionCount() {
+      const topics = Array.isArray(window.revisionTopics)
+        ? window.revisionTopics
+        : [];
+
+      return topics.filter(topic => {
+        try {
+          const data = JSON.parse(
+            localStorage.getItem("review_" + topic.id) ||
+            '{"level":0,"nextReview":null}'
+          );
+          return !data.nextReview || data.nextReview <= currentDate;
+        } catch (error) {
+          return true;
+        }
+      }).length;
+    }
+
+    function renderTodaySteps(state) {
+      const container = document.getElementById("todaySteps");
+      const dueCount = getDueRevisionCount();
+      container.innerHTML = "";
+
+      todayStepDefinitions.forEach(step => {
+        const done = Boolean(state[step.id]);
+        const card = document.createElement("article");
+        card.className = "today-step-card" + (done ? " completed" : "");
+
+        const detail = step.id === "revision"
+          ? `${dueCount} topic${dueCount === 1 ? "" : "s"} currently due`
+          : step.meta;
+
+        card.innerHTML = `
+          <span class="today-step-number">${step.number}</span>
+          <div class="today-step-copy">
+            <div class="today-step-title-row">
+              <h3>${step.title}</h3>
+              <span>${detail}</span>
+            </div>
+            <p>${step.description}</p>
+          </div>
+          <div class="today-step-actions">
+            <a class="secondary-button" href="${step.page}">${step.action}</a>
+            <button
+              class="${done ? "secondary-button" : "primary-button"}"
+              type="button"
+              onclick="toggleTodayStep('${step.id}')"
+            >
+              ${done ? "Completed" : "Mark done"}
+            </button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderToday() {
+      const state = getSessionState();
+
+      if (
+        localStorage.getItem("focusReviewedDate") === currentDate &&
+        localStorage.getItem("focusReviewedTopic")
+      ) {
+        state.focus = true;
+        saveSessionState(state);
+      }
+
+      const completed = allTodayStepIds.filter(id => state[id]).length;
+      const total = allTodayStepIds.length;
+      const percent = Math.round((completed / total) * 100);
+      const sessionCompleted = localStorage.getItem("lastStudyDate") === currentDate;
+
+      document.getElementById("streak").textContent =
+        localStorage.getItem("studyStreak") || "0";
+      document.getElementById("focusTopic").textContent = focusTopicData.name;
+      document.getElementById("focusLink").href = focusTopicData.page;
+      document.getElementById("focusCompletionState").textContent =
+        localStorage.getItem(focusTopicData.name) === "done"
+          ? "Course topic completed"
+          : "Course topic in progress";
+      const focusButton = document.getElementById("focusReviewButton");
+      focusButton.textContent =
+        state.focus ? "Reviewed today" : "Mark focus reviewed";
+      focusButton.className =
+        state.focus ? "secondary-button" : "primary-button";
+
+      document.getElementById("completedStepCount").textContent = completed;
+      document.getElementById("totalStepCount").textContent = total;
+      document.getElementById("todayProgressPercent").textContent = percent + "%";
+      document.getElementById("todayProgressFill").style.width = percent + "%";
+      document.getElementById("todayProgressTrack").setAttribute(
+        "aria-valuenow",
+        String(percent)
+      );
+
+      const finishButton = document.getElementById("completeTodayButton");
+      finishButton.disabled = completed !== total || sessionCompleted;
+      finishButton.textContent = sessionCompleted
+        ? "Today's study completed"
+        : "Finish today's study";
+
+      document.getElementById("sessionStatus").textContent = sessionCompleted
+        ? "Great work — today's session is complete and your streak is updated."
+        : completed === total
+          ? "All activities complete. Finish the session to update your streak."
+          : `${total - completed} activit${total - completed === 1 ? "y" : "ies"} remaining.`;
+
+      renderTodaySteps(state);
+    }
+
+    function toggleTodayStep(id) {
+      if (!allTodayStepIds.includes(id)) return;
+      const state = getSessionState();
+      state[id] = !state[id];
+      saveSessionState(state);
+
+      if (id === "focus") {
+        if (state.focus) {
+          localStorage.setItem("focusReviewedDate", currentDate);
+          localStorage.setItem("focusReviewedTopic", focusTopicData.name);
+        } else if (localStorage.getItem("focusReviewedDate") === currentDate) {
+          localStorage.removeItem("focusReviewedDate");
+          localStorage.removeItem("focusReviewedTopic");
+        }
+      }
+
+      renderToday();
+    }
+
+    function completeToday() {
+      const state = getSessionState();
+      const allDone = allTodayStepIds.every(id => state[id]);
+
+      if (!allDone) {
+        document.getElementById("sessionStatus").textContent =
+          "Complete every activity before finishing today's study.";
+        return;
+      }
+
+      if (localStorage.getItem("lastStudyDate") === currentDate) {
+        renderToday();
+        return;
+      }
+
+      const lastStudy = localStorage.getItem("lastStudyDate");
+      let streak = Number.parseInt(localStorage.getItem("studyStreak") || "0", 10);
+      streak = lastStudy === yesterdayDateString() ? streak + 1 : 1;
+
+      localStorage.setItem("lastStudyDate", currentDate);
+      localStorage.setItem("studyStreak", String(streak));
+      renderToday();
+    }
+
+    document.getElementById("todayDate").textContent =
+      new Date().toLocaleDateString("en-IN", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }) + " · Learn, recall, practice and prepare.";
+
+    window.addEventListener("pageshow", renderToday);
+    window.addEventListener("storage", renderToday);
+    renderToday();
+  </script>
+</body>
+</html>

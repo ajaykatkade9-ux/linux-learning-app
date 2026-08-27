@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Advanced Linux Internals</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      color: #1f2937;
+      background: #f5f7fb;
+    }
+
+    .container {
+      width: min(1000px, 100%);
+      margin: auto;
+    }
+
+    .back {
+      color: #1d4ed8;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .hero,
+    .card {
+      padding: 25px;
+      margin: 22px 0;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .hero {
+      color: white;
+      background: linear-gradient(135deg, #111827, #3730a3);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.3;
+    }
+
+    h2 {
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    pre {
+      padding: 17px;
+      overflow-x: auto;
+      color: #d1fae5;
+      background: #111827;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+
+    code {
+      font-family: Consolas, monospace;
+    }
+
+    .note,
+    .warning,
+    .success {
+      padding: 16px;
+      margin: 18px 0;
+      border-radius: 10px;
+    }
+
+    .note {
+      background: #eff6ff;
+      border-left: 5px solid #2563eb;
+    }
+
+    .warning {
+      background: #fff7ed;
+      border-left: 5px solid #ea580c;
+    }
+
+    .success {
+      background: #ecfdf5;
+      border-left: 5px solid #16a34a;
+    }
+
+    table {
+      width: 100%;
+      margin: 18px 0;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #d1d5db;
+    }
+
+    th {
+      background: #e5e7eb;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .complete-button {
+      padding: 13px 20px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      background: #15803d;
+      border: 0;
+      border-radius: 9px;
+    }
+
+    .complete-button:hover {
+      background: #166534;
+    }
+
+    .docs a {
+      display: block;
+      margin: 10px 0;
+      color: #1d4ed8;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      .hero,
+      .card {
+        padding: 19px;
+      }
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<main class="container">
+
+  <a class="back" href="linux.html">
+    ← Back to Linux Course
+  </a>
+
+  <section class="hero">
+    <h1>🧬 Advanced Linux Internals</h1>
+
+    <p>
+      Understand how processes communicate with the kernel,
+      how Linux exposes runtime information, how containers
+      isolate workloads and how to troubleshoot resource limits.
+    </p>
+  </section>
+
+  <section class="card">
+
+    <h2>⚡ 60-Second Revision</h2>
+
+    <ul>
+      <li><code>/proc</code> exposes process and kernel runtime information.</li>
+      <li><code>/sys</code> exposes kernel objects, devices and drivers.</li>
+      <li>Applications enter the kernel using system calls.</li>
+      <li>A file descriptor identifies an open kernel-managed resource.</li>
+      <li><code>ulimit</code> controls per-process resource limits.</li>
+      <li>Kernel modules extend a running kernel.</li>
+      <li>Namespaces isolate what processes can see.</li>
+      <li>cgroups control and account for resource usage.</li>
+      <li>Capabilities divide root privileges into smaller privileges.</li>
+      <li>Signals notify or control processes.</li>
+      <li>Sockets provide local or network communication.</li>
+      <li>Containers combine namespaces, cgroups and security controls.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>1. User Space and Kernel Space</h2>
+
+    <table>
+      <tr>
+        <th>Area</th>
+        <th>Purpose</th>
+        <th>Examples</th>
+      </tr>
+
+      <tr>
+        <td>User space</td>
+        <td>Runs applications with restricted access</td>
+        <td>Bash, Nginx, Python, Docker CLI</td>
+      </tr>
+
+      <tr>
+        <td>Kernel space</td>
+        <td>Controls hardware and protected resources</td>
+        <td>Scheduler, memory manager, networking, drivers</td>
+      </tr>
+
+      <tr>
+        <td>System-call interface</td>
+        <td>Controlled entry from applications into the kernel</td>
+        <td>open, read, write, fork, execve, socket</td>
+      </tr>
+    </table>
+
+    <p>Inspect the running kernel:</p>
+
+    <pre><code>uname -a
+uname -r
+cat /proc/version
+cat /proc/cmdline
+dmesg | head</code></pre>
+
+    <div class="note">
+      Applications normally do not access hardware directly.
+      They request kernel operations using system calls.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>2. The /proc Filesystem</h2>
+
+    <p>
+      <code>/proc</code> is a virtual filesystem. Most entries are
+      generated dynamically by the kernel instead of being stored
+      as normal disk files.
+    </p>
+
+    <pre><code>mount | grep ' on /proc '
+findmnt /proc
+ls /proc | head
+cat /proc/filesystems</code></pre>
+
+    <h3>Important system-wide files</h3>
+
+    <table>
+      <tr>
+        <th>Path</th>
+        <th>Information</th>
+      </tr>
+
+      <tr>
+        <td>/proc/cpuinfo</td>
+        <td>CPU information</td>
+      </tr>
+
+      <tr>
+        <td>/proc/meminfo</td>
+        <td>Memory statistics</td>
+      </tr>
+
+      <tr>
+        <td>/proc/loadavg</td>
+        <td>Load average and runnable tasks</td>
+      </tr>
+
+      <tr>
+        <td>/proc/uptime</td>
+        <td>System uptime and idle time</td>
+      </tr>
+
+      <tr>
+        <td>/proc/mounts</td>
+        <td>Current mount information</td>
+      </tr>
+
+      <tr>
+        <td>/proc/interrupts</td>
+        <td>Interrupt activity by CPU</td>
+      </tr>
+
+      <tr>
+        <td>/proc/modules</td>
+        <td>Loaded kernel modules</td>
+      </tr>
+
+      <tr>
+        <td>/proc/sys</td>
+        <td>Runtime kernel parameters</td>
+      </tr>
+    </table>
+
+    <pre><code>cat /proc/cpuinfo
+cat /proc/meminfo
+cat /proc/loadavg
+cat /proc/uptime
+cat /proc/interrupts
+cat /proc/modules</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>3. Process Information Inside /proc</h2>
+
+    <p>
+      Every visible process normally has a directory named
+      <code>/proc/PID</code>.
+    </p>
+
+    <pre><code>PID=$$
+
+ls /proc/$PID
+cat /proc/$PID/status
+cat /proc/$PID/comm
+tr '\0' ' ' &lt; /proc/$PID/cmdline
+readlink /proc/$PID/exe
+readlink /proc/$PID/cwd</code></pre>
+
+    <table>
+      <tr>
+        <th>Path</th>
+        <th>Purpose</th>
+      </tr>
+
+      <tr>
+        <td>/proc/PID/status</td>
+        <td>Identity, memory, capabilities and process state</td>
+      </tr>
+
+      <tr>
+        <td>/proc/PID/cmdline</td>
+        <td>Original process arguments</td>
+      </tr>
+
+      <tr>
+        <td>/proc/PID/environ</td>
+        <td>Process environment</td>
+      </tr>
+
+      <tr>
+        <td>/proc/PID/fd</td>
+        <td>Open file descriptors</td>
+      </tr>
+
+      <tr>
+        <td>/proc/PID/limits</td>
+        <td>Resource limits</td>
+      </tr>
+
+      <tr>
+        <td>/proc/PID/maps</td>
+        <td>Virtual memory mappings</td>
+      </tr>
+
+      <tr>
+        <td>/proc/PID/io</td>
+        <td>Process I/O counters</td>
+      </tr>
+
+      <tr>
+        <td>/proc/PID/ns</td>
+        <td>Namespace membership</td>
+      </tr>
+
+      <tr>
+        <td>/proc/PID/cgroup</td>
+        <td>Control-group membership</td>
+      </tr>
+    </table>
+
+    <pre><code>PID=$$
+
+ls -l /proc/$PID/fd
+cat /proc/$PID/limits
+cat /proc/$PID/maps
+cat /proc/$PID/io
+ls -l /proc/$PID/ns
+cat /proc/$PID/cgroup</code></pre>
+
+    <div class="warning">
+      Process environment variables can contain secrets. Do not copy
+      <code>/proc/PID/environ</code> into tickets, chat or public logs.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>4. Kernel Parameters and sysctl</h2>
+
+    <p>
+      Files under <code>/proc/sys</code> expose configurable runtime
+      kernel parameters. The <code>sysctl</code> command provides a
+      safer readable interface.
+    </p>
+
+    <pre><code>sysctl kernel.hostname
+sysctl vm.swappiness
+sysctl fs.file-max
+sysctl net.ipv4.ip_forward</code></pre>
+
+    <p>Equivalent paths:</p>
+
+    <pre><code>cat /proc/sys/kernel/hostname
+cat /proc/sys/vm/swappiness
+cat /proc/sys/fs/file-max
+cat /proc/sys/net/ipv4/ip_forward</code></pre>
+
+    <p>Persistent custom settings usually belong under:</p>
+
+    <pre><code>/etc/sysctl.d/*.conf</code></pre>
+
+    <p>Validate and load configured values:</p>
+
+    <pre><code>sudo sysctl --system</code></pre>
+
+    <div class="warning">
+      Do not copy random sysctl tuning values into production.
+      Network, memory and filesystem settings can reduce stability
+      or break containers, VPNs and routing.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>5. The /sys Filesystem</h2>
+
+    <p>
+      <code>/sys</code>, also called sysfs, exposes kernel objects,
+      devices, drivers, buses and their relationships.
+    </p>
+
+    <pre><code>findmnt /sys
+ls /sys
+ls /sys/class
+ls /sys/block
+ls /sys/bus
+ls /sys/devices
+ls /sys/module</code></pre>
+
+    <table>
+      <tr>
+        <th>Path</th>
+        <th>Purpose</th>
+      </tr>
+
+      <tr>
+        <td>/sys/class</td>
+        <td>Devices grouped by class</td>
+      </tr>
+
+      <tr>
+        <td>/sys/block</td>
+        <td>Block devices</td>
+      </tr>
+
+      <tr>
+        <td>/sys/bus</td>
+        <td>Hardware buses and drivers</td>
+      </tr>
+
+      <tr>
+        <td>/sys/devices</td>
+        <td>Kernel device hierarchy</td>
+      </tr>
+
+      <tr>
+        <td>/sys/module</td>
+        <td>Loaded module information</td>
+      </tr>
+
+      <tr>
+        <td>/sys/fs/cgroup</td>
+        <td>cgroup hierarchy</td>
+      </tr>
+    </table>
+
+    <h3>Network-device example</h3>
+
+    <pre><code>ls /sys/class/net
+
+for interface in /sys/class/net/*; do
+  echo "$interface"
+  cat "$interface/operstate"
+done</code></pre>
+
+    <h3>Block-device example</h3>
+
+    <pre><code>lsblk
+ls -l /sys/block
+cat /sys/block/*/queue/scheduler 2&gt;/dev/null</code></pre>
+
+    <div class="warning">
+      Some sysfs files are writable control interfaces. Writing an
+      incorrect value can change device or kernel behaviour immediately.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>6. System Calls</h2>
+
+    <p>
+      System calls are the formal interface through which user-space
+      programs request kernel operations.
+    </p>
+
+    <table>
+      <tr>
+        <th>Category</th>
+        <th>Examples</th>
+      </tr>
+
+      <tr>
+        <td>Files</td>
+        <td>openat, read, write, close, stat</td>
+      </tr>
+
+      <tr>
+        <td>Processes</td>
+        <td>clone, fork, execve, wait4, exit</td>
+      </tr>
+
+      <tr>
+        <td>Memory</td>
+        <td>mmap, munmap, brk, mprotect</td>
+      </tr>
+
+      <tr>
+        <td>Networking</td>
+        <td>socket, bind, listen, accept, connect</td>
+      </tr>
+
+      <tr>
+        <td>Signals</td>
+        <td>kill, rt_sigaction, rt_sigprocmask</td>
+      </tr>
+    </table>
+
+    <p>Trace system calls:</p>
+
+    <pre><code>strace true
+strace -o /tmp/ls.trace ls /tmp
+less /tmp/ls.trace</code></pre>
+
+    <p>Trace selected calls:</p>
+
+    <pre><code>strace -e trace=openat,read,write,close \
+  ls /tmp</code></pre>
+
+    <p>Attach to an existing process:</p>
+
+    <pre><code>sudo strace -p PID</code></pre>
+
+    <p>Summarize system-call activity:</p>
+
+    <pre><code>strace -c ls /usr</code></pre>
+
+    <div class="warning">
+      Attaching tracing tools can affect performance and expose
+      application data. Use production change and access procedures.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>7. File Descriptors</h2>
+
+    <p>
+      A file descriptor is a small integer used by a process to refer
+      to a kernel-managed open resource.
+    </p>
+
+    <table>
+      <tr>
+        <th>Descriptor</th>
+        <th>Standard name</th>
+      </tr>
+
+      <tr>
+        <td>0</td>
+        <td>Standard input</td>
+      </tr>
+
+      <tr>
+        <td>1</td>
+        <td>Standard output</td>
+      </tr>
+
+      <tr>
+        <td>2</td>
+        <td>Standard error</td>
+      </tr>
+    </table>
+
+    <p>
+      Files, directories, sockets, pipes, terminals and event
+      interfaces can all be represented by file descriptors.
+    </p>
+
+    <pre><code>ls -l /proc/$$/fd
+lsof -p $$
+lsof -p PID
+sudo lsof +L1</code></pre>
+
+    <h3>Shell redirection</h3>
+
+    <pre><code>command &gt; output.log
+command 2&gt; error.log
+command &gt; all.log 2&gt;&amp;1
+command &gt;&gt; output.log
+command &lt; input.txt</code></pre>
+
+    <h3>Count descriptors used by a process</h3>
+
+    <pre><code>find /proc/PID/fd -maxdepth 1 \
+  -type l 2&gt;/dev/null | wc -l</code></pre>
+
+    <h3>System-wide file-handle information</h3>
+
+    <pre><code>cat /proc/sys/fs/file-nr
+sysctl fs.file-max</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>8. ulimit and Resource Limits</h2>
+
+    <p>
+      Resource limits protect the system from excessive resource
+      consumption by a process or user.
+    </p>
+
+    <pre><code>ulimit -a
+ulimit -Sn
+ulimit -Hn
+cat /proc/$$/limits
+prlimit --pid $$</code></pre>
+
+    <table>
+      <tr>
+        <th>Limit</th>
+        <th>Meaning</th>
+      </tr>
+
+      <tr>
+        <td>nofile</td>
+        <td>Maximum open file descriptors</td>
+      </tr>
+
+      <tr>
+        <td>nproc</td>
+        <td>Maximum processes or threads</td>
+      </tr>
+
+      <tr>
+        <td>core</td>
+        <td>Core-dump size</td>
+      </tr>
+
+      <tr>
+        <td>stack</td>
+        <td>Thread stack size</td>
+      </tr>
+
+      <tr>
+        <td>memlock</td>
+        <td>Memory that may be locked</td>
+      </tr>
+    </table>
+
+    <p>Traditional login-session configuration:</p>
+
+    <pre><code>/etc/security/limits.conf
+/etc/security/limits.d/*.conf</code></pre>
+
+    <p>systemd service limits:</p>
+
+    <pre><code>systemctl show SERVICE_NAME \
+  -p LimitNOFILE \
+  -p LimitNPROC
+
+systemctl cat SERVICE_NAME</code></pre>
+
+    <p>Example systemd override:</p>
+
+    <pre><code>[Service]
+LimitNOFILE=65535</code></pre>
+
+    <div class="note">
+      Changing <code>ulimit</code> in an interactive shell does not
+      automatically change limits for an existing systemd service.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>9. Kernel Modules</h2>
+
+    <p>
+      A loadable kernel module adds functionality such as a device
+      driver or filesystem without rebuilding the entire kernel.
+    </p>
+
+    <pre><code>lsmod
+cat /proc/modules
+modinfo MODULE_NAME
+find /lib/modules/$(uname -r) -type f | head</code></pre>
+
+    <p>Module dependency information:</p>
+
+    <pre><code>sudo depmod -a
+modprobe --show-depends MODULE_NAME</code></pre>
+
+    <p>Load and remove modules:</p>
+
+    <pre><code>sudo modprobe MODULE_NAME
+sudo modprobe -r MODULE_NAME</code></pre>
+
+    <p>Inspect kernel messages:</p>
+
+    <pre><code>sudo dmesg -T | tail -100
+sudo journalctl -k --since today</code></pre>
+
+    <p>Inspect module parameters:</p>
+
+    <pre><code>ls /sys/module/MODULE_NAME/parameters
+modinfo -p MODULE_NAME</code></pre>
+
+    <p>Check kernel taint state:</p>
+
+    <pre><code>cat /proc/sys/kernel/tainted</code></pre>
+
+    <div class="warning">
+      Removing a module used by storage, networking or another critical
+      component can crash or disconnect the system. Never experiment
+      with production modules without a recovery plan.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>10. Linux Namespaces</h2>
+
+    <p>
+      Namespaces isolate the view of system resources for a process.
+    </p>
+
+    <table>
+      <tr>
+        <th>Namespace</th>
+        <th>Isolates</th>
+      </tr>
+
+      <tr>
+        <td>mnt</td>
+        <td>Mount points</td>
+      </tr>
+
+      <tr>
+        <td>pid</td>
+        <td>Process IDs</td>
+      </tr>
+
+      <tr>
+        <td>net</td>
+        <td>Interfaces, routes, ports and firewall state</td>
+      </tr>
+
+      <tr>
+        <td>uts</td>
+        <td>Hostname and domain name</td>
+      </tr>
+
+      <tr>
+        <td>ipc</td>
+        <td>System V IPC and POSIX message queues</td>
+      </tr>
+
+      <tr>
+        <td>user</td>
+        <td>User and group ID mappings</td>
+      </tr>
+
+      <tr>
+        <td>cgroup</td>
+        <td>View of cgroup hierarchy</td>
+      </tr>
+
+      <tr>
+        <td>time</td>
+        <td>Selected system clocks</td>
+      </tr>
+    </table>
+
+    <p>Inspect namespace membership:</p>
+
+    <pre><code>lsns
+ls -l /proc/$$/ns
+ls -l /proc/PID/ns
+readlink /proc/PID/ns/pid
+readlink /proc/PID/ns/net</code></pre>
+
+    <p>Compare two processes:</p>
+
+    <pre><code>readlink /proc/PID_ONE/ns/net
+readlink /proc/PID_TWO/ns/net</code></pre>
+
+    <p>Run a command in another process namespace:</p>
+
+    <pre><code>sudo nsenter \
+  --target PID \
+  --mount \
+  --uts \
+  --ipc \
+  --net \
+  --pid</code></pre>
+
+    <p>Create a temporary PID namespace lab:</p>
+
+    <pre><code>sudo unshare \
+  --fork \
+  --pid \
+  --mount-proc \
+  bash
+
+ps -ef
+exit</code></pre>
+
+    <div class="note">
+      Namespace isolation changes what a process can see. It does not
+      automatically enforce resource limits.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>11. cgroups</h2>
+
+    <p>
+      Control groups organize processes and provide resource accounting,
+      limits and prioritization.
+    </p>
+
+    <p>Detect the cgroup filesystem:</p>
+
+    <pre><code>findmnt /sys/fs/cgroup
+stat -fc %T /sys/fs/cgroup
+cat /proc/$$/cgroup</code></pre>
+
+    <p>
+      Output <code>cgroup2fs</code> indicates a unified cgroup v2
+      hierarchy.
+    </p>
+
+    <pre><code>cat /sys/fs/cgroup/cgroup.controllers
+systemd-cgls
+systemd-cgtop</code></pre>
+
+    <h3>Important cgroup v2 files</h3>
+
+    <table>
+      <tr>
+        <th>File</th>
+        <th>Purpose</th>
+      </tr>
+
+      <tr>
+        <td>cgroup.procs</td>
+        <td>Processes inside the cgroup</td>
+      </tr>
+
+      <tr>
+        <td>cpu.max</td>
+        <td>CPU quota</td>
+      </tr>
+
+      <tr>
+        <td>cpu.weight</td>
+        <td>Relative CPU weight</td>
+      </tr>
+
+      <tr>
+        <td>memory.current</td>
+        <td>Current memory usage</td>
+      </tr>
+
+      <tr>
+        <td>memory.max</td>
+        <td>Hard memory limit</td>
+      </tr>
+
+      <tr>
+        <td>memory.events</td>
+        <td>Memory pressure and OOM events</td>
+      </tr>
+
+      <tr>
+        <td>pids.current</td>
+        <td>Current process count</td>
+      </tr>
+
+      <tr>
+        <td>pids.max</td>
+        <td>Process-count limit</td>
+      </tr>
+
+      <tr>
+        <td>io.stat</td>
+        <td>I/O statistics</td>
+      </tr>
+    </table>
+
+    <p>Inspect a systemd service cgroup:</p>
+
+    <pre><code>systemctl show SERVICE_NAME \
+  -p ControlGroup \
+  -p MemoryCurrent \
+  -p MemoryMax \
+  -p CPUQuotaPerSecUSec \
+  -p TasksCurrent \
+  -p TasksMax</code></pre>
+
+    <p>Create a temporary systemd scope:</p>
+
+    <pre><code>systemd-run --user \
+  --scope \
+  -p MemoryMax=200M \
+  -p TasksMax=50 \
+  bash</code></pre>
+
+    <div class="warning">
+      Directly editing cgroup files can disrupt workloads. On
+      systemd-based production servers, manage service resources
+      through systemd unit settings when practical.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>12. Linux Capabilities</h2>
+
+    <p>
+      Capabilities divide traditional root authority into smaller
+      independently assignable privileges.
+    </p>
+
+    <pre><code>capsh --print
+getcap /path/to/binary
+sudo getcap -r / 2&gt;/dev/null
+getpcaps PID</code></pre>
+
+    <p>Inspect capability masks:</p>
+
+    <pre><code>grep '^Cap' /proc/$$/status</code></pre>
+
+    <table>
+      <tr>
+        <th>Set</th>
+        <th>Meaning</th>
+      </tr>
+
+      <tr>
+        <td>CapInh</td>
+        <td>Inheritable set</td>
+      </tr>
+
+      <tr>
+        <td>CapPrm</td>
+        <td>Permitted set</td>
+      </tr>
+
+      <tr>
+        <td>CapEff</td>
+        <td>Effective set</td>
+      </tr>
+
+      <tr>
+        <td>CapBnd</td>
+        <td>Bounding set</td>
+      </tr>
+
+      <tr>
+        <td>CapAmb</td>
+        <td>Ambient set</td>
+      </tr>
+    </table>
+
+    <p>Decode a mask:</p>
+
+    <pre><code>capsh --decode=CAPABILITY_HEX_VALUE</code></pre>
+
+    <p>Example file capability:</p>
+
+    <pre><code>sudo setcap \
+  cap_net_bind_service=+ep \
+  /path/to/binary
+
+getcap /path/to/binary
+
+sudo setcap -r /path/to/binary</code></pre>
+
+    <div class="warning">
+      Capabilities remain powerful privileges. Grant only the exact
+      capability required by the workload.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>13. Linux Signals</h2>
+
+    <p>
+      Signals are asynchronous notifications delivered to a process
+      or thread.
+    </p>
+
+    <pre><code>kill -l
+ps -o pid,ppid,stat,comm -p PID</code></pre>
+
+    <table>
+      <tr>
+        <th>Signal</th>
+        <th>Number</th>
+        <th>Common purpose</th>
+      </tr>
+
+      <tr>
+        <td>SIGHUP</td>
+        <td>1</td>
+        <td>Terminal hangup or configuration reload</td>
+      </tr>
+
+      <tr>
+        <td>SIGINT</td>
+        <td>2</td>
+        <td>Interactive interrupt, usually Ctrl+C</td>
+      </tr>
+
+      <tr>
+        <td>SIGTERM</td>
+        <td>15</td>
+        <td>Request graceful termination</td>
+      </tr>
+
+      <tr>
+        <td>SIGKILL</td>
+        <td>9</td>
+        <td>Immediate kernel termination</td>
+      </tr>
+
+      <tr>
+        <td>SIGSTOP</td>
+        <td>19</td>
+        <td>Stop process execution</td>
+      </tr>
+
+      <tr>
+        <td>SIGCONT</td>
+        <td>18</td>
+        <td>Continue a stopped process</td>
+      </tr>
+
+      <tr>
+        <td>SIGCHLD</td>
+        <td>17</td>
+        <td>Child process changed state</td>
+      </tr>
+    </table>
+
+    <pre><code>kill -TERM PID
+kill -HUP PID
+kill -STOP PID
+kill -CONT PID</code></pre>
+
+    <div class="note">
+      Signal numbers can differ by architecture. Prefer symbolic names
+      such as <code>kill -TERM</code> in scripts.
+    </div>
+
+    <div class="warning">
+      SIGKILL cannot be caught or handled, so the process cannot perform
+      cleanup. Use SIGTERM first and investigate why graceful shutdown
+      failed.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>14. Sockets</h2>
+
+    <p>
+      Sockets provide communication between processes on the same host
+      or across a network.
+    </p>
+
+    <table>
+      <tr>
+        <th>Socket type</th>
+        <th>Purpose</th>
+      </tr>
+
+      <tr>
+        <td>TCP</td>
+        <td>Reliable connection-oriented network communication</td>
+      </tr>
+
+      <tr>
+        <td>UDP</td>
+        <td>Connectionless datagram communication</td>
+      </tr>
+
+      <tr>
+        <td>Unix domain</td>
+        <td>Local process-to-process communication</td>
+      </tr>
+
+      <tr>
+        <td>Raw</td>
+        <td>Low-level protocol access</td>
+      </tr>
+    </table>
+
+    <pre><code>sudo ss -lntup
+ss -tan
+ss -uan
+ss -xap
+sudo lsof -i
+sudo lsof -U</code></pre>
+
+    <p>Inspect a specific port:</p>
+
+    <pre><code>sudo ss -ltnp 'sport = :PORT'
+sudo lsof -i :PORT</code></pre>
+
+    <p>Inspect socket statistics:</p>
+
+    <pre><code>ss -s
+cat /proc/net/sockstat
+cat /proc/net/sockstat6</code></pre>
+
+    <p>Important TCP states:</p>
+
+    <ul>
+      <li><strong>LISTEN:</strong> waiting for new connections</li>
+      <li><strong>ESTABLISHED:</strong> active connection</li>
+      <li><strong>TIME-WAIT:</strong> recently closed connection</li>
+      <li><strong>CLOSE-WAIT:</strong> peer closed, local process has not closed</li>
+      <li><strong>SYN-SENT:</strong> connection request sent</li>
+      <li><strong>SYN-RECV:</strong> connection request received</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>15. Inter-Process Communication</h2>
+
+    <p>Linux IPC mechanisms include:</p>
+
+    <ul>
+      <li>Pipes and named pipes</li>
+      <li>Unix domain sockets</li>
+      <li>Shared memory</li>
+      <li>Semaphores</li>
+      <li>Message queues</li>
+      <li>Signals</li>
+    </ul>
+
+    <pre><code>ipcs
+ipcs -m
+ipcs -s
+ipcs -q
+
+ls -l /dev/shm
+ls -l /proc/$$/fd</code></pre>
+
+    <h3>Named pipe lab</h3>
+
+    <pre><code>mkfifo /tmp/internals-demo.pipe
+
+# Terminal 1
+cat /tmp/internals-demo.pipe
+
+# Terminal 2
+echo "hello through pipe" \
+  &gt; /tmp/internals-demo.pipe
+
+rm /tmp/internals-demo.pipe</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>16. Process Isolation</h2>
+
+    <p>Linux process isolation commonly combines:</p>
+
+    <ul>
+      <li>Namespaces for visibility isolation</li>
+      <li>cgroups for accounting and resource limits</li>
+      <li>Capabilities for reduced privileges</li>
+      <li>seccomp for system-call filtering</li>
+      <li>SELinux or AppArmor for mandatory access control</li>
+      <li>Filesystem permissions and read-only mounts</li>
+      <li>systemd sandboxing directives</li>
+    </ul>
+
+    <p>Inspect a process:</p>
+
+    <pre><code>PID=PROCESS_ID
+
+ls -l /proc/$PID/ns
+cat /proc/$PID/cgroup
+grep '^Cap' /proc/$PID/status
+grep '^Seccomp' /proc/$PID/status
+cat /proc/$PID/limits</code></pre>
+
+    <p>Check Linux Security Modules:</p>
+
+    <pre><code>cat /sys/kernel/security/lsm 2&gt;/dev/null</code></pre>
+
+    <div class="note">
+      No single isolation feature creates a secure sandbox. Production
+      isolation uses multiple controls together.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>17. Container Internals</h2>
+
+    <p>
+      A Linux container is an isolated group of ordinary Linux
+      processes. It does not require a separate guest kernel.
+    </p>
+
+    <table>
+      <tr>
+        <th>Container feature</th>
+        <th>Linux mechanism</th>
+      </tr>
+
+      <tr>
+        <td>Separate process view</td>
+        <td>PID namespace</td>
+      </tr>
+
+      <tr>
+        <td>Separate network stack</td>
+        <td>Network namespace</td>
+      </tr>
+
+      <tr>
+        <td>Separate filesystem view</td>
+        <td>Mount namespace and container root filesystem</td>
+      </tr>
+
+      <tr>
+        <td>Resource limits</td>
+        <td>cgroups</td>
+      </tr>
+
+      <tr>
+        <td>Reduced root privileges</td>
+        <td>Capabilities and user namespaces</td>
+      </tr>
+
+      <tr>
+        <td>System-call restrictions</td>
+        <td>seccomp</td>
+      </tr>
+
+      <tr>
+        <td>Mandatory access control</td>
+        <td>SELinux or AppArmor</td>
+      </tr>
+
+      <tr>
+        <td>Layered image filesystem</td>
+        <td>OverlayFS or another storage driver</td>
+      </tr>
+    </table>
+
+    <p>Inspect a container process from the host:</p>
+
+    <pre><code>docker inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME
+
+podman inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME</code></pre>
+
+    <p>After obtaining the host PID:</p>
+
+    <pre><code>PID=HOST_PROCESS_ID
+
+ps -fp $PID
+ls -l /proc/$PID/ns
+cat /proc/$PID/cgroup
+grep '^Cap' /proc/$PID/status
+grep '^Seccomp' /proc/$PID/status
+sudo nsenter -t $PID -n ip address</code></pre>
+
+    <div class="warning">
+      Root inside a container is not automatically harmless. Container
+      security depends on capabilities, mounts, namespaces, runtime
+      settings and host-kernel security.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>18. Internal Troubleshooting Tools</h2>
+
+    <table>
+      <tr>
+        <th>Tool</th>
+        <th>Use</th>
+      </tr>
+
+      <tr>
+        <td>strace</td>
+        <td>Trace system calls and signals</td>
+      </tr>
+
+      <tr>
+        <td>lsof</td>
+        <td>Inspect open files and sockets</td>
+      </tr>
+
+      <tr>
+        <td>lsns / nsenter</td>
+        <td>Inspect and enter namespaces</td>
+      </tr>
+
+      <tr>
+        <td>systemd-cgls</td>
+        <td>View the cgroup hierarchy</td>
+      </tr>
+
+      <tr>
+        <td>systemd-cgtop</td>
+        <td>View cgroup resource usage</td>
+      </tr>
+
+      <tr>
+        <td>perf</td>
+        <td>Profile CPU and kernel events</td>
+      </tr>
+
+      <tr>
+        <td>fuser</td>
+        <td>Find processes using a file or socket</td>
+      </tr>
+
+      <tr>
+        <td>dmesg</td>
+        <td>Inspect the kernel ring buffer</td>
+      </tr>
+    </table>
+
+    <pre><code>sudo strace -p PID
+sudo lsof -p PID
+sudo fuser -v /path/to/file
+sudo perf top
+sudo dmesg -T | tail -100
+sudo journalctl -k --since "30 minutes ago"</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>19. Production Scenario — Too Many Open Files</h2>
+
+    <p>Typical error:</p>
+
+    <pre><code>Too many open files
+EMFILE
+ENFILE</code></pre>
+
+    <ol>
+      <li>Identify the affected process.</li>
+      <li>Check its soft and hard limits.</li>
+      <li>Count current descriptors.</li>
+      <li>Identify descriptor types.</li>
+      <li>Check whether usage continuously increases.</li>
+      <li>Fix the leak before increasing the limit.</li>
+    </ol>
+
+    <pre><code>cat /proc/PID/limits
+
+find /proc/PID/fd \
+  -maxdepth 1 \
+  -type l 2&gt;/dev/null | wc -l
+
+sudo lsof -p PID
+cat /proc/sys/fs/file-nr
+
+systemctl show SERVICE_NAME \
+  -p LimitNOFILE</code></pre>
+
+    <div class="warning">
+      Increasing the limit may delay failure but does not repair a
+      file-descriptor leak.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>20. Production Scenario — Container OOM</h2>
+
+    <ol>
+      <li>Identify the container or service cgroup.</li>
+      <li>Check current and maximum memory.</li>
+      <li>Inspect memory event counters.</li>
+      <li>Check kernel OOM logs.</li>
+      <li>Determine whether the cause is a leak, spike or incorrect limit.</li>
+    </ol>
+
+    <pre><code>cat /proc/PID/cgroup
+
+systemctl show SERVICE_NAME \
+  -p ControlGroup \
+  -p MemoryCurrent \
+  -p MemoryMax
+
+sudo journalctl -k \
+  | grep -Ei 'oom|out of memory|killed process'</code></pre>
+
+    <p>For the relevant cgroup v2 directory:</p>
+
+    <pre><code>cat memory.current
+cat memory.max
+cat memory.events
+cat memory.stat</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>21. Production Scenario — Process Will Not Stop</h2>
+
+    <pre><code>kill -TERM PID
+ps -o pid,ppid,stat,wchan:30,comm -p PID
+cat /proc/PID/status
+sudo strace -p PID
+sudo lsof -p PID
+sudo journalctl _PID=PID</code></pre>
+
+    <p>Process-state clues:</p>
+
+    <ul>
+      <li><strong>R:</strong> running or runnable</li>
+      <li><strong>S:</strong> interruptible sleep</li>
+      <li><strong>D:</strong> uninterruptible sleep, commonly waiting on I/O</li>
+      <li><strong>T:</strong> stopped</li>
+      <li><strong>Z:</strong> zombie waiting for its parent to reap it</li>
+    </ul>
+
+    <div class="note">
+      SIGKILL does not instantly remove a process blocked in
+      uninterruptible kernel sleep. Investigate the underlying I/O,
+      storage, network filesystem or device problem.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>22. Production Scenario — Unexpected Socket Growth</h2>
+
+    <pre><code>ss -s
+ss -tan
+sudo ss -lntup
+cat /proc/net/sockstat
+sudo lsof -p PID | grep -i socket</code></pre>
+
+    <p>Count TCP states:</p>
+
+    <pre><code>ss -tan \
+  | awk 'NR&gt;1 {count[$1]++}
+         END {
+           for (state in count)
+             print state, count[state]
+         }'</code></pre>
+
+    <ul>
+      <li>Many CLOSE-WAIT sockets may indicate an application close leak.</li>
+      <li>Many TIME-WAIT sockets may reflect high connection turnover.</li>
+      <li>Many SYN-RECV sockets may indicate backlog pressure or attack traffic.</li>
+      <li>Confirm application behaviour before changing kernel tuning.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>🧪 Hands-On Labs</h2>
+
+    <h3>Lab 1 — Inspect the current shell</h3>
+
+    <pre><code>PID=$$
+
+cat /proc/$PID/status
+cat /proc/$PID/limits
+ls -l /proc/$PID/fd
+ls -l /proc/$PID/ns
+cat /proc/$PID/cgroup</code></pre>
+
+    <h3>Lab 2 — Trace a command</h3>
+
+    <pre><code>strace -o /tmp/date.trace date
+less /tmp/date.trace
+strace -c ls /usr</code></pre>
+
+    <h3>Lab 3 — Compare /proc and tools</h3>
+
+    <pre><code>cat /proc/meminfo | head
+free -h
+
+cat /proc/loadavg
+uptime
+
+cat /proc/mounts | head
+findmnt | head</code></pre>
+
+    <h3>Lab 4 — Inspect sysfs</h3>
+
+    <pre><code>ls /sys/class/net
+ls /sys/block
+ls /sys/module | head
+cat /sys/class/net/*/operstate</code></pre>
+
+    <h3>Lab 5 — Namespace lab</h3>
+
+    <pre><code>sudo unshare \
+  --fork \
+  --pid \
+  --mount-proc \
+  bash
+
+echo "PID inside namespace: $$"
+ps -ef
+exit</code></pre>
+
+    <h3>Lab 6 — cgroup review</h3>
+
+    <pre><code>findmnt /sys/fs/cgroup
+cat /proc/$$/cgroup
+systemd-cgls
+systemd-cgtop</code></pre>
+
+    <h3>Lab 7 — File descriptors</h3>
+
+    <pre><code>exec 9&gt;/tmp/fd-lab.txt
+ls -l /proc/$$/fd
+echo "file descriptor lab" &gt;&amp;9
+exec 9&gt;&amp;-
+cat /tmp/fd-lab.txt
+rm /tmp/fd-lab.txt</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>🎯 Interview Questions</h2>
+
+    <h3>What is the difference between /proc and /sys?</h3>
+
+    <p>
+      <code>/proc</code> mainly exposes process and kernel runtime
+      information. <code>/sys</code> represents kernel objects,
+      devices, drivers and their relationships.
+    </p>
+
+    <h3>What is a system call?</h3>
+
+    <p>
+      It is a controlled interface used by a user-space program to
+      request an operation from the kernel.
+    </p>
+
+    <h3>What is a file descriptor?</h3>
+
+    <p>
+      It is a per-process integer that refers to an open
+      kernel-managed resource such as a file, socket or pipe.
+    </p>
+
+    <h3>Soft limit vs hard limit?</h3>
+
+    <p>
+      A process can usually lower its soft limit and raise it up to
+      the hard limit. Raising the hard limit requires suitable privilege.
+    </p>
+
+    <h3>Namespace vs cgroup?</h3>
+
+    <p>
+      A namespace isolates what a process can see. A cgroup tracks
+      and controls how many resources a group of processes can use.
+    </p>
+
+    <h3>What are Linux capabilities?</h3>
+
+    <p>
+      They divide the traditional all-powerful root privilege into
+      smaller, separately assignable privileges.
+    </p>
+
+    <h3>Why does a zombie process exist?</h3>
+
+    <p>
+      The process has exited, but its parent has not yet collected
+      its exit status using a wait operation.
+    </p>
+
+    <h3>Why might kill -9 appear not to work?</h3>
+
+    <p>
+      The process may be blocked in uninterruptible kernel sleep,
+      or it may already be a zombie that must be reaped by its parent.
+    </p>
+
+    <h3>How does a container work?</h3>
+
+    <p>
+      It runs normal host-kernel processes using namespaces for
+      isolation, cgroups for resource control and security mechanisms
+      such as capabilities, seccomp and mandatory access control.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Production Checklist</h2>
+
+    <ul>
+      <li>Understand which process owns the affected resource.</li>
+      <li>Check process status, limits, descriptors and cgroup.</li>
+      <li>Inspect kernel logs before changing kernel settings.</li>
+      <li>Measure resource usage before tuning limits.</li>
+      <li>Use SIGTERM before SIGKILL.</li>
+      <li>Do not remove critical kernel modules remotely.</li>
+      <li>Use systemd to manage service resource limits.</li>
+      <li>Combine namespaces with security controls.</li>
+      <li>Apply least privilege to container capabilities.</li>
+      <li>Test sysctl and cgroup changes before production.</li>
+      <li>Document why every low-level tuning change is required.</li>
+    </ul>
+
+  </section>
+
+  <section class="card docs">
+
+    <h2>📖 Official Documentation</h2>
+
+    <a href="https://docs.kernel.org/filesystems/proc.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Kernel — /proc Filesystem
+    </a>
+
+    <a href="https://docs.kernel.org/filesystems/sysfs.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Kernel — sysfs
+    </a>
+
+    <a href="https://docs.kernel.org/admin-guide/sysctl/index.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Kernel — sysctl
+    </a>
+
+    <a href="https://docs.kernel.org/admin-guide/cgroup-v2.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Kernel — Control Group v2
+    </a>
+
+    <a href="https://man7.org/linux/man-pages/man7/namespaces.7.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Manual — namespaces(7)
+    </a>
+
+    <a href="https://man7.org/linux/man-pages/man7/capabilities.7.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Manual — capabilities(7)
+    </a>
+
+    <a href="https://man7.org/linux/man-pages/man7/signal.7.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Manual — signal(7)
+    </a>
+
+    <a href="https://man7.org/linux/man-pages/man7/socket.7.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Manual — socket(7)
+    </a>
+
+    <a href="https://docs.kernel.org/admin-guide/module-signing.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Kernel — Module Signing
+    </a>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Completion Standard</h2>
+
+    <p>You should be able to:</p>
+
+    <ul>
+      <li>Explain user space, kernel space and system calls.</li>
+      <li>Investigate processes using <code>/proc/PID</code>.</li>
+      <li>Explain the purpose of <code>/sys</code>.</li>
+      <li>Trace a program using strace.</li>
+      <li>Diagnose file-descriptor limit problems.</li>
+      <li>Inspect kernel modules safely.</li>
+      <li>Compare namespaces and cgroups.</li>
+      <li>Inspect capabilities, signals and sockets.</li>
+      <li>Explain the Linux mechanisms behind containers.</li>
+      <li>Troubleshoot OOM, stuck processes and socket growth.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Topic Progress</h2>
+
+    <p id="completeStatus">
+      Mark this topic complete after studying the concepts,
+      commands, labs and interview questions.
+    </p>
+
+    <button class="complete-button"
+            onclick="markTopicComplete()">
+      Mark Topic Complete
+    </button>
+
+  </section>
+
+</main>
+
+<script>
+  const currentTopic = "Advanced Linux Internals";
+
+  function loadTopicCompletion() {
+    if (
+      localStorage.getItem(currentTopic) === "done"
+    ) {
+      document.getElementById("completeStatus")
+        .innerHTML = "✅ <b>Completed</b>";
+    }
+  }
+
+  function markTopicComplete() {
+    localStorage.setItem(currentTopic, "done");
+
+    document.getElementById("completeStatus")
+      .innerHTML = "✅ <b>Completed</b>";
+  }
+
+  loadTopicCompletion();
+</script>
+
+</body>
+</html>

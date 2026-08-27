@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Master Roadmap</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+}
+
+.container {
+  max-width:1000px;
+  margin:auto;
+}
+
+.section {
+  background:white;
+  padding:25px;
+  margin:20px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+h1 { margin-bottom:5px; }
+
+li {
+  margin:8px 0;
+}
+
+.done { color:green; }
+.pending { color:#777; }
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux</a>
+
+<h1>🐧 Linux Master Roadmap</h1>
+
+<p>
+Complete Linux roadmap for DevOps, Cloud, SRE, Production,
+Troubleshooting and Interviews.
+</p>
+
+<div class="section">
+<h2>1. Linux Foundations</h2>
+<ul>
+<li>Linux architecture</li>
+<li>Kernel vs user space</li>
+<li>Linux distributions</li>
+<li>Filesystem hierarchy</li>
+<li>Absolute and relative paths</li>
+<li>Files and directories</li>
+<li>Hard links and symbolic links</li>
+<li>File types</li>
+<li>Basic commands</li>
+<li>Command history</li>
+<li>Help, man and info pages</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>2. Files & Text Processing</h2>
+<ul>
+<li>cat, less, more, head, tail</li>
+<li>cp, mv, rm, mkdir, touch</li>
+<li>find and locate</li>
+<li>grep and regular expressions</li>
+<li>awk</li>
+<li>sed</li>
+<li>cut, paste, sort, uniq</li>
+<li>xargs</li>
+<li>tee</li>
+<li>Pipes</li>
+<li>stdin, stdout and stderr</li>
+<li>Input/output redirection</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>3. Users, Groups & Permissions</h2>
+<ul>
+<li>Users and groups</li>
+<li>UID and GID</li>
+<li>/etc/passwd</li>
+<li>/etc/shadow</li>
+<li>/etc/group</li>
+<li>useradd/usermod/userdel</li>
+<li>chmod</li>
+<li>chown/chgrp</li>
+<li>umask</li>
+<li>sudo</li>
+<li>ACL</li>
+<li>SetUID</li>
+<li>SetGID</li>
+<li>Sticky bit</li>
+<li>Service accounts</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>4. Processes & Jobs</h2>
+<ul>
+<li>Processes</li>
+<li>PID and PPID</li>
+<li>Process states</li>
+<li>ps</li>
+<li>top</li>
+<li>pstree</li>
+<li>pgrep/pkill</li>
+<li>Signals</li>
+<li>SIGTERM vs SIGKILL</li>
+<li>Foreground/background jobs</li>
+<li>jobs, bg, fg</li>
+<li>nohup</li>
+<li>nice and renice</li>
+<li>Zombie processes</li>
+<li>Orphan processes</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>5. Boot Process & systemd</h2>
+<ul>
+<li>BIOS and UEFI</li>
+<li>GRUB</li>
+<li>Kernel loading</li>
+<li>initramfs</li>
+<li>PID 1</li>
+<li>systemd</li>
+<li>Units</li>
+<li>Services</li>
+<li>Targets</li>
+<li>Dependencies</li>
+<li>Boot troubleshooting</li>
+<li>Rescue mode</li>
+<li>Emergency mode</li>
+<li>systemd timers</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>6. Storage & Filesystems</h2>
+<ul>
+<li>Block devices</li>
+<li>lsblk and blkid</li>
+<li>Partitions</li>
+<li>MBR and GPT</li>
+<li>Filesystems</li>
+<li>ext4</li>
+<li>XFS</li>
+<li>Mounting</li>
+<li>/etc/fstab</li>
+<li>df and du</li>
+<li>Inodes</li>
+<li>Swap</li>
+<li>LVM</li>
+<li>Physical volumes</li>
+<li>Volume groups</li>
+<li>Logical volumes</li>
+<li>LVM extension</li>
+<li>RAID basics</li>
+<li>NFS basics</li>
+<li>Storage troubleshooting</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>7. Linux Networking</h2>
+<ul>
+<li>OSI and TCP/IP basics</li>
+<li>IP addresses</li>
+<li>IPv4 and IPv6 basics</li>
+<li>Subnetting</li>
+<li>Interfaces</li>
+<li>ip addr</li>
+<li>Routes</li>
+<li>Default gateway</li>
+<li>TCP vs UDP</li>
+<li>Ports</li>
+<li>Sockets</li>
+<li>ss</li>
+<li>DNS</li>
+<li>/etc/hosts</li>
+<li>/etc/resolv.conf</li>
+<li>ping</li>
+<li>curl</li>
+<li>traceroute</li>
+<li>Network troubleshooting</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>8. SSH & Remote Administration</h2>
+<ul>
+<li>SSH architecture</li>
+<li>Password authentication</li>
+<li>Public/private keys</li>
+<li>authorized_keys</li>
+<li>known_hosts</li>
+<li>SSH configuration</li>
+<li>SCP</li>
+<li>SFTP</li>
+<li>SSH tunneling basics</li>
+<li>SSH troubleshooting</li>
+<li>SSH hardening basics</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>9. Package Management</h2>
+<ul>
+<li>APT</li>
+<li>dpkg</li>
+<li>DNF/YUM</li>
+<li>RPM</li>
+<li>Repositories</li>
+<li>Dependencies</li>
+<li>Package versions</li>
+<li>Updates</li>
+<li>Package troubleshooting</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>10. Shell & Bash Scripting</h2>
+<ul>
+<li>Shell basics</li>
+<li>Bash</li>
+<li>Variables</li>
+<li>Environment variables</li>
+<li>PATH</li>
+<li>Arguments</li>
+<li>Exit codes</li>
+<li>if/else</li>
+<li>case</li>
+<li>for loops</li>
+<li>while loops</li>
+<li>Functions</li>
+<li>Arrays</li>
+<li>Command substitution</li>
+<li>Error handling</li>
+<li>set -e / set -u / pipefail</li>
+<li>Automation scripts</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>11. Scheduling</h2>
+<ul>
+<li>cron</li>
+<li>crontab</li>
+<li>System cron</li>
+<li>at</li>
+<li>systemd timers</li>
+<li>Scheduled job troubleshooting</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>12. Logs & Observability</h2>
+<ul>
+<li>/var/log</li>
+<li>syslog concepts</li>
+<li>journalctl</li>
+<li>Kernel logs</li>
+<li>dmesg</li>
+<li>Application logs</li>
+<li>Log levels</li>
+<li>Log rotation</li>
+<li>Real-time log monitoring</li>
+<li>Incident timeline analysis</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>13. CPU & Performance</h2>
+<ul>
+<li>CPU architecture basics</li>
+<li>CPU utilization</li>
+<li>Load average</li>
+<li>1/5/15 minute load</li>
+<li>User/system CPU</li>
+<li>I/O wait</li>
+<li>Context switching</li>
+<li>vmstat</li>
+<li>Process CPU troubleshooting</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>14. Memory</h2>
+<ul>
+<li>RAM</li>
+<li>Used/free/available memory</li>
+<li>Buffers and cache</li>
+<li>Page cache</li>
+<li>Swap</li>
+<li>Virtual memory</li>
+<li>OOM Killer</li>
+<li>/proc/meminfo</li>
+<li>Memory leak investigation</li>
+<li>Memory pressure troubleshooting</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>15. Linux Security</h2>
+<ul>
+<li>Least privilege</li>
+<li>sudo security</li>
+<li>SSH hardening</li>
+<li>File permissions</li>
+<li>ACLs</li>
+<li>Linux capabilities</li>
+<li>SELinux basics</li>
+<li>AppArmor basics</li>
+<li>Firewall basics</li>
+<li>Secrets and credentials</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>16. Advanced Linux Internals</h2>
+<ul>
+<li>/proc filesystem</li>
+<li>/sys filesystem</li>
+<li>System calls</li>
+<li>File descriptors</li>
+<li>ulimit</li>
+<li>Kernel modules</li>
+<li>Namespaces</li>
+<li>cgroups</li>
+<li>Linux capabilities</li>
+<li>Signals</li>
+<li>Sockets</li>
+<li>Process isolation</li>
+<li>Container internals</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>17. Production Troubleshooting</h2>
+<ul>
+<li>Server unreachable</li>
+<li>High CPU</li>
+<li>High load average</li>
+<li>Memory exhaustion</li>
+<li>OOM kills</li>
+<li>Disk full</li>
+<li>Inode exhaustion</li>
+<li>Filesystem mount failure</li>
+<li>Service down</li>
+<li>Port unavailable</li>
+<li>DNS failure</li>
+<li>Network connectivity failure</li>
+<li>SSH failure</li>
+<li>Permission denied</li>
+<li>Package installation failure</li>
+<li>Boot failure</li>
+<li>Slow application</li>
+<li>Log investigation</li>
+<li>Deleted-open-file disk issue</li>
+<li>Environment variable issues</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>18. DevOps / Container Linux</h2>
+<ul>
+<li>Namespaces</li>
+<li>cgroups</li>
+<li>Container processes</li>
+<li>Container networking fundamentals</li>
+<li>Container filesystems</li>
+<li>PID namespaces</li>
+<li>Network namespaces</li>
+<li>Mount namespaces</li>
+<li>Resource limits</li>
+<li>Linux capabilities in containers</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>19. Interview Preparation</h2>
+<ul>
+<li>Concept questions</li>
+<li>Command questions</li>
+<li>Troubleshooting questions</li>
+<li>Scenario-based questions</li>
+<li>Production incidents</li>
+<li>Architecture explanation</li>
+<li>Debugging methodology</li>
+<li>Mock interviews</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>20. Hands-On Labs</h2>
+<ul>
+<li>User management labs</li>
+<li>Permission labs</li>
+<li>Process labs</li>
+<li>systemd labs</li>
+<li>Storage labs</li>
+<li>LVM labs</li>
+<li>Networking labs</li>
+<li>DNS labs</li>
+<li>SSH labs</li>
+<li>Shell scripting labs</li>
+<li>Performance troubleshooting labs</li>
+<li>Production incident labs</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>21. Official Documentation</h2>
+<p>
+Every module will include official references such as:
+</p>
+
+<ul>
+<li>Linux Kernel Documentation</li>
+<li>Linux man-pages</li>
+<li>GNU manuals</li>
+<li>systemd documentation</li>
+<li>OpenSSH documentation</li>
+<li>Ubuntu Server documentation</li>
+<li>Distribution-specific official documentation where required</li>
+</ul>
+</div>
+
+</div>
+
+</body>
+</html>

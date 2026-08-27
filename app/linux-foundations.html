@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Linux Foundations</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+  line-height:1.6;
+}
+
+.container {
+  max-width:950px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  padding:25px;
+  margin:18px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+pre {
+  background:#f1f1f1;
+  padding:15px;
+  border-radius:8px;
+  overflow-x:auto;
+}
+
+.tag {
+  color:#666;
+}
+
+a {
+  text-decoration:none;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>🐧 Linux Foundations</h1>
+
+<p>
+Foundation knowledge required before moving into administration,
+containers, cloud, Kubernetes and production troubleshooting.
+</p>
+
+
+<div class="card">
+
+<h2>⚡ 60-Second Revision</h2>
+
+<p>
+Linux is an operating system built around the Linux kernel.
+Applications run in user space while the kernel manages CPU,
+memory, processes, devices, filesystems and networking.
+</p>
+
+<p><b>Remember:</b></p>
+
+<pre>
+Hardware
+   ↓
+Linux Kernel
+   ↓
+System Libraries
+   ↓
+Shell / Services
+   ↓
+Applications / Users
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>1. Linux Architecture</h2>
+
+<ul>
+<li><b>Hardware</b> — CPU, RAM, disks and network devices</li>
+<li><b>Kernel</b> — manages hardware and system resources</li>
+<li><b>System Libraries</b> — allow applications to interact with the kernel</li>
+<li><b>Shell</b> — command-line interface</li>
+<li><b>Applications</b> — programs running in user space</li>
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>2. Kernel Space vs User Space</h2>
+
+<p><b>Kernel Space</b></p>
+
+<ul>
+<li>Highly privileged</li>
+<li>Controls hardware</li>
+<li>Memory management</li>
+<li>Process scheduling</li>
+<li>Networking</li>
+<li>Filesystems</li>
+</ul>
+
+<p><b>User Space</b></p>
+
+<ul>
+<li>Applications</li>
+<li>Shells</li>
+<li>Utilities</li>
+<li>Most services</li>
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>3. Linux Distributions</h2>
+
+<p>
+A Linux distribution combines the Linux kernel with package managers,
+utilities, libraries and system configuration.
+</p>
+
+<ul>
+<li>Ubuntu</li>
+<li>Debian</li>
+<li>Red Hat Enterprise Linux</li>
+<li>Rocky Linux</li>
+<li>AlmaLinux</li>
+<li>Amazon Linux</li>
+</ul>
+
+<p class="tag">
+DevOps engineers should understand both Debian/Ubuntu and RHEL-style systems.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>4. Filesystem Hierarchy</h2>
+
+<pre>
+/
+├── bin
+├── boot
+├── dev
+├── etc
+├── home
+├── lib
+├── media
+├── mnt
+├── opt
+├── proc
+├── root
+├── run
+├── srv
+├── sys
+├── tmp
+├── usr
+└── var
+</pre>
+
+<ul>
+
+<li><b>/etc</b> — system configuration</li>
+
+<li><b>/var</b> — logs and changing application data</li>
+
+<li><b>/home</b> — normal user home directories</li>
+
+<li><b>/root</b> — root user's home</li>
+
+<li><b>/tmp</b> — temporary files</li>
+
+<li><b>/opt</b> — optional third-party software</li>
+
+<li><b>/proc</b> — process and kernel information</li>
+
+<li><b>/sys</b> — kernel/device information</li>
+
+<li><b>/dev</b> — device files</li>
+
+<li><b>/boot</b> — bootloader and kernel files</li>
+
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>5. Absolute vs Relative Paths</h2>
+
+<p><b>Absolute path:</b></p>
+
+<pre>/var/log/nginx/access.log</pre>
+
+<p><b>Relative path:</b></p>
+
+<pre>logs/application.log</pre>
+
+<p>
+Absolute paths start from <b>/</b>.
+Relative paths start from your current directory.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>6. Linux File Types</h2>
+
+<pre>ls -l</pre>
+
+<p>The first character identifies the file type:</p>
+
+<pre>
+-  Regular file
+
+d  Directory
+
+l  Symbolic link
+
+c  Character device
+
+b  Block device
+
+p  Named pipe
+
+s  Socket
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>7. Hard Links vs Symbolic Links</h2>
+
+<p><b>Hard Link</b></p>
+
+<ul>
+<li>References the same inode</li>
+<li>Normally cannot cross filesystems</li>
+<li>Still works if original filename is removed</li>
+</ul>
+
+<p><b>Symbolic Link</b></p>
+
+<ul>
+<li>Stores a path to another file</li>
+<li>Can cross filesystems</li>
+<li>Can become broken if target disappears</li>
+</ul>
+
+<pre>
+ln file1 hardlink
+
+ln -s file1 symlink
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>8. Essential Commands</h2>
+
+<pre>
+pwd
+
+ls -lah
+
+cd /var/log
+
+mkdir test
+
+touch file.txt
+
+cp file.txt file2.txt
+
+mv file2.txt /tmp/
+
+rm file.txt
+
+file /bin/bash
+
+stat /etc/passwd
+
+hostname
+
+uname -a
+
+whoami
+
+id
+
+uptime
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>9. Linux Help System</h2>
+
+<p>
+You should never try to memorize every command option.
+Know how to find information quickly.
+</p>
+
+<pre>
+man ls
+
+man systemctl
+
+ls --help
+
+info coreutils
+
+apropos network
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>🧪 Hands-On Lab</h2>
+
+<p>Create a temporary learning environment:</p>
+
+<pre>
+mkdir -p ~/linux-lab
+
+cd ~/linux-lab
+
+touch file1.txt
+
+mkdir directory1
+
+cp file1.txt directory1/
+
+ln file1.txt hardlink1
+
+ln -s file1.txt symlink1
+
+ls -li
+
+stat file1.txt
+
+file file1.txt
+
+pwd
+</pre>
+
+<p>
+Observe inode numbers for the original file,
+hard link and symbolic link.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔥 Production Scenario</h2>
+
+<p>
+An application configuration references:
+</p>
+
+<pre>./config/app.conf</pre>
+
+<p>
+The application works when started manually but fails when started by systemd.
+Why?
+</p>
+
+<h3>Think About</h3>
+
+<ul>
+<li>Relative paths</li>
+<li>Working directory</li>
+<li>Runtime user</li>
+<li>Permissions</li>
+<li>Environment differences</li>
+</ul>
+
+<h3>Investigation</h3>
+
+<pre>
+pwd
+
+systemctl cat SERVICE_NAME
+
+systemctl show SERVICE_NAME \
+  --property=WorkingDirectory
+
+journalctl -u SERVICE_NAME
+</pre>
+
+<p>
+Production services should generally use predictable configuration
+and absolute paths where appropriate.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+
+<li>What is Linux?</li>
+
+<li>What is the Linux kernel?</li>
+
+<li>What is the difference between kernel space and user space?</li>
+
+<li>What is a Linux distribution?</li>
+
+<li>What is the purpose of /etc?</li>
+
+<li>What is stored under /var?</li>
+
+<li>What are /proc and /sys?</li>
+
+<li>What is the difference between an absolute and relative path?</li>
+
+<li>What is an inode?</li>
+
+<li>What is the difference between a hard link and symbolic link?</li>
+
+<li>How do you identify a Linux file type?</li>
+
+<li>How do you find help for an unfamiliar Linux command?</li>
+
+</ol>
+
+</div>
+
+
+<div class="card">
+
+<h2>🗣️ Interview Explanation</h2>
+
+<p>
+A strong short explanation:
+</p>
+
+<p>
+“Linux is an operating system built around the Linux kernel.
+The kernel operates in privileged kernel space and manages CPU,
+memory, devices, filesystems, networking and processes.
+Applications normally run in user space and communicate with the
+kernel through system calls. Linux distributions package the kernel
+with utilities, libraries, package managers and administration tools.”
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>📖 Official Documentation</h2>
+
+<p>
+Use these as deeper source-of-truth references:
+</p>
+
+<ul>
+
+<li>
+<a href="https://docs.kernel.org/" target="_blank">
+Linux Kernel Documentation →
+</a>
+</li>
+
+<li>
+<a href="https://www.kernel.org/doc/man-pages/" target="_blank">
+Linux man-pages Project →
+</a>
+</li>
+
+<li>
+<a href="https://www.gnu.org/software/coreutils/manual/" target="_blank">
+GNU Coreutils Manual →
+</a>
+</li>
+
+<li>
+<a href="https://documentation.ubuntu.com/server/" target="_blank">
+Ubuntu Server Documentation →
+</a>
+</li>
+
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>✅ Completion Standard</h2>
+
+<p>You should be able to:</p>
+
+<ul>
+
+<li>Explain Linux architecture without notes</li>
+
+<li>Explain kernel space vs user space</li>
+
+<li>Navigate the filesystem confidently</li>
+
+<li>Explain important Linux directories</li>
+
+<li>Use common filesystem commands</li>
+
+<li>Explain hard vs symbolic links</li>
+
+<li>Use man pages to find unfamiliar commands</li>
+
+</ul>
+
+</div>
+
+</div>
+
+<div class="container">
+  <div class="card">
+    <h2>✅ Topic Progress</h2>
+    <p id="completeStatus">Mark this topic complete after studying concepts, commands and interview questions.</p>
+    <button onclick="markTopicComplete()" style="padding:13px 20px;color:white;font-weight:bold;cursor:pointer;background:#15803d;border:0;border-radius:9px;">Mark Topic Complete</button>
+  </div>
+</div>
+<script>
+  const currentTopic = "Linux Foundations";
+  function loadTopicCompletion() {
+    if (localStorage.getItem(currentTopic) === "done") {
+      document.getElementById("completeStatus").innerHTML = "✅ <b>Completed</b>";
+    }
+  }
+  function markTopicComplete() {
+    localStorage.setItem(currentTopic, "done");
+    document.getElementById("completeStatus").innerHTML = "✅ <b>Completed</b>";
+  }
+  loadTopicCompletion();
+</script>
+</body>
+</html>

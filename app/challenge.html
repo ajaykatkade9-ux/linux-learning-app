@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Linux Challenge</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 28px;
+      margin-top: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+
+    button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-top: 10px;
+    }
+
+    #answer {
+      display: none;
+      margin-top: 20px;
+    }
+
+    pre {
+      background: #f1f1f1;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+  <a href="today.html">← Today's Study</a>
+
+  <h1>🔥 Random Production Challenge</h1>
+  <p>Think first. Check the answer only after explaining your approach.</p>
+
+  <div class="card">
+
+    <h2 id="question"></h2>
+
+    <button onclick="showAnswer()">Show Approach</button>
+    <button onclick="newChallenge()">Next Challenge</button>
+
+    <div id="answer"></div>
+
+  </div>
+
+</div>
+
+<script>
+
+const challenges = [
+
+  {
+    question: "A Linux server suddenly reaches 100% disk usage. How would you troubleshoot it?",
+    answer: `
+      <p>Start with filesystem usage, then locate large files and check inode exhaustion.</p>
+      <pre>df -h
+df -i
+du -sh /*
+du -sh /var/*
+lsof +L1</pre>
+    `
+  },
+
+  {
+    question: "CPU usage is constantly above 95%. What would you check?",
+    answer: `
+      <p>Identify the process consuming CPU and investigate its behavior and logs.</p>
+      <pre>top
+ps aux --sort=-%cpu
+uptime</pre>
+    `
+  },
+
+  {
+    question: "A service is running but users cannot connect to the application.",
+    answer: `
+      <p>Check service status, listening ports, local connectivity, routing and firewall.</p>
+      <pre>systemctl status SERVICE_NAME
+ss -tulpn
+curl localhost:PORT
+ip route</pre>
+    `
+  },
+
+  {
+    question: "An application shows Permission Denied after deployment.",
+    answer: `
+      <p>Check the application user, ownership, permissions and parent directories.</p>
+      <pre>id
+ls -l /path/to/file
+namei -l /path/to/file
+getfacl /path/to/file</pre>
+    `
+  },
+
+  {
+    question: "A server rebooted successfully but an application service did not start.",
+    answer: `
+      <p>Check failed units, service logs, boot logs and dependencies.</p>
+      <pre>systemctl --failed
+systemctl status SERVICE_NAME
+journalctl -u SERVICE_NAME
+journalctl -b</pre>
+    `
+  }
+
+];
+
+let currentChallenge;
+
+function newChallenge() {
+
+  const random =
+    Math.floor(Math.random() * challenges.length);
+
+  currentChallenge = challenges[random];
+
+  document.getElementById("question").innerHTML =
+    currentChallenge.question;
+
+  document.getElementById("answer").style.display =
+    "none";
+}
+
+function showAnswer() {
+
+  const answer =
+    document.getElementById("answer");
+
+  answer.innerHTML =
+    currentChallenge.answer;
+
+  answer.style.display =
+    "block";
+}
+
+newChallenge();
+
+</script>
+
+</body>
+</html>

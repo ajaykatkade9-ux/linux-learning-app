@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A private Linux assistant grounded in the local course and curated official documentation.">
+  <title>Offline Linux Assistant</title>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+  <script defer src="linux-knowledge.js"></script>
+  <script defer src="linux-official-knowledge.js"></script>
+  <script defer src="linux-assistant-engine.js"></script>
+  <script defer src="linux-assistant.js"></script>
+</head>
+<body>
+  <main class="container assistant-page-container">
+    <section class="assistant-page-hero">
+      <div>
+        <span class="assistant-eyebrow">
+          <i class="bi bi-chat-dots" aria-hidden="true"></i>
+          Course + official documentation
+        </span>
+        <h1>Offline Linux Assistant</h1>
+        <p>
+          Ask about Linux concepts, commands, interview questions and
+          production troubleshooting. Answers use this app’s lessons and
+          curated official Linux documentation.
+        </p>
+      </div>
+      <div class="assistant-offline-badge">
+        <span class="assistant-status-dot" aria-hidden="true"></span>
+        <span><strong>Offline answers</strong>Official links · No API · No payment</span>
+      </div>
+    </section>
+
+    <section class="assistant-workspace" aria-label="Offline Linux chat">
+      <header class="assistant-chat-header">
+        <div class="assistant-identity">
+          <span class="assistant-avatar"><i class="bi bi-terminal" aria-hidden="true"></i></span>
+          <span>
+            <strong>Linux Study Assistant</strong>
+            <small id="assistantKnowledgeStatus">Loading course and official knowledge…</small>
+          </span>
+        </div>
+        <button class="secondary-button assistant-clear-button" id="clearAssistantChat" type="button">
+          <i class="bi bi-trash" aria-hidden="true"></i>
+          Clear chat
+        </button>
+      </header>
+
+      <div class="assistant-chat-log" id="assistantChatLog" role="log" aria-live="polite" aria-label="Conversation">
+        <article class="assistant-message assistant-message-bot">
+          <span class="assistant-message-avatar"><i class="bi bi-chat-dots" aria-hidden="true"></i></span>
+          <div class="assistant-message-content">
+            <p class="assistant-message-label">Linux Assistant</p>
+            <div class="assistant-answer-card">
+              <h2>What do you want to learn?</h2>
+              <p>
+                I search the complete Linux course plus curated official
+                documentation stored in this browser. Try a concept, command
+                or real production problem.
+              </p>
+              <div class="assistant-starter-grid" id="assistantStarterPrompts">
+                <button type="button" data-question="Explain the Linux boot process">
+                  <i class="bi bi-lightning-charge" aria-hidden="true"></i>
+                  Explain the boot process
+                </button>
+                <button type="button" data-question="How do I troubleshoot high CPU?">
+                  <i class="bi bi-tools" aria-hidden="true"></i>
+                  Troubleshoot high CPU
+                </button>
+                <button type="button" data-question="Why do df and du show different usage?">
+                  <i class="bi bi-bar-chart" aria-hidden="true"></i>
+                  Understand df vs du
+                </button>
+                <button type="button" data-question="SSH permission denied publickey">
+                  <i class="bi bi-shield-check" aria-hidden="true"></i>
+                  Fix SSH key access
+                </button>
+                <button type="button" data-question="What does the official systemd documentation say about journalctl unit logs?">
+                  <i class="bi bi-book" aria-hidden="true"></i>
+                  Search official systemd docs
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="assistant-thinking" id="assistantThinking" hidden>
+        <span class="assistant-message-avatar"><i class="bi bi-chat-dots" aria-hidden="true"></i></span>
+        <span class="assistant-thinking-dots"><i></i><i></i><i></i></span>
+        <span>Searching course + official documentation…</span>
+      </div>
+
+      <form class="assistant-composer" id="assistantForm">
+        <label for="assistantQuestion" class="sr-only">Ask a Linux question</label>
+        <textarea
+          id="assistantQuestion"
+          rows="1"
+          maxlength="500"
+          placeholder="Ask anything about Linux…"
+          autocomplete="off"
+          required
+        ></textarea>
+        <button class="assistant-send-button" type="submit" aria-label="Send question">
+          <i class="bi bi-arrow-up" aria-hidden="true"></i>
+        </button>
+      </form>
+
+      <footer class="assistant-footer-note">
+        <i class="bi bi-shield-check" aria-hidden="true"></i>
+        Offline summaries can make mistakes. Check the linked official page and
+        your installed version before running production commands.
+      </footer>
+    </section>
+
+    <section class="assistant-feature-strip" aria-label="Assistant benefits">
+      <div><i class="bi bi-shield-check"></i><span><strong>Private</strong>Your questions stay in this browser</span></div>
+      <div><i class="bi bi-lightning-charge"></i><span><strong>Instant</strong>No network or account required</span></div>
+      <div><i class="bi bi-book"></i><span><strong>Officially grounded</strong>Answers include verified source links</span></div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Linux Networking</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+  line-height:1.6;
+}
+
+.container {
+  max-width:950px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  padding:25px;
+  margin:18px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+pre {
+  background:#f1f1f1;
+  padding:15px;
+  border-radius:8px;
+  overflow-x:auto;
+}
+
+button {
+  padding:12px 18px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.answer {
+  display:none;
+  margin-top:15px;
+}
+
+a {
+  text-decoration:none;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>🌐 Linux Networking</h1>
+
+<p>
+IP addressing, interfaces, routing, TCP/UDP, ports, sockets,
+DNS and real production network troubleshooting.
+</p>
+
+
+<div class="card">
+<h2>⚡ 60-Second Revision</h2>
+
+<pre>
+Application
+   ↓
+Port / Socket
+   ↓
+TCP or UDP
+   ↓
+IP Address
+   ↓
+Routing Table
+   ↓
+Default Gateway
+   ↓
+Network
+   ↓
+Remote Service
+</pre>
+
+<p>For hostname-based communication:</p>
+
+<pre>
+Hostname
+   ↓
+DNS Resolution
+   ↓
+IP Address
+   ↓
+Network Connection
+</pre>
+</div>
+
+
+<div class="card">
+<h2>1. Network Interfaces</h2>
+
+<p>Inspect interfaces:</p>
+
+<pre>ip addr
+
+ip link
+
+ip -br addr</pre>
+
+<p>Look for:</p>
+
+<ul>
+<li>Interface name</li>
+<li>UP or DOWN state</li>
+<li>IPv4 address</li>
+<li>IPv6 address</li>
+<li>Loopback interface</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>2. Loopback</h2>
+
+<p>
+The loopback interface allows a machine to communicate with itself.
+</p>
+
+<pre>ip addr show lo</pre>
+
+<p>Typical IPv4 loopback:</p>
+
+<pre>127.0.0.1</pre>
+
+<p>Hostname commonly associated with it:</p>
+
+<pre>localhost</pre>
+</div>
+
+
+<div class="card">
+<h2>3. IP Address Basics</h2>
+
+<p>
+An IP address identifies a network interface on an IP network.
+</p>
+
+Example:
+
+<pre>192.168.1.20/24</pre>
+
+<p>
+The <b>/24</b> represents the network prefix length.
+</p>
+</div>
+
+
+<div class="card">
+<h2>4. Subnet Basics</h2>
+
+<p>Example:</p>
+
+<pre>192.168.1.20/24</pre>
+
+<p>A /24 network commonly corresponds to:</p>
+
+<pre>255.255.255.0</pre>
+
+<p>
+For DevOps work, you should understand network ranges,
+CIDR notation and whether two IP addresses belong to the same subnet.
+</p>
+</div>
+
+
+<div class="card">
+<h2>5. IPv4 and IPv6</h2>
+
+<p>Inspect both:</p>
+
+<pre>ip addr</pre>
+
+<p>Examples:</p>
+
+<pre>IPv4:
+192.168.1.20
+
+IPv6:
+2001:db8::20</pre>
+
+<p>
+You do not need to master every IPv6 detail immediately,
+but you should recognize and troubleshoot IPv4 vs IPv6 behavior.
+</p>
+</div>
+
+
+<div class="card">
+<h2>6. Routing Table</h2>
+
+<p>
+The routing table tells Linux where network traffic should go.
+</p>
+
+<pre>ip route</pre>
+
+Example:
+
+<pre>default via 192.168.1.1 dev eth0</pre>
+
+<p>
+This means traffic without a more specific route is sent through
+the gateway at 192.168.1.1 using eth0.
+</p>
+</div>
+
+
+<div class="card">
+<h2>7. Default Gateway</h2>
+
+<p>
+The default gateway is normally used to reach networks
+outside the local subnet.
+</p>
+
+Check:
+
+<pre>ip route | grep default</pre>
+</div>
+
+
+<div class="card">
+<h2>8. TCP vs UDP</h2>
+
+<h3>TCP</h3>
+
+<ul>
+<li>Connection-oriented</li>
+<li>Reliable delivery</li>
+<li>Ordered data</li>
+<li>Retransmission support</li>
+</ul>
+
+<h3>UDP</h3>
+
+<ul>
+<li>Connectionless</li>
+<li>Lower overhead</li>
+<li>No built-in guarantee of delivery</li>
+<li>Useful for workloads where speed or simplicity matters</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>9. Ports</h2>
+
+<p>
+Ports help identify application endpoints on a host.
+</p>
+
+Examples:
+
+<pre>22    SSH
+53    DNS
+80    HTTP
+443   HTTPS</pre>
+
+<p>
+Applications can also use custom ports such as:
+</p>
+
+<pre>8080
+3000
+5000
+9090</pre>
+</div>
+
+
+<div class="card">
+<h2>10. Listening Ports</h2>
+
+<p>Inspect listening sockets:</p>
+
+<pre>ss -tulpn</pre>
+
+TCP listeners:
+
+<pre>ss -ltn</pre>
+
+UDP listeners:
+
+<pre>ss -lun</pre>
+
+Specific port:
+
+<pre>ss -ltnp | grep ':8080'</pre>
+</div>
+
+
+<div class="card">
+<h2>11. Sockets</h2>
+
+<p>
+A network socket represents a communication endpoint.
+</p>
+
+Inspect active TCP connections:
+
+<pre>ss -tan</pre>
+
+Show processes where permitted:
+
+<pre>ss -tulpn</pre>
+</div>
+
+
+<div class="card">
+<h2>12. Bind Address</h2>
+
+<p>
+An application may listen only on localhost:
+</p>
+
+<pre>127.0.0.1:8080</pre>
+
+or on all IPv4 interfaces:
+
+<pre>0.0.0.0:8080</pre>
+
+<p>
+This difference is extremely important when an application works locally
+but cannot be reached remotely.
+</p>
+
+Check:
+
+<pre>ss -ltnp</pre>
+</div>
+
+
+<div class="card">
+<h2>13. DNS</h2>
+
+<p>
+DNS converts hostnames into IP addresses and provides other naming data.
+</p>
+
+Inspect resolution:
+
+<pre>getent hosts example.com</pre>
+
+If available:
+
+<pre>resolvectl status</pre>
+
+Also inspect:
+
+<pre>cat /etc/resolv.conf</pre>
+</div>
+
+
+<div class="card">
+<h2>14. /etc/hosts</h2>
+
+<p>
+Local hostname mappings can be configured here:
+</p>
+
+<pre>cat /etc/hosts</pre>
+
+Example:
+
+<pre>10.0.0.20 app-server</pre>
+
+<p>
+Local host mappings can influence name resolution before or alongside DNS,
+depending on system configuration.
+</p>
+</div>
+
+
+<div class="card">
+<h2>15. /etc/resolv.conf</h2>
+
+<p>Inspect resolver configuration:</p>
+
+<pre>cat /etc/resolv.conf</pre>
+
+<p>
+Depending on the distribution, this file may be managed by another
+networking or resolver service.
+</p>
+</div>
+
+
+<div class="card">
+<h2>16. Connectivity Testing</h2>
+
+<p>Basic IP reachability:</p>
+
+<pre>ping -c 4 8.8.8.8</pre>
+
+Hostname resolution + reachability:
+
+<pre>ping -c 4 example.com</pre>
+
+Application-level HTTP test:
+
+<pre>curl -I https://example.com</pre>
+</div>
+
+
+<div class="card">
+<h2>17. curl</h2>
+
+<p>
+curl is one of the most useful DevOps networking tools.
+</p>
+
+<pre>curl http://localhost:8080
+
+curl -I https://example.com
+
+curl -v https://example.com</pre>
+
+<p>
+Verbose mode helps inspect connection establishment,
+TLS and HTTP behavior.
+</p>
+</div>
+
+
+<div class="card">
+<h2>18. traceroute / tracepath</h2>
+
+<p>If installed:</p>
+
+<pre>traceroute example.com</pre>
+
+or:
+
+<pre>tracepath example.com</pre>
+
+<p>
+These can help inspect the path traffic takes through the network.
+</p>
+</div>
+
+
+<div class="card">
+<h2>19. DNS vs Network Troubleshooting</h2>
+
+<p>
+If this works:
+</p>
+
+<pre>ping -c 2 8.8.8.8</pre>
+
+but this fails:
+
+<pre>getent hosts example.com</pre>
+
+<p>
+the problem may be DNS-related rather than general network connectivity.
+</p>
+</div>
+
+
+<div class="card">
+<h2>20. Local Application Test</h2>
+
+<p>
+Before blaming the network, test the service locally.
+</p>
+
+<pre>ss -ltnp
+
+curl http://127.0.0.1:PORT
+
+curl http://localhost:PORT</pre>
+
+<p>
+If local access fails, the problem may be inside the application,
+service or local host rather than external networking.
+</p>
+</div>
+
+
+<div class="card">
+<h2>21. Firewall Awareness</h2>
+
+<p>
+Linux systems may use firewall tools such as nftables,
+iptables or distribution-specific frontends.
+</p>
+
+Read-only inspection examples:
+
+<pre>sudo nft list ruleset</pre>
+
+If UFW is present:
+
+<pre>sudo ufw status</pre>
+
+<p>
+For this learning app, we will practice firewall changes later
+inside controlled labs rather than modifying your laptop rules blindly.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 1 — Application Running but Unreachable</h2>
+
+<p>Start with:</p>
+
+<pre>systemctl status APP_SERVICE
+
+ss -ltnp
+
+curl http://127.0.0.1:PORT
+
+ip addr
+
+ip route</pre>
+
+<p>Check:</p>
+
+<ul>
+<li>Is the service running?</li>
+<li>Is the port listening?</li>
+<li>Is it bound only to 127.0.0.1?</li>
+<li>Does local curl work?</li>
+<li>Is routing correct?</li>
+<li>Is a firewall or upstream device blocking traffic?</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 2 — DNS Failure</h2>
+
+<pre>getent hosts APPLICATION_DOMAIN
+
+cat /etc/resolv.conf
+
+resolvectl status
+
+ping -c 2 8.8.8.8</pre>
+
+<p>
+If IP connectivity works but hostname resolution fails,
+focus on DNS configuration and resolver availability.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 3 — Connection Refused</h2>
+
+<p>
+Connection refused normally means the destination host was reachable,
+but nothing accepted the connection on the requested endpoint,
+or the connection was actively rejected.
+</p>
+
+Check:
+
+<pre>ss -ltnp
+
+systemctl status SERVICE_NAME
+
+curl -v http://localhost:PORT
+
+journalctl -u SERVICE_NAME</pre>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 4 — Connection Timeout</h2>
+
+<p>
+Timeouts can point toward routing, firewall,
+unresponsive dependencies or network path problems.
+</p>
+
+Check:
+
+<pre>ip addr
+
+ip route
+
+ping -c 2 TARGET_IP
+
+tracepath TARGET_IP
+
+ss -tan</pre>
+
+<p>
+Then inspect host and network firewall controls where appropriate.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 5 — Works Locally, Not Remotely</h2>
+
+<p>Classic investigation:</p>
+
+<pre>ss -ltnp
+
+curl http://127.0.0.1:PORT
+
+ip addr</pre>
+
+<p>
+If the service listens on:
+</p>
+
+<pre>127.0.0.1:PORT</pre>
+
+<p>
+it is normally only reachable through the local loopback interface.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 6 — Wrong Route</h2>
+
+<p>Inspect:</p>
+
+<pre>ip route
+
+ip route get TARGET_IP</pre>
+
+<p>
+The second command shows which route Linux intends to use
+for a particular destination.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 7 — Intermittent Network Issue</h2>
+
+<p>Capture basic observations:</p>
+
+<pre>date
+
+ip addr
+
+ip route
+
+ss -tan
+
+ping -c 10 TARGET
+
+journalctl -k -n 100</pre>
+
+<p>
+Correlate the issue with application logs, DNS behavior,
+network interface events and dependency health.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🧪 Safe Hands-On Lab</h2>
+
+<p>Run these read-only commands:</p>
+
+<pre>ip -br addr
+
+ip route
+
+ip route get 8.8.8.8
+
+ss -ltn
+
+ss -tan
+
+cat /etc/hosts
+
+cat /etc/resolv.conf
+
+getent hosts example.com
+
+curl -I https://example.com</pre>
+</div>
+
+
+<div class="card">
+<h2>🧪 Local Port Lab</h2>
+
+<p>
+Use Python's simple HTTP server only on your local machine:
+</p>
+
+<pre>mkdir -p ~/network-lab
+
+cd ~/network-lab
+
+python3 -m http.server 9000 --bind 127.0.0.1</pre>
+
+<p>
+Open another terminal and inspect:
+</p>
+
+<pre>ss -ltn | grep 9000
+
+curl http://127.0.0.1:9000</pre>
+
+<p>
+Press <b>Ctrl + C</b> in the server terminal when finished.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+<li>What is an IP address?</li>
+<li>What does CIDR /24 mean?</li>
+<li>What is a subnet?</li>
+<li>What is a default gateway?</li>
+<li>What is a routing table?</li>
+<li>How do you inspect routes in Linux?</li>
+<li>What is TCP?</li>
+<li>What is UDP?</li>
+<li>What is the difference between TCP and UDP?</li>
+<li>What is a port?</li>
+<li>What is a socket?</li>
+<li>How do you identify which process is listening on a port?</li>
+<li>What does 127.0.0.1 represent?</li>
+<li>What is the difference between 127.0.0.1 and 0.0.0.0 for a listening service?</li>
+<li>What is DNS?</li>
+<li>What is /etc/hosts?</li>
+<li>What is /etc/resolv.conf?</li>
+<li>What does connection refused usually indicate?</li>
+<li>What can cause a connection timeout?</li>
+<li>How would you troubleshoot an application that works locally but not remotely?</li>
+<li>How do you differentiate DNS problems from general network problems?</li>
+<li>How would you troubleshoot a production service that suddenly becomes unreachable?</li>
+</ol>
+</div>
+
+
+<div class="card">
+<h2>🧩 Quick Recall</h2>
+
+<h3>Application is running but users cannot connect. First checks?</h3>
+
+<button onclick="toggle('a1')">Show Answer</button>
+
+<div id="a1" class="answer">
+
+<pre>systemctl status APP_SERVICE
+ss -ltnp
+curl http://127.0.0.1:PORT
+ip addr
+ip route</pre>
+
+</div>
+
+
+<h3>IP works, domain does not. What area do you investigate?</h3>
+
+<button onclick="toggle('a2')">Show Answer</button>
+
+<div id="a2" class="answer">
+
+<p>DNS resolution.</p>
+
+<pre>getent hosts DOMAIN
+cat /etc/resolv.conf
+resolvectl status</pre>
+
+</div>
+
+
+<h3>What is the difference between 127.0.0.1 and 0.0.0.0 when listening?</h3>
+
+<button onclick="toggle('a3')">Show Answer</button>
+
+<div id="a3" class="answer">
+
+<p>
+127.0.0.1 normally limits the listener to the local loopback interface.
+0.0.0.0 normally means the service listens on all IPv4 interfaces
+available to that socket.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="card">
+<h2>🗣️ Strong Interview Answer</h2>
+
+<p>
+“When troubleshooting Linux networking, I work layer by layer.
+I first verify the application process and listening port, then test
+the service locally. After that I inspect the interface addresses,
+routing table and destination route. If a hostname is involved,
+I verify DNS separately. Finally I investigate firewall or upstream
+network controls. This helps me determine whether the problem is
+application, host networking, DNS, routing or external network infrastructure.”
+</p>
+</div>
+
+
+<div class="card">
+<h2>📖 Official Documentation</h2>
+
+<p>Useful local manuals:</p>
+
+<pre>man ip
+man ip-address
+man ip-route
+man ss
+man hosts
+man resolv.conf
+man getent
+man ping
+man curl
+man traceroute
+man nft</pre>
+
+<p>
+For deeper networking internals, use Linux kernel networking
+documentation and your Linux distribution's official server networking docs.
+</p>
+</div>
+
+
+<div class="card">
+<h2>✅ Completion Standard</h2>
+
+<ul>
+<li>Understand interfaces and IP addresses</li>
+<li>Understand basic CIDR/subnet concepts</li>
+<li>Read a Linux routing table</li>
+<li>Explain the default gateway</li>
+<li>Explain TCP vs UDP</li>
+<li>Understand ports and sockets</li>
+<li>Use ss confidently</li>
+<li>Understand localhost vs all-interface binding</li>
+<li>Troubleshoot DNS problems</li>
+<li>Use curl for application testing</li>
+<li>Differentiate connection refused vs timeout</li>
+<li>Troubleshoot local vs remote connectivity problems</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>✅ Topic Progress</h2>
+
+<p id="completeStatus">
+Mark this topic complete when you are confident with it.
+</p>
+
+<button onclick="markTopicComplete()">
+Mark Topic Complete
+</button>
+</div>
+
+</div>
+
+
+<script>
+const currentTopic = "Linux Networking";
+
+function toggle(id) {
+  const element = document.getElementById(id);
+
+  element.style.display =
+    element.style.display === "block"
+      ? "none"
+      : "block";
+}
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

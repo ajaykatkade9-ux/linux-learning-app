@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>DevOps and Container Linux</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      color: #1f2937;
+      background: #f5f7fb;
+    }
+
+    .container {
+      width: min(1000px, 100%);
+      margin: auto;
+    }
+
+    .back {
+      color: #1d4ed8;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .hero,
+    .card {
+      padding: 25px;
+      margin: 22px 0;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .hero {
+      color: white;
+      background: linear-gradient(135deg, #111827, #0369a1);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.3;
+    }
+
+    h2 {
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    pre {
+      padding: 17px;
+      overflow-x: auto;
+      color: #d1fae5;
+      background: #111827;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+
+    code {
+      font-family: Consolas, monospace;
+    }
+
+    .note,
+    .warning,
+    .success {
+      padding: 16px;
+      margin: 18px 0;
+      border-radius: 10px;
+    }
+
+    .note {
+      background: #eff6ff;
+      border-left: 5px solid #2563eb;
+    }
+
+    .warning {
+      background: #fff7ed;
+      border-left: 5px solid #ea580c;
+    }
+
+    .success {
+      background: #ecfdf5;
+      border-left: 5px solid #16a34a;
+    }
+
+    table {
+      width: 100%;
+      margin: 18px 0;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #d1d5db;
+    }
+
+    th {
+      background: #e5e7eb;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .complete-button {
+      padding: 13px 20px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      background: #15803d;
+      border: 0;
+      border-radius: 9px;
+    }
+
+    .complete-button:hover {
+      background: #166534;
+    }
+
+    .docs a {
+      display: block;
+      margin: 10px 0;
+      color: #1d4ed8;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      .hero,
+      .card {
+        padding: 19px;
+      }
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<main class="container">
+
+  <a class="back" href="linux.html">
+    ← Back to Linux Course
+  </a>
+
+  <section class="hero">
+    <h1>🐳 DevOps / Container Linux</h1>
+
+    <p>
+      Understand containers as Linux processes using namespaces,
+      cgroups, layered filesystems, networking and security controls.
+    </p>
+  </section>
+
+  <section class="card">
+
+    <h2>⚡ 60-Second Revision</h2>
+
+    <ul>
+      <li>A container is an isolated process running on the host kernel.</li>
+      <li>An image is an immutable application filesystem template.</li>
+      <li>A running container adds a writable layer.</li>
+      <li>Namespaces isolate what processes can see.</li>
+      <li>cgroups account for and limit resources.</li>
+      <li>Capabilities reduce root privilege.</li>
+      <li>Container networking commonly uses veth pairs and bridges.</li>
+      <li>Volumes store persistent data outside the writable layer.</li>
+      <li>PID 1 must handle signals and reap child processes.</li>
+      <li>Containers share the host kernel and are not virtual machines.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>1. Containers vs Virtual Machines</h2>
+
+    <table>
+      <tr>
+        <th>Container</th>
+        <th>Virtual machine</th>
+      </tr>
+
+      <tr>
+        <td>Shares the host kernel</td>
+        <td>Runs a separate guest kernel</td>
+      </tr>
+
+      <tr>
+        <td>Starts as isolated processes</td>
+        <td>Boots a complete operating system</td>
+      </tr>
+
+      <tr>
+        <td>Usually smaller and faster to start</td>
+        <td>Usually needs more CPU, RAM and storage</td>
+      </tr>
+
+      <tr>
+        <td>Isolation through Linux kernel features</td>
+        <td>Isolation through a hypervisor</td>
+      </tr>
+
+      <tr>
+        <td>Linux host-kernel compatibility required</td>
+        <td>Can run a different guest operating system</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      Containers package applications and dependencies, but they
+      still depend on the host kernel for process, memory, storage
+      and network operations.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>2. Container Architecture</h2>
+
+    <table>
+      <tr>
+        <th>Component</th>
+        <th>Purpose</th>
+      </tr>
+
+      <tr>
+        <td>Docker or Podman CLI</td>
+        <td>User-facing container commands</td>
+      </tr>
+
+      <tr>
+        <td>Container engine</td>
+        <td>Images, lifecycle, networking and storage management</td>
+      </tr>
+
+      <tr>
+        <td>OCI runtime</td>
+        <td>Creates the final Linux container process</td>
+      </tr>
+
+      <tr>
+        <td>Linux kernel</td>
+        <td>Namespaces, cgroups, capabilities, seccomp and filesystems</td>
+      </tr>
+    </table>
+
+    <p>Inspect installed tools:</p>
+
+    <pre><code>docker version
+docker info
+
+podman version
+podman info
+
+runc --version
+crun --version</code></pre>
+
+    <div class="note">
+      Docker commonly uses a long-running engine service. Podman is
+      designed around a daemonless model and supports rootless containers.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>3. Images and Containers</h2>
+
+    <table>
+      <tr>
+        <th>Image</th>
+        <th>Container</th>
+      </tr>
+
+      <tr>
+        <td>Read-only application template</td>
+        <td>Running or stopped instance of an image</td>
+      </tr>
+
+      <tr>
+        <td>Built from filesystem layers</td>
+        <td>Adds runtime state and a writable layer</td>
+      </tr>
+
+      <tr>
+        <td>Identified by name, tag and digest</td>
+        <td>Identified by container ID and name</td>
+      </tr>
+    </table>
+
+    <pre><code>docker images
+docker image inspect IMAGE_NAME
+docker history IMAGE_NAME
+
+docker ps
+docker ps -a
+docker inspect CONTAINER_NAME</code></pre>
+
+    <p>Podman equivalents:</p>
+
+    <pre><code>podman images
+podman image inspect IMAGE_NAME
+podman history IMAGE_NAME
+
+podman ps
+podman ps -a
+podman inspect CONTAINER_NAME</code></pre>
+
+    <div class="note">
+      Tags can move between image versions. Production deployments
+      often use immutable image digests for exact identification.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>4. Container Processes</h2>
+
+    <p>
+      The command configured for the container becomes its primary
+      process. When this process exits, the container stops.
+    </p>
+
+    <pre><code>docker ps
+docker top CONTAINER_NAME
+docker inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME
+
+podman top CONTAINER_NAME
+podman inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME</code></pre>
+
+    <p>Inspect from the host:</p>
+
+    <pre><code>PID=HOST_PID
+
+ps -fp $PID
+pstree -p $PID
+cat /proc/$PID/status
+cat /proc/$PID/cgroup
+ls -l /proc/$PID/ns</code></pre>
+
+    <p>Run a diagnostic command inside:</p>
+
+    <pre><code>docker exec CONTAINER_NAME ps -ef
+docker exec -it CONTAINER_NAME sh
+
+podman exec CONTAINER_NAME ps -ef
+podman exec -it CONTAINER_NAME sh</code></pre>
+
+    <div class="note">
+      <code>docker exec</code> creates an additional process inside the
+      existing container namespaces. It does not create a new container.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>5. PID Namespace and PID 1</h2>
+
+    <p>
+      PID namespaces allow processes to have different process IDs
+      inside and outside the container.
+    </p>
+
+    <pre><code>HOST_PID=$(
+  docker inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME
+)
+
+echo "$HOST_PID"
+
+ps -fp "$HOST_PID"
+
+docker exec CONTAINER_NAME \
+  ps -eo pid,ppid,stat,comm</code></pre>
+
+    <p>Compare namespace identifiers:</p>
+
+    <pre><code>readlink /proc/1/ns/pid
+readlink /proc/$HOST_PID/ns/pid</code></pre>
+
+    <h3>PID 1 responsibilities</h3>
+
+    <ul>
+      <li>Receive termination signals correctly</li>
+      <li>Shut down the application gracefully</li>
+      <li>Reap exited child processes</li>
+      <li>Return a meaningful exit status</li>
+    </ul>
+
+    <p>Inspect signal configuration:</p>
+
+    <pre><code>docker inspect \
+  --format '{{.Config.StopSignal}}' \
+  CONTAINER_NAME
+
+docker stop \
+  --time 20 \
+  CONTAINER_NAME</code></pre>
+
+    <div class="warning">
+      Shell wrapper scripts can prevent signals from reaching the real
+      application. Use <code>exec application</code> when appropriate so
+      the application replaces the wrapper process.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>6. Linux Namespaces Used by Containers</h2>
+
+    <table>
+      <tr>
+        <th>Namespace</th>
+        <th>Container isolation</th>
+      </tr>
+
+      <tr>
+        <td>PID</td>
+        <td>Process ID tree</td>
+      </tr>
+
+      <tr>
+        <td>Network</td>
+        <td>Interfaces, routes, sockets and firewall state</td>
+      </tr>
+
+      <tr>
+        <td>Mount</td>
+        <td>Filesystem mount view</td>
+      </tr>
+
+      <tr>
+        <td>UTS</td>
+        <td>Hostname and domain name</td>
+      </tr>
+
+      <tr>
+        <td>IPC</td>
+        <td>Shared memory and message queues</td>
+      </tr>
+
+      <tr>
+        <td>User</td>
+        <td>User and group ID mapping</td>
+      </tr>
+
+      <tr>
+        <td>cgroup</td>
+        <td>View of the cgroup hierarchy</td>
+      </tr>
+    </table>
+
+    <pre><code>lsns
+ls -l /proc/HOST_PID/ns
+
+docker inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME</code></pre>
+
+    <p>Enter selected container namespaces from the host:</p>
+
+    <pre><code>sudo nsenter \
+  --target HOST_PID \
+  --mount \
+  --uts \
+  --ipc \
+  --net \
+  --pid</code></pre>
+
+    <div class="warning">
+      <code>nsenter</code> can bypass normal container tooling and exposes
+      a powerful host-level debugging path. Restrict its use in production.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>7. Container Networking Fundamentals</h2>
+
+    <p>A common single-host packet path is:</p>
+
+    <ol>
+      <li>Container network interface</li>
+      <li>Virtual Ethernet pair</li>
+      <li>Linux bridge</li>
+      <li>Host routing or NAT</li>
+      <li>Physical interface</li>
+    </ol>
+
+    <pre><code>docker network ls
+docker network inspect bridge
+
+docker inspect \
+  --format '{{json .NetworkSettings.Networks}}' \
+  CONTAINER_NAME
+
+ip link
+ip address
+ip route
+bridge link
+bridge fdb show</code></pre>
+
+    <h3>Common network modes</h3>
+
+    <table>
+      <tr>
+        <th>Mode</th>
+        <th>Behaviour</th>
+      </tr>
+
+      <tr>
+        <td>bridge</td>
+        <td>Private container network through a host bridge</td>
+      </tr>
+
+      <tr>
+        <td>host</td>
+        <td>Container uses the host network namespace</td>
+      </tr>
+
+      <tr>
+        <td>none</td>
+        <td>No configured external networking</td>
+      </tr>
+
+      <tr>
+        <td>overlay</td>
+        <td>Multi-host container networking</td>
+      </tr>
+
+      <tr>
+        <td>macvlan</td>
+        <td>Container appears directly on the physical network</td>
+      </tr>
+    </table>
+
+  </section>
+
+  <section class="card">
+
+    <h2>8. Port Publishing</h2>
+
+    <p>
+      Publishing a port maps a host address and port to a container port.
+    </p>
+
+    <pre><code>docker run \
+  --name web-demo \
+  -d \
+  -p 127.0.0.1:8080:80 \
+  nginx
+
+docker port web-demo
+sudo ss -ltnp | grep ':8080'
+curl http://127.0.0.1:8080</code></pre>
+
+    <table>
+      <tr>
+        <th>Configuration</th>
+        <th>Meaning</th>
+      </tr>
+
+      <tr>
+        <td>127.0.0.1:8080:80</td>
+        <td>Host-local access only</td>
+      </tr>
+
+      <tr>
+        <td>8080:80</td>
+        <td>Normally published on all host interfaces</td>
+      </tr>
+
+      <tr>
+        <td>80</td>
+        <td>Container port only; not automatically host-published</td>
+      </tr>
+    </table>
+
+    <div class="warning">
+      Publishing a port can expose the service beyond the host.
+      Verify the bind address, firewall and external security rules.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>9. Network Namespace Debugging</h2>
+
+    <p>Obtain the container host PID:</p>
+
+    <pre><code>PID=$(
+  docker inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME
+)</code></pre>
+
+    <p>Run host tools inside its network namespace:</p>
+
+    <pre><code>sudo nsenter -t "$PID" -n ip address
+sudo nsenter -t "$PID" -n ip route
+sudo nsenter -t "$PID" -n ss -lntup
+sudo nsenter -t "$PID" -n cat /etc/resolv.conf</code></pre>
+
+    <p>Container-side checks:</p>
+
+    <pre><code>docker exec CONTAINER_NAME \
+  cat /etc/resolv.conf
+
+docker exec CONTAINER_NAME \
+  getent hosts DESTINATION
+
+docker exec CONTAINER_NAME \
+  ip route</code></pre>
+
+    <div class="note">
+      Minimal images may not contain tools such as <code>ip</code>,
+      <code>ss</code>, <code>curl</code> or a shell. Host namespace tools
+      are useful when modifying the image is undesirable.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>10. Container Filesystems</h2>
+
+    <p>
+      Container images are built from read-only layers. A running
+      container receives a writable layer using copy-on-write behaviour.
+    </p>
+
+    <pre><code>docker info \
+  --format '{{.Driver}}'
+
+docker image inspect IMAGE_NAME
+docker history IMAGE_NAME
+
+docker inspect \
+  --format '{{json .GraphDriver}}' \
+  CONTAINER_NAME
+
+docker diff CONTAINER_NAME</code></pre>
+
+    <h3>OverlayFS model</h3>
+
+    <table>
+      <tr>
+        <th>Layer</th>
+        <th>Purpose</th>
+      </tr>
+
+      <tr>
+        <td>lowerdir</td>
+        <td>Read-only image layers</td>
+      </tr>
+
+      <tr>
+        <td>upperdir</td>
+        <td>Container changes</td>
+      </tr>
+
+      <tr>
+        <td>workdir</td>
+        <td>OverlayFS internal working directory</td>
+      </tr>
+
+      <tr>
+        <td>merged</td>
+        <td>Combined filesystem visible to the container</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      Storage implementation varies by engine and version. Inspect the
+      active engine rather than assuming every host uses overlay2.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>11. Mount Namespaces</h2>
+
+    <p>
+      A mount namespace gives a container its own view of filesystem
+      mounts while still using host-kernel filesystem operations.
+    </p>
+
+    <pre><code>PID=$(
+  docker inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME
+)
+
+readlink /proc/$PID/ns/mnt
+cat /proc/$PID/mountinfo
+sudo nsenter -t "$PID" -m findmnt</code></pre>
+
+    <p>Compare host and container roots:</p>
+
+    <pre><code>ls -ld /
+sudo ls -ld /proc/$PID/root
+sudo ls /proc/$PID/root</code></pre>
+
+    <div class="warning">
+      Accessing <code>/proc/PID/root</code> from the host can bypass the
+      normal container interface. Use it only for controlled investigation.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>12. Persistent Storage</h2>
+
+    <table>
+      <tr>
+        <th>Storage type</th>
+        <th>Use</th>
+      </tr>
+
+      <tr>
+        <td>Writable layer</td>
+        <td>Temporary container-specific changes</td>
+      </tr>
+
+      <tr>
+        <td>Named volume</td>
+        <td>Engine-managed persistent data</td>
+      </tr>
+
+      <tr>
+        <td>Bind mount</td>
+        <td>Specific host path exposed inside container</td>
+      </tr>
+
+      <tr>
+        <td>tmpfs</td>
+        <td>Temporary memory-backed data</td>
+      </tr>
+    </table>
+
+    <pre><code>docker volume ls
+docker volume inspect VOLUME_NAME
+
+docker inspect \
+  --format '{{json .Mounts}}' \
+  CONTAINER_NAME</code></pre>
+
+    <p>Example named volume:</p>
+
+    <pre><code>docker run \
+  --name data-demo \
+  --mount \
+  source=app-data,target=/var/lib/app \
+  IMAGE_NAME</code></pre>
+
+    <p>Example read-only bind mount:</p>
+
+    <pre><code>docker run \
+  --mount \
+  type=bind,source=/host/config,target=/app/config,readonly \
+  IMAGE_NAME</code></pre>
+
+    <div class="warning">
+      Bind mounts expose host paths. Incorrect writable mounts can allow
+      a compromised container to change important host data.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>13. cgroups and Resource Limits</h2>
+
+    <p>
+      Containers without explicit limits may consume resources according
+      to whatever the host kernel and runtime permit.
+    </p>
+
+    <pre><code>docker stats
+docker inspect \
+  --format '{{json .HostConfig}}' \
+  CONTAINER_NAME
+
+podman stats
+podman inspect CONTAINER_NAME</code></pre>
+
+    <p>Example resource limits:</p>
+
+    <pre><code>docker run \
+  --name limited-app \
+  --memory 512m \
+  --memory-swap 512m \
+  --cpus 1.5 \
+  --pids-limit 200 \
+  IMAGE_NAME</code></pre>
+
+    <p>Inspect the host cgroup:</p>
+
+    <pre><code>PID=$(
+  docker inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME
+)
+
+cat /proc/$PID/cgroup
+systemd-cgls
+systemd-cgtop</code></pre>
+
+    <p>Relevant cgroup v2 files:</p>
+
+    <pre><code>memory.current
+memory.max
+memory.events
+cpu.max
+cpu.stat
+pids.current
+pids.max
+io.stat</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>14. Container OOM Investigation</h2>
+
+    <pre><code>docker inspect \
+  --format '{{.State.OOMKilled}}' \
+  CONTAINER_NAME
+
+docker stats --no-stream
+
+sudo journalctl -k \
+  | grep -Ei 'oom|out of memory|killed process'</code></pre>
+
+    <p>For the container cgroup:</p>
+
+    <pre><code>cat memory.current
+cat memory.max
+cat memory.events
+cat memory.stat</code></pre>
+
+    <ol>
+      <li>Confirm whether the container was OOM-killed.</li>
+      <li>Compare usage against the configured memory limit.</li>
+      <li>Check application memory metrics and traffic changes.</li>
+      <li>Identify a leak, spike, cache or incorrect limit.</li>
+      <li>Fix application behaviour or right-size the limit.</li>
+    </ol>
+
+  </section>
+
+  <section class="card">
+
+    <h2>15. Linux Capabilities in Containers</h2>
+
+    <p>
+      Container root normally receives a reduced capability set,
+      but still has more privilege than a regular non-root process.
+    </p>
+
+    <pre><code>docker exec CONTAINER_NAME \
+  grep '^Cap' /proc/1/status
+
+docker exec CONTAINER_NAME \
+  capsh --print
+
+getpcaps HOST_PID</code></pre>
+
+    <p>Drop all capabilities and add only one:</p>
+
+    <pre><code>docker run \
+  --cap-drop ALL \
+  --cap-add NET_BIND_SERVICE \
+  IMAGE_NAME</code></pre>
+
+    <p>Additional hardening:</p>
+
+    <pre><code>docker run \
+  --user 10001:10001 \
+  --read-only \
+  --tmpfs /tmp \
+  --security-opt no-new-privileges \
+  --cap-drop ALL \
+  IMAGE_NAME</code></pre>
+
+    <div class="warning">
+      Avoid <code>--privileged</code> unless there is a documented,
+      reviewed requirement. It removes major isolation protections.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>16. Container Security Layers</h2>
+
+    <ul>
+      <li>Run as a non-root user.</li>
+      <li>Drop unnecessary capabilities.</li>
+      <li>Use the default seccomp profile.</li>
+      <li>Keep SELinux or AppArmor enabled.</li>
+      <li>Use read-only filesystems where possible.</li>
+      <li>Restrict writable bind mounts.</li>
+      <li>Set memory, CPU and PID limits.</li>
+      <li>Do not mount the container-engine socket unnecessarily.</li>
+      <li>Use trusted minimal images.</li>
+      <li>Scan and patch images regularly.</li>
+      <li>Keep secrets outside image layers.</li>
+    </ul>
+
+    <p>Inspect security settings:</p>
+
+    <pre><code>docker inspect \
+  --format '{{json .HostConfig.SecurityOpt}}' \
+  CONTAINER_NAME
+
+docker inspect \
+  --format '{{.HostConfig.Privileged}}' \
+  CONTAINER_NAME
+
+docker inspect \
+  --format '{{json .HostConfig.CapDrop}}' \
+  CONTAINER_NAME</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>17. Container Lifecycle and Logs</h2>
+
+    <pre><code>docker ps -a
+docker inspect CONTAINER_NAME
+docker logs CONTAINER_NAME
+docker logs --since 30m CONTAINER_NAME
+docker logs -f CONTAINER_NAME
+docker top CONTAINER_NAME
+docker stats CONTAINER_NAME
+
+docker stop CONTAINER_NAME
+docker start CONTAINER_NAME
+docker restart CONTAINER_NAME</code></pre>
+
+    <p>Inspect exit information:</p>
+
+    <pre><code>docker inspect \
+  --format 'status={{.State.Status}}
+exit={{.State.ExitCode}}
+error={{.State.Error}}
+oom={{.State.OOMKilled}}
+started={{.State.StartedAt}}
+finished={{.State.FinishedAt}}' \
+  CONTAINER_NAME</code></pre>
+
+    <div class="note">
+      Container logs normally capture standard output and standard error.
+      Applications writing only to internal files may require a volume
+      or separate log collection configuration.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>18. Production Scenario — Container Exits</h2>
+
+    <pre><code>docker ps -a
+docker logs --tail 200 CONTAINER_NAME
+
+docker inspect \
+  --format '{{json .State}}' \
+  CONTAINER_NAME
+
+docker inspect \
+  --format '{{json .Config.Entrypoint}} {{json .Config.Cmd}}' \
+  CONTAINER_NAME</code></pre>
+
+    <ol>
+      <li>Read the exit code and error.</li>
+      <li>Inspect application logs.</li>
+      <li>Check entrypoint and command.</li>
+      <li>Check mounted configuration and secrets.</li>
+      <li>Check OOM status and resource limits.</li>
+      <li>Run the same image with a diagnostic command if safe.</li>
+    </ol>
+
+  </section>
+
+  <section class="card">
+
+    <h2>19. Production Scenario — Port Not Reachable</h2>
+
+    <pre><code>docker ps
+docker port CONTAINER_NAME
+docker inspect \
+  --format '{{json .NetworkSettings.Ports}}' \
+  CONTAINER_NAME
+
+sudo ss -lntup
+curl -v http://127.0.0.1:HOST_PORT
+
+docker exec CONTAINER_NAME \
+  ss -lntup</code></pre>
+
+    <p>Verify:</p>
+
+    <ul>
+      <li>The application is running.</li>
+      <li>It listens on the expected container port.</li>
+      <li>It listens on more than container loopback when required.</li>
+      <li>The port is published to the correct host address.</li>
+      <li>Host and cloud firewalls permit access.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>20. Production Scenario — Container DNS Failure</h2>
+
+    <pre><code>docker exec CONTAINER_NAME \
+  cat /etc/resolv.conf
+
+docker exec CONTAINER_NAME \
+  getent hosts DESTINATION
+
+docker network inspect NETWORK_NAME
+
+resolvectl status
+getent hosts DESTINATION</code></pre>
+
+    <ol>
+      <li>Compare host and container DNS.</li>
+      <li>Check container network attachment.</li>
+      <li>Check the embedded container DNS service.</li>
+      <li>Check upstream resolvers and firewall rules.</li>
+      <li>Verify the requested service name and network scope.</li>
+    </ol>
+
+  </section>
+
+  <section class="card">
+
+    <h2>21. Production Scenario — Volume Permission Denied</h2>
+
+    <pre><code>docker inspect \
+  --format '{{json .Mounts}}' \
+  CONTAINER_NAME
+
+docker inspect \
+  --format '{{.Config.User}}' \
+  CONTAINER_NAME
+
+docker exec CONTAINER_NAME id
+
+namei -l /HOST/PATH
+getfacl /HOST/PATH
+ls -ldZ /HOST/PATH</code></pre>
+
+    <p>Check:</p>
+
+    <ul>
+      <li>Container UID and GID</li>
+      <li>Host ownership and permissions</li>
+      <li>ACL rules</li>
+      <li>SELinux labels</li>
+      <li>Read-only mount options</li>
+      <li>Rootless user ID mapping</li>
+    </ul>
+
+    <div class="warning">
+      Do not use recursive <code>chmod 777</code>. Map the application
+      UID/GID and grant only the required access.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>22. Production Scenario — Container Disk Growth</h2>
+
+    <pre><code>docker system df
+docker system df -v
+
+docker ps \
+  --size
+
+docker inspect \
+  --format '{{.LogPath}}' \
+  CONTAINER_NAME
+
+sudo du -sh \
+  /var/lib/docker/* \
+  2&gt;/dev/null</code></pre>
+
+    <p>Common causes:</p>
+
+    <ul>
+      <li>Unbounded container logs</li>
+      <li>Application data written into the writable layer</li>
+      <li>Unused images and build cache</li>
+      <li>Stopped containers</li>
+      <li>Orphaned volumes</li>
+    </ul>
+
+    <div class="warning">
+      Cleanup commands can remove recoverable or required data.
+      Inspect exact targets and backup requirements before deleting
+      images, containers, cache or volumes.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>🧪 Hands-On Container Labs</h2>
+
+    <h3>Lab 1 — Inspect a running process</h3>
+
+    <pre><code>docker ps
+
+PID=$(
+  docker inspect \
+  --format '{{.State.Pid}}' \
+  CONTAINER_NAME
+)
+
+ps -fp "$PID"
+ls -l /proc/$PID/ns
+cat /proc/$PID/cgroup</code></pre>
+
+    <h3>Lab 2 — Compare namespaces</h3>
+
+    <pre><code>readlink /proc/1/ns/pid
+readlink /proc/$PID/ns/pid
+
+readlink /proc/1/ns/net
+readlink /proc/$PID/ns/net
+
+readlink /proc/1/ns/mnt
+readlink /proc/$PID/ns/mnt</code></pre>
+
+    <h3>Lab 3 — Inspect networking</h3>
+
+    <pre><code>docker network ls
+docker network inspect bridge
+ip link
+bridge link
+sudo nsenter -t "$PID" -n ip address
+sudo nsenter -t "$PID" -n ip route</code></pre>
+
+    <h3>Lab 4 — Inspect filesystems</h3>
+
+    <pre><code>docker diff CONTAINER_NAME
+docker inspect \
+  --format '{{json .GraphDriver}}' \
+  CONTAINER_NAME
+docker inspect \
+  --format '{{json .Mounts}}' \
+  CONTAINER_NAME</code></pre>
+
+    <h3>Lab 5 — Inspect resources</h3>
+
+    <pre><code>docker stats --no-stream
+cat /proc/$PID/cgroup
+systemd-cgls
+systemd-cgtop</code></pre>
+
+    <h3>Lab 6 — Inspect security</h3>
+
+    <pre><code>docker inspect \
+  --format '{{.Config.User}}' \
+  CONTAINER_NAME
+
+docker inspect \
+  --format '{{.HostConfig.Privileged}}' \
+  CONTAINER_NAME
+
+grep '^Cap' /proc/$PID/status
+grep '^Seccomp' /proc/$PID/status</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>🎯 Interview Questions</h2>
+
+    <h3>Is a container a lightweight virtual machine?</h3>
+
+    <p>
+      No. A Linux container is an isolated group of processes sharing
+      the host kernel. A VM normally runs a separate guest kernel.
+    </p>
+
+    <h3>Namespace vs cgroup?</h3>
+
+    <p>
+      Namespaces isolate what a process can see. cgroups account for
+      and limit how many resources processes can use.
+    </p>
+
+    <h3>Why is PID 1 special?</h3>
+
+    <p>
+      It must handle termination signals correctly and reap exited
+      child processes to prevent zombies.
+    </p>
+
+    <h3>Image vs container?</h3>
+
+    <p>
+      An image is an immutable layered template. A container is a
+      running or stopped instance with runtime state and a writable layer.
+    </p>
+
+    <h3>Volume vs bind mount?</h3>
+
+    <p>
+      A volume is managed by the container engine. A bind mount exposes
+      a specific host filesystem path inside the container.
+    </p>
+
+    <h3>How does container port publishing work?</h3>
+
+    <p>
+      The runtime configures host networking so traffic received on a
+      host address and port reaches a port in the container network namespace.
+    </p>
+
+    <h3>Why avoid privileged containers?</h3>
+
+    <p>
+      Privileged mode grants broad device and kernel access and removes
+      many isolation controls, greatly increasing host-compromise risk.
+    </p>
+
+    <h3>How do you debug a container without tools?</h3>
+
+    <p>
+      Obtain its host PID and use host tools with <code>nsenter</code>,
+      or use a controlled diagnostic container sharing the target namespaces.
+    </p>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Production Checklist</h2>
+
+    <ul>
+      <li>Run containers as non-root.</li>
+      <li>Set CPU, memory and PID limits.</li>
+      <li>Drop unnecessary capabilities.</li>
+      <li>Avoid privileged mode.</li>
+      <li>Keep seccomp and SELinux/AppArmor enabled.</li>
+      <li>Use read-only filesystems where practical.</li>
+      <li>Store persistent data in appropriate volumes.</li>
+      <li>Restrict writable bind mounts.</li>
+      <li>Configure container log rotation.</li>
+      <li>Use health checks and graceful shutdown.</li>
+      <li>Scan and update container images.</li>
+      <li>Keep secrets outside images and logs.</li>
+      <li>Monitor container and host resources together.</li>
+    </ul>
+
+  </section>
+
+  <section class="card docs">
+
+    <h2>📖 Official Documentation</h2>
+
+    <a href="https://docs.docker.com/engine/containers/run/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Docker — Running Containers
+    </a>
+
+    <a href="https://docs.docker.com/engine/containers/resource_constraints/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Docker — Resource Constraints
+    </a>
+
+    <a href="https://docs.docker.com/engine/network/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Docker — Networking Overview
+    </a>
+
+    <a href="https://docs.docker.com/engine/storage/drivers/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Docker — Storage Drivers
+    </a>
+
+    <a href="https://docs.docker.com/engine/storage/drivers/overlayfs-driver/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Docker — OverlayFS Storage Driver
+    </a>
+
+    <a href="https://docs.podman.io/"
+       target="_blank"
+       rel="noopener noreferrer">
+      Podman Documentation
+    </a>
+
+    <a href="https://docs.kernel.org/admin-guide/cgroup-v2.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Kernel — cgroup v2
+    </a>
+
+    <a href="https://man7.org/linux/man-pages/man7/namespaces.7.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Manual — namespaces(7)
+    </a>
+
+    <a href="https://man7.org/linux/man-pages/man7/capabilities.7.html"
+       target="_blank"
+       rel="noopener noreferrer">
+      Linux Manual — capabilities(7)
+    </a>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Completion Standard</h2>
+
+    <p>You should be able to:</p>
+
+    <ul>
+      <li>Explain containers as Linux processes.</li>
+      <li>Compare containers and virtual machines.</li>
+      <li>Inspect container processes from the host.</li>
+      <li>Explain PID, network and mount namespaces.</li>
+      <li>Trace basic container networking.</li>
+      <li>Explain image layers, writable layers and volumes.</li>
+      <li>Inspect cgroup resource limits.</li>
+      <li>Review container capabilities and security controls.</li>
+      <li>Troubleshoot exit, OOM, networking and storage problems.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Topic Progress</h2>
+
+    <p id="completeStatus">
+      Mark this topic complete after studying the concepts,
+      commands, labs and interview questions.
+    </p>
+
+    <button class="complete-button"
+            onclick="markTopicComplete()">
+      Mark Topic Complete
+    </button>
+
+  </section>
+
+</main>
+
+<script>
+  const currentTopic = "DevOps / Container Linux";
+
+  function loadTopicCompletion() {
+    if (
+      localStorage.getItem(currentTopic) === "done"
+    ) {
+      document.getElementById("completeStatus")
+        .innerHTML = "✅ <b>Completed</b>";
+    }
+  }
+
+  function markTopicComplete() {
+    localStorage.setItem(currentTopic, "done");
+
+    document.getElementById("completeStatus")
+      .innerHTML = "✅ <b>Completed</b>";
+  }
+
+  loadTopicCompletion();
+</script>
+
+</body>
+</html>

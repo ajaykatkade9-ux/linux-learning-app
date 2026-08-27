@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cron & Scheduled Jobs</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 24px;
+      margin: 18px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+
+    pre {
+      background: #f1f1f1;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+  <a href="linux.html">← Linux Topics</a>
+
+  <h1>⏰ Cron & Scheduled Jobs</h1>
+  <p>Schedule automation, scripts, backups, cleanup jobs, and recurring tasks.</p>
+
+  <div class="card">
+    <h2>⚡ Quick Revision</h2>
+    <p>
+      Task → Schedule → cron → Execute → Log Output → Verify Result
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Cron Format</h2>
+
+    <pre>* * * * * COMMAND
+│ │ │ │ │
+│ │ │ │ └── Day of week
+│ │ │ └──── Month
+│ │ └────── Day of month
+│ └──────── Hour
+└────────── Minute</pre>
+  </div>
+
+  <div class="card">
+    <h2>Core Commands</h2>
+
+    <pre>crontab -l
+crontab -e
+systemctl status cron
+journalctl -u cron</pre>
+  </div>
+
+  <div class="card">
+    <h2>Examples</h2>
+
+    <pre># Run every day at 2 AM
+0 2 * * * /opt/scripts/backup.sh
+
+# Run every 5 minutes
+*/5 * * * * /opt/scripts/health-check.sh</pre>
+  </div>
+
+  <div class="card">
+    <h2>Important Concepts</h2>
+
+    <ul>
+      <li>User crontab</li>
+      <li>System cron jobs</li>
+      <li>cron environment</li>
+      <li>Absolute paths</li>
+      <li>Permissions</li>
+      <li>Redirecting stdout and stderr</li>
+      <li>systemd timers</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🎯 Interview Questions</h2>
+
+    <ol>
+      <li>What is cron?</li>
+      <li>How do you run a job every 5 minutes?</li>
+      <li>Why might a script work manually but fail from cron?</li>
+      <li>How do you troubleshoot a cron job?</li>
+      <li>What is the difference between cron and systemd timers?</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>🔥 Production Scenario</h2>
+
+    <p>
+      A backup script works when executed manually, but the scheduled cron job fails.
+      How would you troubleshoot it?
+    </p>
+
+    <pre>crontab -l
+systemctl status cron
+journalctl -u cron
+ls -l /opt/scripts/backup.sh</pre>
+
+    <p>
+      Check PATH differences, permissions, environment variables,
+      absolute paths, script ownership, and cron logs.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>🧪 Hands-On</h2>
+
+    <pre>crontab -l
+systemctl status cron</pre>
+  </div>
+
+</div>
+
+
+<div id="topicCompleteBox" style="
+  max-width:850px;
+  margin:25px auto;
+  background:white;
+  padding:24px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.07);
+">
+
+  <h2>✅ Topic Progress</h2>
+
+  <p id="completeStatus">
+    Mark this topic complete when you are confident with it.
+  </p>
+
+  <button onclick="markTopicComplete()" style="
+    padding:12px 18px;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+  ">
+    Mark Topic Complete
+  </button>
+
+</div>
+
+<script>
+const currentTopic = 'Cron & Scheduling';
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

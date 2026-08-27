@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux Memory & Swap</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 24px;
+      margin: 18px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+
+    pre {
+      background: #f1f1f1;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+  <a href="linux.html">← Linux Topics</a>
+
+  <h1>🧠 Linux Memory & Swap</h1>
+  <p>RAM usage, cache, swap, OOM, and production troubleshooting.</p>
+
+  <div class="card">
+    <h2>⚡ Quick Revision</h2>
+
+    <p>
+      RAM → Processes → Cache/Buffers → Available Memory →
+      Swap → OOM Killer
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Core Commands</h2>
+
+    <pre>free -h
+top
+ps aux --sort=-%mem
+vmstat 1
+swapon --show
+cat /proc/meminfo</pre>
+  </div>
+
+  <div class="card">
+    <h2>Important Concepts</h2>
+
+    <ul>
+      <li>Used vs available memory</li>
+      <li>Page cache</li>
+      <li>Buffers and cache</li>
+      <li>Swap</li>
+      <li>Memory pressure</li>
+      <li>OOM Killer</li>
+      <li>Process memory usage</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🎯 Interview Questions</h2>
+
+    <ol>
+      <li>What is swap?</li>
+      <li>Why can Linux show high memory usage even when the system is healthy?</li>
+      <li>What is the OOM Killer?</li>
+      <li>How do you identify the process consuming the most memory?</li>
+      <li>What is the difference between free and available memory?</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>🔥 Production Scenario</h2>
+
+    <p>
+      An application is suddenly killed and restarts automatically.
+      You suspect a memory problem. What would you check?
+    </p>
+
+    <pre>free -h
+ps aux --sort=-%mem | head
+dmesg | grep -i oom
+journalctl -k | grep -i oom
+vmstat 1</pre>
+
+    <p>
+      Check memory pressure, process consumption, swap usage,
+      kernel logs, memory leaks, and whether the OOM Killer terminated the process.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>🧪 Hands-On</h2>
+
+    <pre>free -h
+swapon --show
+ps aux --sort=-%mem | head
+cat /proc/meminfo | head</pre>
+  </div>
+
+</div>
+
+
+<div id="topicCompleteBox" style="
+  max-width:850px;
+  margin:25px auto;
+  background:white;
+  padding:24px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.07);
+">
+
+  <h2>✅ Topic Progress</h2>
+
+  <p id="completeStatus">
+    Mark this topic complete when you are confident with it.
+  </p>
+
+  <button onclick="markTopicComplete()" style="
+    padding:12px 18px;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+  ">
+    Mark Topic Complete
+  </button>
+
+</div>
+
+<script>
+const currentTopic = 'Memory & Swap';
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

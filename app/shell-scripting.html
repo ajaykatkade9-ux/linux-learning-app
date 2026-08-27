@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bash & Shell Scripting</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+  line-height:1.6;
+}
+
+.container {
+  max-width:950px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  padding:25px;
+  margin:18px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+pre {
+  background:#f1f1f1;
+  padding:15px;
+  border-radius:8px;
+  overflow-x:auto;
+}
+
+button {
+  padding:12px 18px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.answer {
+  display:none;
+  margin-top:15px;
+}
+
+a {
+  text-decoration:none;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>🐚 Bash & Shell Scripting</h1>
+
+<p>
+Shell automation for Linux administration, DevOps tasks,
+health checks, deployments and production troubleshooting.
+</p>
+
+
+<div class="card">
+<h2>⚡ 60-Second Revision</h2>
+
+<pre>
+Input
+  ↓
+Variables
+  ↓
+Condition
+  ↓
+Loop
+  ↓
+Function
+  ↓
+Command
+  ↓
+Exit Code
+  ↓
+Log / Action
+</pre>
+
+<p>
+A good production script should be predictable, readable,
+fail safely and return useful exit codes.
+</p>
+</div>
+
+
+<div class="card">
+<h2>1. Shebang</h2>
+
+<pre>#!/usr/bin/env bash</pre>
+
+<p>
+The shebang tells the operating system which interpreter should run the script.
+</p>
+</div>
+
+
+<div class="card">
+<h2>2. Create and Run a Script</h2>
+
+<pre>cat > hello.sh <<'SCRIPT'
+#!/usr/bin/env bash
+
+echo "Hello from Bash"
+SCRIPT
+
+chmod +x hello.sh
+
+./hello.sh</pre>
+</div>
+
+
+<div class="card">
+<h2>3. Variables</h2>
+
+<pre>NAME="server01"
+
+echo "$NAME"
+
+ENVIRONMENT="production"
+
+echo "Environment: $ENVIRONMENT"</pre>
+
+<p>
+Do not put spaces around <b>=</b> in normal Bash variable assignment.
+</p>
+</div>
+
+
+<div class="card">
+<h2>4. Environment Variables</h2>
+
+<pre>export APP_ENV="production"
+
+echo "$APP_ENV"
+
+printenv APP_ENV</pre>
+
+<p>
+Child processes can inherit exported environment variables.
+</p>
+</div>
+
+
+<div class="card">
+<h2>5. Script Arguments</h2>
+
+<pre>$0   Script name
+$1   First argument
+$2   Second argument
+$#   Number of arguments
+$@   All arguments</pre>
+
+Example:
+
+<pre>#!/usr/bin/env bash
+
+echo "Script: $0"
+echo "First argument: $1"
+echo "All arguments: $@"</pre>
+</div>
+
+
+<div class="card">
+<h2>6. Command Substitution</h2>
+
+<pre>HOSTNAME=$(hostname)
+
+DATE=$(date)
+
+echo "$HOSTNAME"
+echo "$DATE"</pre>
+
+<p>
+Command substitution captures command output into a variable.
+</p>
+</div>
+
+
+<div class="card">
+<h2>7. Exit Codes</h2>
+
+<p>
+Linux commands return an exit status.
+</p>
+
+<pre>0     Success
+non-0 Failure or another condition</pre>
+
+Check the previous command:
+
+<pre>echo $?</pre>
+
+Example:
+
+<pre>grep root /etc/passwd
+
+echo $?</pre>
+</div>
+
+
+<div class="card">
+<h2>8. if / else</h2>
+
+<pre>if [ -f /etc/passwd ]; then
+  echo "File exists"
+else
+  echo "File missing"
+fi</pre>
+</div>
+
+
+<div class="card">
+<h2>9. Numeric Comparisons</h2>
+
+<pre>NUMBER=10
+
+if [ "$NUMBER" -gt 5 ]; then
+  echo "Greater than 5"
+fi</pre>
+
+Common operators:
+
+<pre>-eq  equal
+-ne  not equal
+-gt  greater than
+-ge  greater or equal
+-lt  less than
+-le  less or equal</pre>
+</div>
+
+
+<div class="card">
+<h2>10. String Comparisons</h2>
+
+<pre>ENV="prod"
+
+if [ "$ENV" = "prod" ]; then
+  echo "Production"
+fi</pre>
+
+Check empty variable:
+
+<pre>if [ -z "$ENV" ]; then
+  echo "ENV is empty"
+fi</pre>
+</div>
+
+
+<div class="card">
+<h2>11. File Tests</h2>
+
+<pre>-f   regular file
+-d   directory
+-e   exists
+-r   readable
+-w   writable
+-x   executable</pre>
+
+Example:
+
+<pre>if [ -d /var/log ]; then
+  echo "/var/log exists"
+fi</pre>
+</div>
+
+
+<div class="card">
+<h2>12. for Loop</h2>
+
+<pre>for service in ssh cron nginx; do
+  echo "Checking $service"
+done</pre>
+</div>
+
+
+<div class="card">
+<h2>13. while Loop</h2>
+
+<pre>COUNT=1
+
+while [ "$COUNT" -le 5 ]; do
+  echo "$COUNT"
+  COUNT=$((COUNT + 1))
+done</pre>
+</div>
+
+
+<div class="card">
+<h2>14. case Statement</h2>
+
+<pre>ENV="$1"
+
+case "$ENV" in
+
+  dev)
+    echo "Development"
+    ;;
+
+  prod)
+    echo "Production"
+    ;;
+
+  *)
+    echo "Unknown environment"
+    ;;
+esac</pre>
+</div>
+
+
+<div class="card">
+<h2>15. Functions</h2>
+
+<pre>check_disk() {
+  df -h /
+}
+
+check_disk</pre>
+
+Function with argument:
+
+<pre>say_hello() {
+  echo "Hello $1"
+}
+
+say_hello "DevOps"</pre>
+</div>
+
+
+<div class="card">
+<h2>16. Arrays</h2>
+
+<pre>SERVICES=("ssh" "cron" "docker")
+
+for service in "${SERVICES[@]}"; do
+  echo "$service"
+done</pre>
+</div>
+
+
+<div class="card">
+<h2>17. Quoting</h2>
+
+<p>
+Always be careful with variables containing spaces or special characters.
+</p>
+
+Prefer:
+
+<pre>echo "$VARIABLE"
+
+rm -- "$FILE"</pre>
+
+over unquoted variable usage where appropriate.
+</div>
+
+
+<div class="card">
+<h2>18. set -euo pipefail</h2>
+
+A common defensive pattern:
+
+<pre>set -euo pipefail</pre>
+
+Conceptually:
+
+<ul>
+<li><b>-e</b> — exit when an unhandled command fails in applicable contexts</li>
+<li><b>-u</b> — error on unset variables</li>
+<li><b>pipefail</b> — make pipeline failures easier to detect</li>
+</ul>
+
+<p>
+These options are useful, but scripts still need thoughtful error handling.
+</p>
+</div>
+
+
+<div class="card">
+<h2>19. Logging</h2>
+
+<pre>log() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') $*"
+}
+
+log "Application check started"</pre>
+</div>
+
+
+<div class="card">
+<h2>20. Redirect Output</h2>
+
+<pre>./script.sh > script.log 2>&1</pre>
+
+Append instead:
+
+<pre>./script.sh >> script.log 2>&1</pre>
+</div>
+
+
+<div class="card">
+<h2>21. Health Check Script</h2>
+
+<pre>#!/usr/bin/env bash
+
+set -u
+
+URL="http://127.0.0.1:8081"
+
+if curl -fsS "$URL" > /dev/null; then
+  echo "Application is healthy"
+  exit 0
+else
+  echo "Application health check failed"
+  exit 1
+fi</pre>
+</div>
+
+
+<div class="card">
+<h2>22. Disk Usage Check</h2>
+
+<pre>#!/usr/bin/env bash
+
+THRESHOLD=80
+
+USAGE=$(df -P / | awk 'NR==2 {gsub("%","",$5); print $5}')
+
+if [ "$USAGE" -ge "$THRESHOLD" ]; then
+  echo "WARNING: Disk usage is ${USAGE}%"
+  exit 1
+else
+  echo "Disk usage is ${USAGE}%"
+fi</pre>
+</div>
+
+
+<div class="card">
+<h2>23. Service Check</h2>
+
+<pre>#!/usr/bin/env bash
+
+SERVICE="$1"
+
+if systemctl is-active --quiet "$SERVICE"; then
+  echo "$SERVICE is running"
+  exit 0
+else
+  echo "$SERVICE is not running"
+  exit 1
+fi</pre>
+</div>
+
+
+<div class="card">
+<h2>24. Validate Required Arguments</h2>
+
+<pre>if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 SERVICE_NAME"
+  exit 2
+fi</pre>
+</div>
+
+
+<div class="card">
+<h2>25. trap</h2>
+
+<p>
+trap can run cleanup logic when the script receives certain signals or exits.
+</p>
+
+<pre>TMPFILE=$(mktemp)
+
+cleanup() {
+  rm -f "$TMPFILE"
+}
+
+trap cleanup EXIT</pre>
+</div>
+
+
+<div class="card">
+<h2>26. Debugging Bash</h2>
+
+Syntax check:
+
+<pre>bash -n script.sh</pre>
+
+Trace execution:
+
+<pre>bash -x script.sh</pre>
+
+Enable tracing inside a script:
+
+<pre>set -x</pre>
+</div>
+
+
+<div class="card">
+<h2>27. ShellCheck Concept</h2>
+
+<p>
+ShellCheck is a static-analysis tool commonly used to find potential
+shell-script problems.
+</p>
+
+If installed:
+
+<pre>shellcheck script.sh</pre>
+
+<p>
+This is especially useful before using automation scripts in CI/CD.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 1 — Works Manually, Fails in Cron</h2>
+
+<p>Common differences:</p>
+
+<ul>
+<li>PATH</li>
+<li>Environment variables</li>
+<li>Working directory</li>
+<li>Runtime user</li>
+<li>Permissions</li>
+</ul>
+
+Investigate:
+
+<pre>env
+
+echo "$PATH"
+
+pwd
+
+whoami</pre>
+
+<p>
+Use absolute paths where appropriate and explicitly define required environment.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 2 — Script Continues After Failure</h2>
+
+<p>
+A deployment script runs multiple commands but continues even after
+one important command fails.
+</p>
+
+Better pattern:
+
+<pre>#!/usr/bin/env bash
+
+set -euo pipefail</pre>
+
+<p>
+Also explicitly check critical operations and return meaningful exit codes.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 3 — Variable Is Empty</h2>
+
+<p>
+A script deploys to the wrong environment because an expected variable was missing.
+</p>
+
+Check:
+
+<pre>: "${APP_ENV:?APP_ENV must be set}"</pre>
+
+<p>
+This forces the script to stop if the variable is missing or empty.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 4 — Pipeline Hides Failure</h2>
+
+Example:
+
+<pre>COMMAND1 | COMMAND2</pre>
+
+Without proper handling, a failure in COMMAND1 can be missed.
+
+Use:
+
+<pre>set -o pipefail</pre>
+
+Then inspect:
+
+<pre>echo $?</pre>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 5 — Script Deletes Wrong Path</h2>
+
+<p>
+Production automation should validate dangerous variables before file operations.
+</p>
+
+Safer thinking:
+
+<pre>if [ -z "${TARGET_DIR:-}" ]; then
+  echo "TARGET_DIR is empty"
+  exit 1
+fi</pre>
+
+<p>
+Never build automation that performs destructive operations without
+validation and clear safeguards.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 6 — Health Check Fails</h2>
+
+<pre>curl -v http://127.0.0.1:PORT
+
+ss -ltnp
+
+systemctl status SERVICE_NAME
+
+journalctl -u SERVICE_NAME</pre>
+
+<p>
+Determine whether the failure is the script,
+application, network endpoint or dependency.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🧪 Hands-On Lab</h2>
+
+<pre>mkdir -p ~/bash-lab
+
+cd ~/bash-lab
+
+cat > health.sh <<'SCRIPT'
+#!/usr/bin/env bash
+
+set -u
+
+echo "Hostname: $(hostname)"
+echo "User: $(whoami)"
+echo "Date: $(date)"
+
+echo
+echo "Disk:"
+df -h /
+
+echo
+echo "Memory:"
+free -h
+SCRIPT
+
+chmod +x health.sh
+
+./health.sh</pre>
+</div>
+
+
+<div class="card">
+<h2>🧪 Argument Lab</h2>
+
+<pre>cat > usercheck.sh <<'SCRIPT'
+#!/usr/bin/env bash
+
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 USERNAME"
+  exit 2
+fi
+
+USER_NAME="$1"
+
+if id "$USER_NAME" > /dev/null 2>&1; then
+  echo "User exists: $USER_NAME"
+  exit 0
+else
+  echo "User does not exist: $USER_NAME"
+  exit 1
+fi
+SCRIPT
+
+chmod +x usercheck.sh
+
+./usercheck.sh root</pre>
+</div>
+
+
+<div class="card">
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+<li>What is a shebang?</li>
+<li>How do you define a Bash variable?</li>
+<li>What does export do?</li>
+<li>What does $0 represent?</li>
+<li>What does $1 represent?</li>
+<li>What is $@?</li>
+<li>What is $#?</li>
+<li>What does $? represent?</li>
+<li>What is command substitution?</li>
+<li>How do you compare integers in Bash?</li>
+<li>What is the difference between for and while loops?</li>
+<li>How do you define a function?</li>
+<li>How do arrays work in Bash?</li>
+<li>Why should variables usually be quoted?</li>
+<li>What does set -e do?</li>
+<li>What does set -u do?</li>
+<li>What does pipefail do?</li>
+<li>What is trap used for?</li>
+<li>How do you debug a Bash script?</li>
+<li>Why can a script work manually but fail under cron?</li>
+<li>How would you build a disk-space monitoring script?</li>
+<li>How would you safely validate required environment variables?</li>
+</ol>
+</div>
+
+
+<div class="card">
+<h2>🧩 Quick Recall</h2>
+
+<h3>What does $? contain?</h3>
+
+<button onclick="toggle('a1')">Show Answer</button>
+
+<div id="a1" class="answer">
+<p>
+The exit status of the most recently completed foreground pipeline or command context.
+Zero normally means success.
+</p>
+</div>
+
+
+<h3>Why quote "$VARIABLE"?</h3>
+
+<button onclick="toggle('a2')">Show Answer</button>
+
+<div id="a2" class="answer">
+<p>
+Quoting helps preserve the variable as a single value and avoids many
+word-splitting and pathname-expansion surprises.
+</p>
+</div>
+
+
+<h3>Script works manually but not from cron. What do you check?</h3>
+
+<button onclick="toggle('a3')">Show Answer</button>
+
+<div id="a3" class="answer">
+
+<pre>PATH
+environment variables
+working directory
+runtime user
+permissions
+absolute command paths
+logs</pre>
+
+</div>
+
+</div>
+
+
+<div class="card">
+<h2>🗣️ Strong Interview Answer</h2>
+
+<p>
+“When I write Bash automation, I keep inputs explicit, quote variables,
+validate required arguments and environment variables, return meaningful
+exit codes and log important actions. For critical scripts I use defensive
+error handling such as set -u and pipefail where appropriate, test the script
+with bash -n and tracing, and avoid assuming that cron, CI/CD or systemd has
+the same environment as my interactive shell.”
+</p>
+</div>
+
+
+<div class="card">
+<h2>📖 Official Documentation</h2>
+
+<ul>
+<li>
+<a href="https://www.gnu.org/software/bash/manual/" target="_blank">
+GNU Bash Manual →
+</a>
+</li>
+</ul>
+
+<p>Useful local docs:</p>
+
+<pre>man bash
+help if
+help for
+help while
+help case
+help read
+help export
+help trap
+help set</pre>
+</div>
+
+
+<div class="card">
+<h2>✅ Completion Standard</h2>
+
+<ul>
+<li>Write and execute Bash scripts</li>
+<li>Use variables and environment variables</li>
+<li>Handle script arguments</li>
+<li>Understand exit codes</li>
+<li>Use conditions and loops</li>
+<li>Create functions</li>
+<li>Use arrays</li>
+<li>Understand command substitution</li>
+<li>Use defensive error handling</li>
+<li>Log script activity</li>
+<li>Debug scripts</li>
+<li>Write simple DevOps health-check automation</li>
+<li>Troubleshoot environment differences between shell, cron and CI/CD</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>✅ Topic Progress</h2>
+
+<p id="completeStatus">
+Mark this topic complete when you are confident with it.
+</p>
+
+<button onclick="markTopicComplete()">
+Mark Topic Complete
+</button>
+</div>
+
+</div>
+
+
+<script>
+const currentTopic = "Shell Scripting";
+
+function toggle(id) {
+  const element = document.getElementById(id);
+
+  element.style.display =
+    element.style.display === "block"
+      ? "none"
+      : "block";
+}
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

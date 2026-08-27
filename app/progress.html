@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Progress</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+
+    button {
+      padding: 10px 16px;
+      cursor: pointer;
+      border: 0;
+      border-radius: 8px;
+    }
+
+    .done {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+  <a href="index.html">← Home</a>
+
+  <h1>📊 Study Progress</h1>
+  <p>Mark topics after you revise and practice them.</p>
+
+  <div id="topics"></div>
+
+</div>
+
+<script>
+const topics = [
+  "Linux Foundations",
+  "Linux Boot Process",
+  "Linux Storage",
+  "Processes & Services",
+  "Linux Permissions",
+  "Linux Networking",
+  "Linux Troubleshooting",
+  "Logs & Journal",
+  "Package Management",
+  "Shell Scripting",
+  "Cron & Scheduling",
+  "Memory & Swap",
+  "CPU & Load",
+  "SSH & Remote Access",
+  "Files & Text Processing",
+  "Linux Security",
+  "Advanced Linux Internals",
+  "DevOps / Container Linux",
+  "Linux Interview Preparation",
+  "Linux Hands-On Labs",
+  "Linux Official Documentation",
+  "Environment & PATH"
+];
+
+function render() {
+  const container = document.getElementById("topics");
+  container.innerHTML = "";
+
+  topics.forEach(topic => {
+    const completed = localStorage.getItem(topic) === "done";
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <h3>${topic}</h3>
+      <p class="${completed ? "done" : ""}">
+        ${completed ? "✅ Completed" : "⏳ Not Completed"}
+      </p>
+
+      <button onclick="toggleTopic('${topic}')">
+        ${completed ? "Reset" : "Mark Complete"}
+      </button>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function toggleTopic(topic) {
+  if (localStorage.getItem(topic) === "done") {
+    localStorage.removeItem(topic);
+  } else {
+    localStorage.setItem(topic, "done");
+  }
+
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>

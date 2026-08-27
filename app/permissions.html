@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Linux Users, Groups & Permissions</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+  line-height:1.6;
+}
+
+.container {
+  max-width:950px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  padding:25px;
+  margin:18px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+pre {
+  background:#f1f1f1;
+  padding:15px;
+  border-radius:8px;
+  overflow-x:auto;
+}
+
+a {
+  text-decoration:none;
+}
+
+button {
+  padding:12px 18px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>👤 Users, Groups & Permissions</h1>
+
+<p>
+Linux identity, ownership, permissions, sudo, ACLs,
+special permissions and production access troubleshooting.
+</p>
+
+
+<div class="card">
+
+<h2>⚡ 60-Second Revision</h2>
+
+<pre>
+User
+ ↓
+UID
+ ↓
+Primary / Secondary Groups
+ ↓
+File Owner + Group
+ ↓
+r / w / x
+ ↓
+ACL / sudo / Special Permissions
+ ↓
+Access Allowed or Denied
+</pre>
+
+<p>
+For almost every <b>Permission Denied</b> problem, ask:
+</p>
+
+<ul>
+<li>Which user is the process running as?</li>
+<li>Who owns the file?</li>
+<li>Which group owns it?</li>
+<li>What permissions exist?</li>
+<li>Can the user traverse parent directories?</li>
+<li>Is an ACL or security policy involved?</li>
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>1. Users</h2>
+
+<p>
+Every Linux process executes under a user identity.
+</p>
+
+<pre>
+whoami
+
+id
+
+id USERNAME
+
+getent passwd USERNAME
+</pre>
+
+<p>Important:</p>
+
+<ul>
+<li>UID 0 = root</li>
+<li>Normal users generally have non-zero UIDs</li>
+<li>Services often use dedicated service accounts</li>
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>2. /etc/passwd</h2>
+
+<pre>
+cat /etc/passwd
+</pre>
+
+Example format:
+
+<pre>
+username:x:UID:GID:comment:home:shell
+</pre>
+
+<p>Fields include:</p>
+
+<ul>
+<li>Username</li>
+<li>UID</li>
+<li>Primary GID</li>
+<li>Home directory</li>
+<li>Login shell</li>
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>3. /etc/shadow</h2>
+
+<pre>
+sudo cat /etc/shadow
+</pre>
+
+<p>
+Password hashes and password-aging information are stored here.
+The file is protected because this information is security-sensitive.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>4. Groups</h2>
+
+<pre>
+groups
+
+groups USER
+
+getent group
+
+getent group GROUP_NAME
+</pre>
+
+<p>
+A user can have:
+</p>
+
+<ul>
+<li>One primary group</li>
+<li>Multiple supplementary groups</li>
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>5. User Management</h2>
+
+<pre>
+useradd USER
+
+useradd -m USER
+
+passwd USER
+
+usermod -aG GROUP USER
+
+userdel USER
+</pre>
+
+<p>
+Be careful with:
+</p>
+
+<pre>
+usermod -G GROUP USER
+</pre>
+
+<p>
+Without <b>-a</b>, supplementary group membership can be replaced.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>6. Group Management</h2>
+
+<pre>
+groupadd devops
+
+groupdel devops
+
+usermod -aG devops USER
+
+getent group devops
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>7. File Ownership</h2>
+
+<pre>
+ls -l FILE
+
+chown USER FILE
+
+chown USER:GROUP FILE
+
+chgrp GROUP FILE
+</pre>
+
+Example:
+
+<pre>
+chown appuser:appgroup /opt/app/config.yaml
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>8. Read, Write & Execute</h2>
+
+<pre>
+r = read
+w = write
+x = execute
+</pre>
+
+Example:
+
+<pre>
+-rwxr-x---
+</pre>
+
+Interpretation:
+
+<pre>
+Owner  = rwx
+Group  = r-x
+Others = ---
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>9. Numeric Permissions</h2>
+
+<pre>
+Read    = 4
+Write   = 2
+Execute = 1
+</pre>
+
+Examples:
+
+<pre>
+7 = rwx
+6 = rw-
+5 = r-x
+4 = r--
+</pre>
+
+Therefore:
+
+<pre>
+chmod 755 script.sh
+</pre>
+
+means:
+
+<pre>
+Owner  = rwx
+Group  = r-x
+Others = r-x
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>10. Directory Permissions</h2>
+
+<p>
+Directory permissions behave differently from normal files.
+</p>
+
+<ul>
+<li><b>r</b> — list names</li>
+<li><b>w</b> — create/delete entries</li>
+<li><b>x</b> — traverse/access directory contents</li>
+</ul>
+
+<p>
+This is important when troubleshooting permissions on deeply nested paths.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>11. Troubleshooting Parent Directories</h2>
+
+<p>
+A file may have correct permissions but still be inaccessible
+because a parent directory cannot be traversed.
+</p>
+
+Use:
+
+<pre>
+namei -l /opt/application/config/app.conf
+</pre>
+
+This shows permissions for every directory in the path.
+
+</div>
+
+
+<div class="card">
+
+<h2>12. umask</h2>
+
+<pre>
+umask
+
+umask 022
+</pre>
+
+<p>
+umask controls which permission bits are removed
+when new files and directories are created.
+</p>
+
+Typical starting permissions:
+
+<pre>
+Files       666
+Directories 777
+</pre>
+
+Example:
+
+<pre>
+umask 022
+
+File:
+666 - 022 → typically 644
+
+Directory:
+777 - 022 → typically 755
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>13. sudo</h2>
+
+<p>
+sudo allows controlled privilege escalation.
+</p>
+
+<pre>
+sudo COMMAND
+
+sudo -l
+
+sudo -l -U USER
+</pre>
+
+Safely edit sudo configuration with:
+
+<pre>
+visudo
+</pre>
+
+<p>
+Production principle:
+<b>give only the privileges actually required.</b>
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>14. ACLs</h2>
+
+<p>
+ACLs allow more detailed permissions beyond
+traditional owner/group/others permissions.
+</p>
+
+Inspect:
+
+<pre>
+getfacl FILE
+</pre>
+
+Grant access:
+
+<pre>
+setfacl -m u:USER:rwx FILE
+</pre>
+
+Remove ACL:
+
+<pre>
+setfacl -x u:USER FILE
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>15. Sticky Bit</h2>
+
+Common example:
+
+<pre>
+ls -ld /tmp
+</pre>
+
+Often looks similar to:
+
+<pre>
+drwxrwxrwt
+</pre>
+
+The sticky bit helps prevent users from deleting
+other users' files in a shared writable directory.
+
+</div>
+
+
+<div class="card">
+
+<h2>16. SetUID</h2>
+
+SetUID can cause an executable to run using the file owner's effective identity.
+
+Inspect:
+
+<pre>
+find /usr/bin -perm -4000 2>/dev/null
+</pre>
+
+<p>
+This has security implications and should be understood carefully.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>17. SetGID</h2>
+
+<p>
+On directories, SetGID can cause newly created files
+to inherit the directory's group.
+</p>
+
+Example:
+
+<pre>
+chmod g+s shared-directory
+</pre>
+
+Useful for shared team directories.
+
+</div>
+
+
+<div class="card">
+
+<h2>18. Service Accounts</h2>
+
+<p>
+Production services should commonly run with dedicated,
+least-privileged accounts instead of root.
+</p>
+
+Examples:
+
+<pre>
+www-data
+
+nginx
+
+postgres
+</pre>
+
+Check service identity:
+
+<pre>
+systemctl show SERVICE_NAME --property=User
+
+ps aux | grep PROCESS
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔥 Production Scenario 1 — Permission Denied</h2>
+
+<p>
+An application cannot read:
+</p>
+
+<pre>
+/opt/app/config/app.conf
+</pre>
+
+Investigation:
+
+<pre>
+systemctl show APP_SERVICE --property=User
+
+id APP_USER
+
+ls -l /opt/app/config/app.conf
+
+namei -l /opt/app/config/app.conf
+
+getfacl /opt/app/config/app.conf
+</pre>
+
+Check:
+
+<ul>
+<li>Runtime user</li>
+<li>File owner</li>
+<li>Group</li>
+<li>File mode</li>
+<li>Parent directory execute permission</li>
+<li>ACLs</li>
+</ul>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔥 Production Scenario 2 — Works as Root Only</h2>
+
+<p>
+Deployment succeeds as root but fails as the CI/CD service account.
+</p>
+
+Compare:
+
+<pre>
+id root
+
+id CI_USER
+
+sudo -l -U CI_USER
+
+ls -ld /deployment/path
+
+namei -l /deployment/path/application
+</pre>
+
+<p>
+Never solve every permission problem by simply running everything as root.
+Find the actual required access.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>🔥 Production Scenario 3 — Group Access Failure</h2>
+
+<p>
+A user was added to a group but access still fails.
+</p>
+
+Check:
+
+<pre>
+id USER
+
+groups USER
+
+getent group GROUP
+</pre>
+
+A new login session may be required for group membership
+to be reflected in the user's session.
+
+</div>
+
+
+<div class="card">
+
+<h2>🧪 Hands-On Lab</h2>
+
+<p>
+Run this in your WSL test environment:
+</p>
+
+<pre>
+mkdir -p ~/permission-lab
+
+cd ~/permission-lab
+
+touch test.txt
+
+ls -l test.txt
+
+chmod 640 test.txt
+
+ls -l test.txt
+
+stat test.txt
+
+umask
+
+mkdir shared
+
+chmod 770 shared
+
+ls -ld shared
+</pre>
+
+Then inspect your own identity:
+
+<pre>
+whoami
+
+id
+
+groups
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>🧪 ACL Lab</h2>
+
+If ACL tools are installed:
+
+<pre>
+touch acl-test.txt
+
+getfacl acl-test.txt
+
+setfacl -m u:$USER:rw acl-test.txt
+
+getfacl acl-test.txt
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+
+<li>What is UID 0?</li>
+
+<li>What is the difference between UID and GID?</li>
+
+<li>What information is stored in /etc/passwd?</li>
+
+<li>Why is /etc/shadow protected?</li>
+
+<li>What is a primary group?</li>
+
+<li>What is a supplementary group?</li>
+
+<li>What does chmod 755 mean?</li>
+
+<li>What does chmod 640 mean?</li>
+
+<li>What is the difference between chmod and chown?</li>
+
+<li>What does execute permission mean on a directory?</li>
+
+<li>What is umask?</li>
+
+<li>What is sudo?</li>
+
+<li>Why should visudo be used?</li>
+
+<li>What is an ACL?</li>
+
+<li>What is SetUID?</li>
+
+<li>What is SetGID?</li>
+
+<li>What is the sticky bit?</li>
+
+<li>How would you troubleshoot Permission Denied?</li>
+
+<li>Why might a file be inaccessible even with correct file permissions?</li>
+
+<li>Why should production services avoid running as root when possible?</li>
+
+</ol>
+
+</div>
+
+
+<div class="card">
+
+<h2>🗣️ Production Interview Answer</h2>
+
+<p>
+“When I troubleshoot a permission issue, I first identify the
+actual user running the process. Then I inspect the file owner,
+group and mode. I also inspect every parent directory because
+directory execute permission controls traversal. If traditional
+permissions look correct, I check ACLs, sudo configuration and,
+where applicable, additional security controls. I prefer fixing
+the minimum required access instead of running the application
+as root.”
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>📖 Official Documentation</h2>
+
+<p>Deep references:</p>
+
+<ul>
+<li>GNU Coreutils — chmod, chown, chgrp and file attributes</li>
+<li>Ubuntu Server documentation</li>
+<li>Linux local man pages</li>
+</ul>
+
+<pre>
+man chmod
+man chown
+man chgrp
+man passwd
+man shadow
+man group
+man useradd
+man usermod
+man sudo
+man sudoers
+man umask
+man acl
+man getfacl
+man setfacl
+man capabilities
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>✅ Completion Standard</h2>
+
+<p>You should be able to:</p>
+
+<ul>
+<li>Explain UID and GID</li>
+<li>Create and modify users/groups</li>
+<li>Understand /etc/passwd and /etc/shadow</li>
+<li>Read symbolic and numeric permissions</li>
+<li>Explain directory permissions</li>
+<li>Use chmod/chown correctly</li>
+<li>Explain umask</li>
+<li>Use sudo safely</li>
+<li>Understand ACLs</li>
+<li>Explain SetUID, SetGID and sticky bit</li>
+<li>Debug real Permission Denied incidents</li>
+</ul>
+
+</div>
+
+
+<div id="topicCompleteBox" class="card">
+
+<h2>✅ Topic Progress</h2>
+
+<p id="completeStatus">
+Mark this topic complete when you are confident with it.
+</p>
+
+<button onclick="markTopicComplete()">
+Mark Topic Complete
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+const currentTopic = "Linux Permissions";
+
+function loadTopicCompletion() {
+
+  if (localStorage.getItem(currentTopic) === "done") {
+
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+
+  }
+}
+
+function markTopicComplete() {
+
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+
+</script>
+
+</body>
+</html>

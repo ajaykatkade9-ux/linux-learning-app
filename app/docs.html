@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>Linux Official Documentation</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      color: #1f2937;
+      background: #f5f7fb;
+    }
+
+    .container {
+      width: min(1100px, 100%);
+      margin: auto;
+    }
+
+    .back {
+      color: #1d4ed8;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .hero,
+    .card,
+    .doc-card {
+      padding: 25px;
+      margin: 22px 0;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .hero {
+      color: white;
+      background: linear-gradient(135deg, #111827, #1d4ed8);
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.3;
+    }
+
+    h2 {
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .search {
+      width: 100%;
+      padding: 14px;
+      margin-top: 15px;
+      font-size: 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+    }
+
+    .docs-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px;
+    }
+
+    .doc-card {
+      margin: 0;
+    }
+
+    .doc-card a {
+      display: block;
+      margin: 11px 0;
+      color: #1d4ed8;
+      overflow-wrap: anywhere;
+    }
+
+    pre {
+      padding: 17px;
+      overflow-x: auto;
+      color: #d1fae5;
+      background: #111827;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+
+    code {
+      font-family: Consolas, monospace;
+    }
+
+    .note,
+    .warning,
+    .success {
+      padding: 16px;
+      margin: 18px 0;
+      border-radius: 10px;
+    }
+
+    .note {
+      background: #eff6ff;
+      border-left: 5px solid #2563eb;
+    }
+
+    .warning {
+      background: #fff7ed;
+      border-left: 5px solid #ea580c;
+    }
+
+    .success {
+      background: #ecfdf5;
+      border-left: 5px solid #16a34a;
+    }
+
+    table {
+      width: 100%;
+      margin: 18px 0;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #d1d5db;
+    }
+
+    th {
+      background: #e5e7eb;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .complete-button {
+      padding: 13px 20px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      background: #15803d;
+      border: 0;
+      border-radius: 9px;
+    }
+
+    .complete-button:hover {
+      background: #166534;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 15px;
+      }
+
+      .hero,
+      .card,
+      .doc-card {
+        padding: 19px;
+      }
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<main class="container">
+
+  <a class="back" href="linux.html">
+    ← Back to Linux Course
+  </a>
+
+  <section class="hero">
+    <h1>📖 Linux Official Documentation</h1>
+
+    <p>
+      Searchable source-of-truth documentation for Linux,
+      GNU tools, distributions, networking, security,
+      systemd, OpenSSH and containers.
+    </p>
+
+    <a class="primary-button" href="linux-assistant.html">
+      Ask the Official Docs Assistant
+    </a>
+
+    <input
+      id="docsSearch"
+      class="search"
+      type="search"
+      placeholder="Search kernel, Bash, SSH, LVM, networking..."
+      oninput="filterDocumentation()"
+    >
+  </section>
+
+  <section class="card">
+
+    <h2>1. Documentation Priority</h2>
+
+    <table>
+      <tr>
+        <th>Priority</th>
+        <th>Source</th>
+        <th>Use</th>
+      </tr>
+
+      <tr>
+        <td>1</td>
+        <td>Installed manual and package documentation</td>
+        <td>Matches the installed command version</td>
+      </tr>
+
+      <tr>
+        <td>2</td>
+        <td>Distribution documentation</td>
+        <td>Matches packaging and configuration layout</td>
+      </tr>
+
+      <tr>
+        <td>3</td>
+        <td>Upstream project documentation</td>
+        <td>Explains the original feature and behaviour</td>
+      </tr>
+
+      <tr>
+        <td>4</td>
+        <td>Trusted third-party explanation</td>
+        <td>Use only after checking official sources</td>
+      </tr>
+    </table>
+
+    <div class="note">
+      Always match documentation to the installed distribution,
+      release, kernel and application version.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>2. Identify Your System Version</h2>
+
+    <pre><code>cat /etc/os-release
+uname -a
+uname -r
+hostnamectl
+
+bash --version
+systemctl --version
+ssh -V
+docker version
+podman version</code></pre>
+
+    <p>Check package versions:</p>
+
+    <pre><code># Debian and Ubuntu
+dpkg-query -W PACKAGE_NAME
+apt-cache policy PACKAGE_NAME
+
+# RHEL-family
+rpm -q PACKAGE_NAME
+dnf info PACKAGE_NAME</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>3. Local Documentation Commands</h2>
+
+    <pre><code>man COMMAND
+man 5 FILE_FORMAT
+man 7 TOPIC
+info COMMAND
+
+COMMAND --help
+help SHELL_BUILTIN
+
+apropos SEARCH_TERM
+man -k SEARCH_TERM
+whatis COMMAND</code></pre>
+
+    <h3>Useful examples</h3>
+
+    <pre><code>man ls
+man 2 open
+man 5 fstab
+man 5 sshd_config
+man 7 signal
+man 7 namespaces
+man 8 mount
+info coreutils</code></pre>
+
+    <table>
+      <tr>
+        <th>Section</th>
+        <th>Content</th>
+      </tr>
+
+      <tr>
+        <td>1</td>
+        <td>User commands</td>
+      </tr>
+
+      <tr>
+        <td>2</td>
+        <td>System calls</td>
+      </tr>
+
+      <tr>
+        <td>3</td>
+        <td>Library functions</td>
+      </tr>
+
+      <tr>
+        <td>4</td>
+        <td>Devices and special files</td>
+      </tr>
+
+      <tr>
+        <td>5</td>
+        <td>File formats and configuration</td>
+      </tr>
+
+      <tr>
+        <td>7</td>
+        <td>Concepts and conventions</td>
+      </tr>
+
+      <tr>
+        <td>8</td>
+        <td>Administration commands</td>
+      </tr>
+    </table>
+
+  </section>
+
+  <section class="docs-grid">
+
+    <article class="doc-card">
+      <h2>🐧 Linux Kernel</h2>
+
+      <p>
+        Kernel administration, filesystems, APIs,
+        security, tracing, cgroups and internals.
+      </p>
+
+      <a href="https://docs.kernel.org/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Linux Kernel Documentation
+      </a>
+
+      <a href="https://docs.kernel.org/admin-guide/index.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        Kernel Administrator Guide
+      </a>
+
+      <a href="https://docs.kernel.org/filesystems/index.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        Kernel Filesystem Documentation
+      </a>
+
+      <a href="https://docs.kernel.org/filesystems/proc.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        /proc Filesystem
+      </a>
+
+      <a href="https://docs.kernel.org/admin-guide/cgroup-v2.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        cgroup v2
+      </a>
+
+      <a href="https://docs.kernel.org/trace/index.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        Kernel Tracing
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>📚 Linux Manual Pages</h2>
+
+      <p>
+        Commands, system calls, libraries, formats,
+        protocols and Linux concepts.
+      </p>
+
+      <a href="https://man7.org/linux/man-pages/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Linux man-pages Project
+      </a>
+
+      <a href="https://man7.org/linux/man-pages/man5/proc.5.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        proc(5)
+      </a>
+
+      <a href="https://man7.org/linux/man-pages/man7/signal.7.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        signal(7)
+      </a>
+
+      <a href="https://man7.org/linux/man-pages/man7/namespaces.7.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        namespaces(7)
+      </a>
+
+      <a href="https://man7.org/linux/man-pages/man7/capabilities.7.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        capabilities(7)
+      </a>
+
+      <a href="https://man7.org/linux/man-pages/man7/socket.7.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        socket(7)
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>🛠️ GNU Manuals</h2>
+
+      <p>
+        Bash, Coreutils, find, grep, sed, awk,
+        tar and other GNU tools.
+      </p>
+
+      <a href="https://www.gnu.org/manual/manual.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        GNU Manuals Directory
+      </a>
+
+      <a href="https://www.gnu.org/software/bash/manual/"
+         target="_blank"
+         rel="noopener noreferrer">
+        GNU Bash Manual
+      </a>
+
+      <a href="https://www.gnu.org/software/coreutils/manual/"
+         target="_blank"
+         rel="noopener noreferrer">
+        GNU Coreutils Manual
+      </a>
+
+      <a href="https://www.gnu.org/software/findutils/manual/"
+         target="_blank"
+         rel="noopener noreferrer">
+        GNU Findutils Manual
+      </a>
+
+      <a href="https://www.gnu.org/software/grep/manual/"
+         target="_blank"
+         rel="noopener noreferrer">
+        GNU Grep Manual
+      </a>
+
+      <a href="https://www.gnu.org/software/gawk/manual/"
+         target="_blank"
+         rel="noopener noreferrer">
+        GNU Awk Manual
+      </a>
+
+      <a href="https://www.gnu.org/software/sed/manual/"
+         target="_blank"
+         rel="noopener noreferrer">
+        GNU Sed Manual
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>⚙️ systemd</h2>
+
+      <p>
+        Units, services, journald, boot analysis,
+        timers and resource controls.
+      </p>
+
+      <a href="https://systemd.io/"
+         target="_blank"
+         rel="noopener noreferrer">
+        systemd Project
+      </a>
+
+      <a href="https://www.freedesktop.org/software/systemd/man/"
+         target="_blank"
+         rel="noopener noreferrer">
+        systemd Manual Index
+      </a>
+
+      <a href="https://www.freedesktop.org/software/systemd/man/systemctl.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        systemctl
+      </a>
+
+      <a href="https://www.freedesktop.org/software/systemd/man/journalctl.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        journalctl
+      </a>
+
+      <a href="https://www.freedesktop.org/software/systemd/man/systemd.service.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        systemd.service
+      </a>
+
+      <a href="https://www.freedesktop.org/software/systemd/man/systemd.resource-control.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        systemd Resource Control
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>🔐 OpenSSH</h2>
+
+      <p>
+        SSH client, server, keys, configuration
+        and secure remote access.
+      </p>
+
+      <a href="https://www.openssh.com/manual.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        OpenSSH Manual Pages
+      </a>
+
+      <a href="https://man.openbsd.org/ssh.1"
+         target="_blank"
+         rel="noopener noreferrer">
+        ssh(1)
+      </a>
+
+      <a href="https://man.openbsd.org/sshd.8"
+         target="_blank"
+         rel="noopener noreferrer">
+        sshd(8)
+      </a>
+
+      <a href="https://man.openbsd.org/sshd_config"
+         target="_blank"
+         rel="noopener noreferrer">
+        sshd_config(5)
+      </a>
+
+      <a href="https://man.openbsd.org/ssh-keygen.1"
+         target="_blank"
+         rel="noopener noreferrer">
+        ssh-keygen(1)
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>🟠 Ubuntu and Debian</h2>
+
+      <p>
+        Debian-family installation, packages,
+        networking, security and server administration.
+      </p>
+
+      <a href="https://documentation.ubuntu.com/server/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Ubuntu Server Documentation
+      </a>
+
+      <a href="https://ubuntu.com/security"
+         target="_blank"
+         rel="noopener noreferrer">
+        Ubuntu Security
+      </a>
+
+      <a href="https://www.debian.org/doc/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Debian Documentation
+      </a>
+
+      <a href="https://www.debian.org/doc/manuals/debian-reference/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Debian Reference
+      </a>
+
+      <a href="https://manpages.debian.org/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Debian Manpages
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>🎩 Red Hat and Fedora</h2>
+
+      <p>
+        RHEL-family administration, SELinux,
+        networking, storage and performance.
+      </p>
+
+      <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Red Hat Enterprise Linux Documentation
+      </a>
+
+      <a href="https://docs.fedoraproject.org/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Fedora Documentation
+      </a>
+
+      <a href="https://docs.rockylinux.org/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Rocky Linux Documentation
+      </a>
+
+      <a href="https://wiki.almalinux.org/"
+         target="_blank"
+         rel="noopener noreferrer">
+        AlmaLinux Documentation
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>🌐 Linux Networking</h2>
+
+      <p>
+        Interfaces, routing, sockets, NetworkManager,
+        DNS and firewall documentation.
+      </p>
+
+      <a href="https://man7.org/linux/man-pages/man8/ip.8.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        ip(8)
+      </a>
+
+      <a href="https://man7.org/linux/man-pages/man8/ss.8.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        ss(8)
+      </a>
+
+      <a href="https://networkmanager.dev/docs/"
+         target="_blank"
+         rel="noopener noreferrer">
+        NetworkManager Documentation
+      </a>
+
+      <a href="https://wiki.nftables.org/wiki-nftables/index.php/Main_Page"
+         target="_blank"
+         rel="noopener noreferrer">
+        nftables Documentation
+      </a>
+
+      <a href="https://bind9.readthedocs.io/"
+         target="_blank"
+         rel="noopener noreferrer">
+        ISC BIND 9 Documentation
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>💾 Storage and LVM</h2>
+
+      <p>
+        Block devices, filesystems, mounts,
+        encryption and Logical Volume Manager.
+      </p>
+
+      <a href="https://docs.kernel.org/filesystems/index.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        Kernel Filesystem Documentation
+      </a>
+
+      <a href="https://docs.kernel.org/filesystems/ext4/"
+         target="_blank"
+         rel="noopener noreferrer">
+        ext4 Documentation
+      </a>
+
+      <a href="https://man7.org/linux/man-pages/man8/mount.8.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        mount(8)
+      </a>
+
+      <a href="https://man7.org/linux/man-pages/man8/lsblk.8.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        lsblk(8)
+      </a>
+
+      <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_managing_logical_volumes/index"
+         target="_blank"
+         rel="noopener noreferrer">
+        Red Hat LVM Guide
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>🛡️ Linux Security</h2>
+
+      <p>
+        Security modules, SELinux, AppArmor,
+        capabilities, auditing and authentication.
+      </p>
+
+      <a href="https://docs.kernel.org/security/index.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        Linux Kernel Security Documentation
+      </a>
+
+      <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/using_selinux/index"
+         target="_blank"
+         rel="noopener noreferrer">
+        Red Hat SELinux Guide
+      </a>
+
+      <a href="https://documentation.ubuntu.com/security/docs/security-features/privilege-restriction/apparmor/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Ubuntu AppArmor Documentation
+      </a>
+
+      <a href="https://man7.org/linux/man-pages/man7/capabilities.7.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        Linux Capabilities
+      </a>
+
+      <a href="https://docs.kernel.org/admin-guide/LSM/index.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        Linux Security Modules
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>🐳 Containers</h2>
+
+      <p>
+        Container execution, networking, storage,
+        resource limits and OCI specifications.
+      </p>
+
+      <a href="https://docs.docker.com/engine/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Docker Engine Documentation
+      </a>
+
+      <a href="https://docs.docker.com/engine/network/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Docker Networking
+      </a>
+
+      <a href="https://docs.docker.com/engine/containers/resource_constraints/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Docker Resource Constraints
+      </a>
+
+      <a href="https://docs.podman.io/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Podman Documentation
+      </a>
+
+      <a href="https://opencontainers.org/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Open Container Initiative
+      </a>
+    </article>
+
+    <article class="doc-card">
+      <h2>📊 Performance and Observability</h2>
+
+      <p>
+        CPU, memory, storage, network,
+        profiling and kernel tracing.
+      </p>
+
+      <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/monitoring_and_managing_system_status_and_performance/index"
+         target="_blank"
+         rel="noopener noreferrer">
+        Red Hat Performance Monitoring Guide
+      </a>
+
+      <a href="https://docs.kernel.org/trace/index.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        Linux Kernel Tracing
+      </a>
+
+      <a href="https://perf.wiki.kernel.org/"
+         target="_blank"
+         rel="noopener noreferrer">
+        Linux perf Documentation
+      </a>
+
+      <a href="https://www.freedesktop.org/software/systemd/man/journalctl.html"
+         target="_blank"
+         rel="noopener noreferrer">
+        journalctl
+      </a>
+    </article>
+
+  </section>
+
+  <section class="card">
+
+    <h2>4. How to Read Documentation Effectively</h2>
+
+    <ol>
+      <li>Identify the exact command and installed version.</li>
+      <li>Read the synopsis to understand argument order.</li>
+      <li>Read descriptions before copying examples.</li>
+      <li>Check defaults and distribution-specific behaviour.</li>
+      <li>Read warnings, exit status and related files.</li>
+      <li>Open the “See Also” references.</li>
+      <li>Test commands in a disposable lab.</li>
+      <li>Record verified production examples in a runbook.</li>
+    </ol>
+
+    <div class="warning">
+      Documentation examples can still change system state.
+      Understand placeholders and exact targets before running them.
+    </div>
+
+  </section>
+
+  <section class="card">
+
+    <h2>5. Documentation Practice</h2>
+
+    <p>Use only documentation to answer:</p>
+
+    <ol>
+      <li>Which signal does <code>kill</code> send by default?</li>
+      <li>What is the difference between <code>find -mtime</code> and <code>-mmin</code>?</li>
+      <li>Which file configures persistent mounts?</li>
+      <li>How does systemd represent a mount path as a unit name?</li>
+      <li>Which SSH option disables direct root login?</li>
+      <li>What does <code>memory.max</code> mean in cgroup v2?</li>
+      <li>Which capability permits binding a privileged port?</li>
+      <li>How do you inspect the route selected for one IP?</li>
+    </ol>
+
+    <p>Start with:</p>
+
+    <pre><code>man kill
+man find
+man fstab
+man systemd.mount
+man sshd_config
+man 7 capabilities
+man ip-route</code></pre>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Documentation Completion Standard</h2>
+
+    <p>You should be able to:</p>
+
+    <ul>
+      <li>Identify the installed OS and software version.</li>
+      <li>Navigate man-page sections.</li>
+      <li>Use <code>man</code>, <code>info</code>, <code>apropos</code> and help output.</li>
+      <li>Select distribution vs upstream documentation.</li>
+      <li>Find official kernel and GNU references.</li>
+      <li>Find official systemd and OpenSSH references.</li>
+      <li>Find networking, storage and security references.</li>
+      <li>Verify container behaviour using official documentation.</li>
+    </ul>
+
+  </section>
+
+  <section class="card">
+
+    <h2>✅ Topic Progress</h2>
+
+    <p id="completeStatus">
+      Mark this topic complete after learning how to find
+      and verify information from official sources.
+    </p>
+
+    <button class="complete-button"
+            onclick="markTopicComplete()">
+      Mark Topic Complete
+    </button>
+
+  </section>
+
+</main>
+
+<script>
+  const currentTopic = "Linux Official Documentation";
+
+  function filterDocumentation() {
+    const search =
+      document.getElementById("docsSearch")
+        .value
+        .toLowerCase();
+
+    const cards =
+      document.querySelectorAll(".doc-card");
+
+    cards.forEach(function (card) {
+      card.style.display =
+        card.innerText.toLowerCase().includes(search)
+          ? "block"
+          : "none";
+    });
+  }
+
+  function loadTopicCompletion() {
+    if (
+      localStorage.getItem(currentTopic) === "done"
+    ) {
+      document.getElementById("completeStatus")
+        .innerHTML = "✅ <b>Completed</b>";
+    }
+  }
+
+  function markTopicComplete() {
+    localStorage.setItem(currentTopic, "done");
+
+    document.getElementById("completeStatus")
+      .innerHTML = "✅ <b>Completed</b>";
+  }
+
+  loadTopicCompletion();
+</script>
+
+</body>
+</html>

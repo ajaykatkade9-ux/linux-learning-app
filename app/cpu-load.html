@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux CPU & Load</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 24px;
+      margin: 18px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+
+    pre {
+      background: #f1f1f1;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+  <a href="linux.html">← Linux Topics</a>
+
+  <h1>⚡ Linux CPU & Load Average</h1>
+  <p>CPU utilization, load average, processes, and production troubleshooting.</p>
+
+  <div class="card">
+    <h2>⚡ Quick Revision</h2>
+
+    <p>
+      System Load → CPU Usage → Process → Threads →
+      I/O Wait → Root Cause
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Core Commands</h2>
+
+    <pre>uptime
+top
+ps aux --sort=-%cpu
+nproc
+lscpu
+vmstat 1</pre>
+  </div>
+
+  <div class="card">
+    <h2>Important Concepts</h2>
+
+    <ul>
+      <li>CPU utilization</li>
+      <li>User vs system CPU</li>
+      <li>I/O wait</li>
+      <li>Load average</li>
+      <li>1, 5, and 15 minute load averages</li>
+      <li>CPU cores</li>
+      <li>Processes and threads</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🎯 Interview Questions</h2>
+
+    <ol>
+      <li>What does Linux load average mean?</li>
+      <li>What do the three numbers in uptime represent?</li>
+      <li>Is high load average always caused by high CPU usage?</li>
+      <li>How do you identify a CPU-hungry process?</li>
+      <li>What is I/O wait?</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>🔥 Production Scenario</h2>
+
+    <p>
+      Users report that an application is very slow.
+      The server load average is unusually high.
+      How would you investigate?
+    </p>
+
+    <pre>uptime
+nproc
+top
+ps aux --sort=-%cpu | head
+vmstat 1</pre>
+
+    <p>
+      Compare load average with CPU count, identify expensive processes,
+      check CPU utilization and I/O wait, then correlate with application logs
+      and recent changes.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>🧪 Hands-On</h2>
+
+    <pre>uptime
+nproc
+lscpu
+top
+ps aux --sort=-%cpu | head</pre>
+  </div>
+
+</div>
+
+
+<div id="topicCompleteBox" style="
+  max-width:850px;
+  margin:25px auto;
+  background:white;
+  padding:24px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.07);
+">
+
+  <h2>✅ Topic Progress</h2>
+
+  <p id="completeStatus">
+    Mark this topic complete when you are confident with it.
+  </p>
+
+  <button onclick="markTopicComplete()" style="
+    padding:12px 18px;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+  ">
+    Mark Topic Complete
+  </button>
+
+</div>
+
+<script>
+const currentTopic = 'CPU & Load';
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Save Linux commands, concepts and interview notes in your browser.">
+  <title>Quick Notes</title>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+  <main class="container">
+    <a class="back" href="index.html">← Home</a>
+
+    <section class="hero notes-hero">
+      <p class="hero-kicker">Personal study workspace</p>
+      <h1>Quick Notes</h1>
+      <p>
+        Capture commands, troubleshooting evidence and interview points
+        without leaving your Linux study flow.
+      </p>
+    </section>
+
+    <section class="notes-layout">
+      <article class="card notes-editor-card">
+        <header class="notes-editor-header">
+          <div>
+            <p class="panel-kicker">Your notebook</p>
+            <h2>Linux study notes</h2>
+          </div>
+
+          <div class="notes-utility-actions">
+            <button class="secondary-button" type="button" onclick="copyNotes()">
+              Copy notes
+            </button>
+            <button class="secondary-button" type="button" onclick="downloadNotes()">
+              Download .txt
+            </button>
+          </div>
+        </header>
+
+        <label class="visually-hidden" for="notes">Linux study notes</label>
+        <textarea
+          id="notes"
+          spellcheck="true"
+          placeholder="Start writing your Linux notes here…
+
+Example:
+Linux Boot Process
+BIOS/UEFI → GRUB → Kernel → systemd
+
+Useful command
+journalctl -b"
+        ></textarea>
+
+        <footer class="notes-editor-footer">
+          <div class="notes-save-state">
+            <span class="save-indicator" aria-hidden="true"></span>
+            <span id="status" role="status" aria-live="polite">Saved in this browser</span>
+            <span id="notesCount">0 words · 0 characters</span>
+          </div>
+
+          <div class="notes-primary-actions">
+            <button class="secondary-button" type="button" onclick="clearNotes()">
+              Clear notes
+            </button>
+            <button class="primary-button" type="button" onclick="saveNotes()">
+              Save now
+            </button>
+          </div>
+        </footer>
+      </article>
+
+      <aside class="notes-sidebar" aria-label="Note helpers">
+        <section class="card notes-helper-card">
+          <p class="panel-kicker">Write faster</p>
+          <h2>Quick templates</h2>
+          <p class="muted">Insert a useful structure at the cursor.</p>
+
+          <div class="note-template-list">
+            <button type="button" class="note-template" onclick="insertTemplate('command')">
+              <strong>Command note</strong>
+              <span>Command, purpose and example</span>
+            </button>
+            <button type="button" class="note-template" onclick="insertTemplate('incident')">
+              <strong>Incident note</strong>
+              <span>Symptom, evidence, cause and fix</span>
+            </button>
+            <button type="button" class="note-template" onclick="insertTemplate('interview')">
+              <strong>Interview answer</strong>
+              <span>Concept, example and production use</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="card notes-tip-card">
+          <p class="panel-kicker success">Autosave enabled</p>
+          <h2>Your notes are private</h2>
+          <p>
+            Notes stay inside this browser. Use Backup & Restore regularly
+            so they can be recovered after a browser reset.
+          </p>
+          <a class="notes-backup-link" href="backup.html">
+            Open Backup & Restore →
+          </a>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const notes = document.getElementById("notes");
+    const status = document.getElementById("status");
+    const notesCount = document.getElementById("notesCount");
+    let autosaveTimer;
+
+    const templates = {
+      command:
+`COMMAND
+Command:
+Purpose:
+Important options:
+Example:
+Expected result:
+`,
+      incident:
+`PRODUCTION INCIDENT
+Symptom:
+Impact:
+Evidence collected:
+Root cause:
+Safe fix:
+Verification:
+Prevention:
+`,
+      interview:
+`INTERVIEW ANSWER
+Question:
+Short answer:
+How it works:
+Command/example:
+Production use:
+`
+    };
+
+    notes.value = localStorage.getItem("devopsNotes") || "";
+
+    function updateCount() {
+      const value = notes.value;
+      const words = value.trim() ? value.trim().split(/\s+/).length : 0;
+      notesCount.textContent = `${words} words · ${value.length} characters`;
+    }
+
+    function setStatus(message, state = "saved") {
+      status.textContent = message;
+      status.closest(".notes-save-state").dataset.state = state;
+    }
+
+    function saveNotes(automatic = false) {
+      localStorage.setItem("devopsNotes", notes.value);
+      setStatus(automatic ? "Autosaved just now" : "Notes saved");
+    }
+
+    function clearNotes() {
+      if (!notes.value.trim()) {
+        setStatus("Notebook is already empty");
+        return;
+      }
+
+      if (confirm("Clear all notes? This can only be recovered from a backup.")) {
+        notes.value = "";
+        localStorage.removeItem("devopsNotes");
+        updateCount();
+        setStatus("Notes cleared", "warning");
+        notes.focus();
+      }
+    }
+
+    function insertTemplate(type) {
+      const template = templates[type];
+      if (!template) return;
+
+      const start = notes.selectionStart;
+      const end = notes.selectionEnd;
+      const prefix = start > 0 && notes.value[start - 1] !== "\n" ? "\n\n" : "";
+      const insertion = prefix + template;
+
+      notes.setRangeText(insertion, start, end, "end");
+      notes.focus();
+      notes.dispatchEvent(new Event("input"));
+    }
+
+    async function copyNotes() {
+      if (!notes.value.trim()) {
+        setStatus("Nothing to copy", "warning");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(notes.value);
+        setStatus("Notes copied");
+      } catch (error) {
+        notes.select();
+        document.execCommand("copy");
+        notes.setSelectionRange(notes.value.length, notes.value.length);
+        setStatus("Notes copied");
+      }
+    }
+
+    function downloadNotes() {
+      if (!notes.value.trim()) {
+        setStatus("Nothing to download", "warning");
+        return;
+      }
+
+      saveNotes();
+      const blob = new Blob([notes.value], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `linux-study-notes-${new Date().toISOString().slice(0, 10)}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setStatus("Notes downloaded");
+    }
+
+    notes.addEventListener("input", function () {
+      updateCount();
+      setStatus("Saving changes…", "saving");
+      window.clearTimeout(autosaveTimer);
+      autosaveTimer = window.setTimeout(() => saveNotes(true), 650);
+    });
+
+    window.addEventListener("beforeunload", function () {
+      window.clearTimeout(autosaveTimer);
+      localStorage.setItem("devopsNotes", notes.value);
+    });
+
+    updateCount();
+  </script>
+</body>
+</html>

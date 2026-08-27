@@ -1,0 +1,9 @@
+services:
+  study-app:
+    image: nginx:alpine
+    container_name: devops-study-app
+    ports:
+      - "8081:80"
+    volumes:
+      - ./app:/usr/share/nginx/html:ro
+    restart: unless-stopped

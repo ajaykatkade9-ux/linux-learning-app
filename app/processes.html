@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Processes & Job Control</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  margin: 0;
+  padding: 30px;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 950px;
+  margin: auto;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  margin: 18px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+
+pre {
+  background: #f1f1f1;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+button {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>⚙️ Processes & Job Control</h1>
+
+<p>
+Processes, PID/PPID, signals, jobs, priorities, zombies,
+orphans and production troubleshooting.
+</p>
+
+<div class="card">
+<h2>⚡ 60-Second Revision</h2>
+
+<pre>
+Program
+  ↓
+Process
+  ↓
+PID / PPID
+  ↓
+CPU + Memory + Files
+  ↓
+Process State
+  ↓
+Signal
+  ↓
+Exit
+</pre>
+
+<p>
+A program is code stored on disk.
+A process is a running instance of that program.
+</p>
+</div>
+
+<div class="card">
+<h2>1. PID and PPID</h2>
+
+<p>Every process has a Process ID and usually a parent process.</p>
+
+<pre>echo $$
+
+ps -ef
+
+ps -o pid,ppid,cmd
+
+pstree -p</pre>
+
+<ul>
+<li><b>PID</b> — Process ID</li>
+<li><b>PPID</b> — Parent Process ID</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>2. Inspect Processes</h2>
+
+<pre>ps aux
+
+ps -ef
+
+top
+
+pgrep nginx
+
+pgrep -a ssh
+
+pstree</pre>
+
+<p>
+Use <b>ps</b> for a snapshot and <b>top</b> for live monitoring.
+</p>
+</div>
+
+<div class="card">
+<h2>3. Process States</h2>
+
+<pre>R = Running / Runnable
+S = Interruptible Sleep
+D = Uninterruptible Sleep
+T = Stopped
+Z = Zombie</pre>
+
+<p>Inspect process states:</p>
+
+<pre>ps aux
+
+ps -eo pid,ppid,state,cmd</pre>
+</div>
+
+<div class="card">
+<h2>4. Signals</h2>
+
+<p>Signals allow the operating system and users to communicate with processes.</p>
+
+<pre>kill -l</pre>
+
+<ul>
+<li><b>SIGTERM (15)</b> — graceful termination request</li>
+<li><b>SIGKILL (9)</b> — immediate forced termination</li>
+<li><b>SIGHUP (1)</b> — often used to reload configuration</li>
+<li><b>SIGSTOP</b> — stop a process</li>
+<li><b>SIGCONT</b> — continue a stopped process</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>5. SIGTERM vs SIGKILL</h2>
+
+<p>Graceful termination:</p>
+
+<pre>kill PID
+
+kill -15 PID</pre>
+
+<p>Force termination:</p>
+
+<pre>kill -9 PID</pre>
+
+<p>
+Production rule: use SIGTERM first whenever possible.
+SIGKILL should normally be a last resort.
+</p>
+</div>
+
+<div class="card">
+<h2>6. Process Control by Name</h2>
+
+<pre>pkill nginx
+
+pkill -TERM nginx
+
+killall nginx</pre>
+
+<p>
+Be careful when terminating processes by name on production systems.
+</p>
+</div>
+
+<div class="card">
+<h2>7. Foreground and Background Jobs</h2>
+
+<p>Start a process:</p>
+
+<pre>sleep 300</pre>
+
+<p>Suspend it:</p>
+
+<pre>Ctrl + Z</pre>
+
+<p>Inspect jobs:</p>
+
+<pre>jobs</pre>
+
+<p>Move to background:</p>
+
+<pre>bg</pre>
+
+<p>Return to foreground:</p>
+
+<pre>fg</pre>
+
+<p>Start directly in the background:</p>
+
+<pre>sleep 300 &</pre>
+</div>
+
+<div class="card">
+<h2>8. nohup</h2>
+
+<p>
+nohup can keep a process running after the terminal session ends.
+</p>
+
+<pre>nohup ./script.sh > app.log 2>&1 &</pre>
+
+<p>Verify:</p>
+
+<pre>ps aux | grep script.sh</pre>
+</div>
+
+<div class="card">
+<h2>9. nice and renice</h2>
+
+<p>
+Linux uses nice values to influence CPU scheduling priority.
+</p>
+
+<pre>-20  Higher scheduling priority
+
+0    Default
+
+19   Lower scheduling priority</pre>
+
+<p>Start a process with a nice value:</p>
+
+<pre>nice -n 10 COMMAND</pre>
+
+<p>Change an existing process:</p>
+
+<pre>renice 10 -p PID</pre>
+</div>
+
+<div class="card">
+<h2>10. Zombie Processes</h2>
+
+<p>
+A zombie is a child process that has exited but whose parent has not yet
+collected its exit status.
+</p>
+
+<pre>ps aux | awk '$8 ~ /^Z/'
+
+ps -eo pid,ppid,state,cmd</pre>
+
+<p>
+The real problem usually needs to be fixed in the parent process.
+</p>
+</div>
+
+<div class="card">
+<h2>11. Orphan Processes</h2>
+
+<p>
+An orphan is a process whose parent exits while the child continues running.
+</p>
+
+<pre>pstree -p
+
+ps -o pid,ppid,cmd</pre>
+</div>
+
+<div class="card">
+<h2>12. Open Files and Sockets</h2>
+
+<pre>lsof -p PID
+
+lsof /path/to/file
+
+lsof -i</pre>
+
+<p>
+This is extremely useful when troubleshooting processes,
+network sockets and deleted files that still consume disk space.
+</p>
+</div>
+
+<div class="card">
+<h2>13. CPU and Memory Usage</h2>
+
+<p>Top CPU-consuming processes:</p>
+
+<pre>ps aux --sort=-%cpu | head</pre>
+
+<p>Top memory-consuming processes:</p>
+
+<pre>ps aux --sort=-%mem | head</pre>
+
+<p>Live monitoring:</p>
+
+<pre>top</pre>
+
+<p>System overview:</p>
+
+<pre>uptime
+vmstat 1
+free -h</pre>
+</div>
+
+<div class="card">
+<h2>14. Process Environment</h2>
+
+<p>Environment variables:</p>
+
+<pre>tr '\0' '\n' < /proc/PID/environ</pre>
+
+<p>Command line:</p>
+
+<pre>cat /proc/PID/cmdline | tr '\0' ' '</pre>
+
+<p>Working directory:</p>
+
+<pre>readlink /proc/PID/cwd</pre>
+</div>
+
+<div class="card">
+<h2>15. /proc Process Information</h2>
+
+<p>Linux exposes process information under:</p>
+
+<pre>/proc/PID/</pre>
+
+<p>Useful locations:</p>
+
+<pre>/proc/PID/status
+/proc/PID/cmdline
+/proc/PID/environ
+/proc/PID/fd</pre>
+
+<p>Example:</p>
+
+<pre>cat /proc/1/status</pre>
+</div>
+
+<div class="card">
+<h2>🔥 Production Scenario 1 — High CPU</h2>
+
+<p>
+Users report that the application is slow and CPU usage is high.
+</p>
+
+<pre>uptime
+
+nproc
+
+top
+
+ps aux --sort=-%cpu | head
+
+vmstat 1</pre>
+
+<p>Investigate:</p>
+
+<ul>
+<li>Which process is consuming CPU?</li>
+<li>How many CPU cores are available?</li>
+<li>Is the load expected?</li>
+<li>Is there high I/O wait?</li>
+<li>Was there a recent deployment?</li>
+<li>Do application logs show loops or errors?</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>🔥 Production Scenario 2 — Process Keeps Restarting</h2>
+
+<pre>systemctl status SERVICE_NAME
+
+journalctl -u SERVICE_NAME
+
+ps aux | grep PROCESS_NAME
+
+systemctl show SERVICE_NAME --property=Restart</pre>
+
+<p>Possible causes:</p>
+
+<ul>
+<li>Application crash</li>
+<li>Missing environment variables</li>
+<li>Permission problems</li>
+<li>Dependency failures</li>
+<li>OOM termination</li>
+<li>Incorrect restart policy</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>🔥 Production Scenario 3 — Process Will Not Stop</h2>
+
+<p>First request graceful termination:</p>
+
+<pre>kill -15 PID</pre>
+
+<p>Check whether the process still exists:</p>
+
+<pre>ps -p PID
+
+top -p PID</pre>
+
+<p>If graceful shutdown fails and forced termination is truly required:</p>
+
+<pre>kill -9 PID</pre>
+
+<p>
+Afterward, investigate why the process ignored or failed to complete
+graceful shutdown instead of making SIGKILL the normal solution.
+</p>
+</div>
+
+<div class="card">
+<h2>🔥 Production Scenario 4 — Deleted File Still Uses Disk</h2>
+
+<p>
+A huge log file was deleted, but disk space was not released.
+</p>
+
+<pre>lsof +L1</pre>
+
+<p>
+A running process may still have the deleted file open.
+The file's disk space is released only after the open file descriptor is closed.
+</p>
+</div>
+
+<div class="card">
+<h2>🔥 Production Scenario 5 — Process in D State</h2>
+
+<p>
+A process appears stuck in uninterruptible sleep.
+</p>
+
+<pre>ps -eo pid,ppid,state,wchan:30,cmd
+
+vmstat 1
+
+dmesg | tail -50</pre>
+
+<p>
+D state commonly indicates the process is waiting on kernel I/O,
+such as disk, storage or network filesystem operations.
+</p>
+</div>
+
+<div class="card">
+<h2>🧪 Hands-On Lab 1 — Background Process</h2>
+
+<pre>sleep 300 &
+
+jobs
+
+pgrep -a sleep
+
+ps -o pid,ppid,state,cmd -C sleep
+
+kill $(pgrep sleep)</pre>
+</div>
+
+<div class="card">
+<h2>🧪 Hands-On Lab 2 — nice and renice</h2>
+
+<pre>sleep 300 &
+
+PID=$!
+
+renice 10 -p $PID
+
+ps -o pid,ni,cmd -p $PID
+
+kill $PID</pre>
+</div>
+
+<div class="card">
+<h2>🧪 Hands-On Lab 3 — /proc</h2>
+
+<p>Find your shell PID:</p>
+
+<pre>echo $$</pre>
+
+<p>Inspect it:</p>
+
+<pre>cat /proc/$$/status
+
+readlink /proc/$$/cwd
+
+ls -l /proc/$$/fd
+
+tr '\0' '\n' < /proc/$$/environ | head</pre>
+</div>
+
+<div class="card">
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+<li>What is a process?</li>
+<li>What is PID?</li>
+<li>What is PPID?</li>
+<li>What is the difference between ps and top?</li>
+<li>What are Linux process states?</li>
+<li>What is SIGTERM?</li>
+<li>What is SIGKILL?</li>
+<li>Why should SIGKILL not be your first choice?</li>
+<li>What is SIGHUP commonly used for?</li>
+<li>What is a zombie process?</li>
+<li>What is an orphan process?</li>
+<li>What is nohup?</li>
+<li>What is nice?</li>
+<li>What does renice do?</li>
+<li>How do you find a high-CPU process?</li>
+<li>How do you find a high-memory process?</li>
+<li>How do you inspect files opened by a process?</li>
+<li>What is /proc?</li>
+<li>What does process state D mean?</li>
+<li>How would you troubleshoot a process that continuously restarts?</li>
+<li>Why might deleting a file not immediately release disk space?</li>
+</ol>
+</div>
+
+<div class="card">
+<h2>🗣️ Strong Interview Answer</h2>
+
+<p>
+“When troubleshooting a Linux process issue, I first identify whether
+the problem is CPU, memory, I/O, application failure or process state.
+I identify the relevant PID, inspect its resource usage, logs,
+parent-child relationships, open files, environment and /proc data.
+For termination I prefer SIGTERM so the application has a chance to
+clean up gracefully, and I use SIGKILL only when necessary.”
+</p>
+</div>
+
+<div class="card">
+<h2>📖 Official Documentation</h2>
+
+<p>Use local Linux manuals as the fastest source:</p>
+
+<pre>man ps
+man top
+man proc
+man kill
+man signal
+man nice
+man renice
+man nohup
+man jobs
+man lsof</pre>
+
+<p>
+For deeper internals, use the Linux kernel documentation and Linux man-pages.
+</p>
+</div>
+
+<div class="card">
+<h2>✅ Completion Standard</h2>
+
+<ul>
+<li>Explain PID and PPID</li>
+<li>Understand process states</li>
+<li>Use ps, top, pgrep and pstree</li>
+<li>Explain SIGTERM vs SIGKILL</li>
+<li>Manage foreground and background jobs</li>
+<li>Use nohup</li>
+<li>Understand nice and renice</li>
+<li>Explain zombie and orphan processes</li>
+<li>Inspect /proc/PID</li>
+<li>Find process open files</li>
+<li>Troubleshoot high CPU</li>
+<li>Troubleshoot restarting processes</li>
+<li>Understand deleted-open-file problems</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>✅ Topic Progress</h2>
+
+<p id="completeStatus">
+Mark this topic complete when you are confident with it.
+</p>
+
+<button onclick="markTopicComplete()">
+Mark Topic Complete
+</button>
+</div>
+
+</div>
+
+<script>
+const currentTopic = "Processes & Services";
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

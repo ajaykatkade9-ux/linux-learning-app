@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux Environment Variables</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 24px;
+      margin: 18px 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+    }
+
+    pre {
+      background: #f1f1f1;
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+  <a href="linux.html">← Linux Topics</a>
+
+  <h1>🌱 Environment Variables & PATH</h1>
+  <p>Environment configuration, PATH, exports, profiles, and production debugging.</p>
+
+  <div class="card">
+    <h2>⚡ Quick Revision</h2>
+
+    <p>
+      Shell → Environment Variable → Process Inherits Variable →
+      Application Reads Configuration
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Core Commands</h2>
+
+    <pre>env
+printenv
+echo $PATH
+echo $HOME
+
+export APP_ENV=production
+
+which python
+command -v docker</pre>
+  </div>
+
+  <div class="card">
+    <h2>Important Concepts</h2>
+
+    <ul>
+      <li>Shell variables vs environment variables</li>
+      <li>export</li>
+      <li>PATH</li>
+      <li>Process environment inheritance</li>
+      <li>.bashrc</li>
+      <li>.profile</li>
+      <li>/etc/environment</li>
+      <li>Application configuration</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🎯 Interview Questions</h2>
+
+    <ol>
+      <li>What is an environment variable?</li>
+      <li>What does PATH do?</li>
+      <li>What is the purpose of export?</li>
+      <li>Why might a command work manually but fail inside a script?</li>
+      <li>How do processes receive environment variables?</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>🔥 Production Scenario</h2>
+
+    <p>
+      An application works when started manually,
+      but fails when started through systemd or a CI/CD pipeline.
+    </p>
+
+    <pre>env
+echo $PATH
+systemctl show SERVICE_NAME --property=Environment
+systemctl cat SERVICE_NAME
+journalctl -u SERVICE_NAME</pre>
+
+    <p>
+      Compare environment variables, PATH, working directory,
+      service configuration, credentials, and runtime user.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>🧪 Hands-On</h2>
+
+    <pre>export MY_TEST=value
+
+echo $MY_TEST
+
+env | grep MY_TEST
+
+echo $PATH
+
+command -v bash</pre>
+  </div>
+
+</div>
+
+
+<div id="topicCompleteBox" style="
+  max-width:850px;
+  margin:25px auto;
+  background:white;
+  padding:24px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.07);
+">
+
+  <h2>✅ Topic Progress</h2>
+
+  <p id="completeStatus">
+    Mark this topic complete when you are confident with it.
+  </p>
+
+  <button onclick="markTopicComplete()" style="
+    padding:12px 18px;
+    border:0;
+    border-radius:8px;
+    cursor:pointer;
+  ">
+    Mark Topic Complete
+  </button>
+
+</div>
+
+<script>
+const currentTopic = 'Environment & PATH';
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

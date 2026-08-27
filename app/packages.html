@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Linux Package Management</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:30px;
+  line-height:1.6;
+}
+
+.container {
+  max-width:950px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  padding:25px;
+  margin:18px 0;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.07);
+}
+
+pre {
+  background:#f1f1f1;
+  padding:15px;
+  border-radius:8px;
+  overflow-x:auto;
+}
+
+button {
+  padding:12px 18px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.answer {
+  display:none;
+  margin-top:15px;
+}
+
+a {
+  text-decoration:none;
+}
+</style>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="app-shell.css">
+  <script defer src="app-shell.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+<a href="linux.html">← Linux Topics</a>
+
+<h1>📦 Linux Package Management</h1>
+
+<p>
+APT, dpkg, DNF/YUM, RPM, repositories, dependencies,
+package versions, updates and production troubleshooting.
+</p>
+
+
+<div class="card">
+<h2>⚡ 60-Second Revision</h2>
+
+<pre>
+Repository
+   ↓
+Package Metadata
+   ↓
+Package Manager
+   ↓
+Dependency Resolution
+   ↓
+Download
+   ↓
+Install / Upgrade / Remove
+</pre>
+
+<p>
+Two common Linux families:
+</p>
+
+<ul>
+<li><b>Debian / Ubuntu:</b> apt + dpkg</li>
+<li><b>RHEL / Rocky / Alma:</b> dnf/yum + rpm</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>1. What Is a Package?</h2>
+
+<p>
+A package contains software plus metadata needed to install
+and manage that software.
+</p>
+
+<p>Metadata can include:</p>
+
+<ul>
+<li>Package name</li>
+<li>Version</li>
+<li>Architecture</li>
+<li>Dependencies</li>
+<li>Files</li>
+<li>Installation scripts</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>2. Package Repository</h2>
+
+<p>
+A repository is a trusted source from which package managers
+retrieve package metadata and software.
+</p>
+
+<p>On Ubuntu, inspect repository configuration:</p>
+
+<pre>cat /etc/apt/sources.list 2>/dev/null
+
+ls /etc/apt/sources.list.d/</pre>
+</div>
+
+
+<div class="card">
+<h2>3. apt update</h2>
+
+<pre>apt update</pre>
+
+<p>
+This refreshes local package metadata from configured repositories.
+</p>
+
+<p>
+It does <b>not</b> mean every installed package is upgraded.
+</p>
+</div>
+
+
+<div class="card">
+<h2>4. Search and Inspect Packages</h2>
+
+<pre>apt search nginx
+
+apt show nginx
+
+apt-cache policy nginx</pre>
+
+<p>
+apt-cache policy is especially useful for checking candidate
+versions and package sources.
+</p>
+</div>
+
+
+<div class="card">
+<h2>5. Installing Packages</h2>
+
+<pre>apt install PACKAGE</pre>
+
+Example:
+
+<pre>apt install curl</pre>
+
+<p>
+The package manager resolves required dependencies before installation.
+</p>
+</div>
+
+
+<div class="card">
+<h2>6. Removing Packages</h2>
+
+<pre>apt remove PACKAGE</pre>
+
+Remove package configuration too:
+
+<pre>apt purge PACKAGE</pre>
+
+Remove dependencies no longer needed:
+
+<pre>apt autoremove</pre>
+</div>
+
+
+<div class="card">
+<h2>7. Upgrading Packages</h2>
+
+<pre>apt update
+
+apt upgrade</pre>
+
+<p>
+Production upgrades should be planned carefully because package
+updates can change application or service behavior.
+</p>
+</div>
+
+
+<div class="card">
+<h2>8. dpkg</h2>
+
+<p>
+dpkg is a lower-level Debian package management tool.
+</p>
+
+List installed packages:
+
+<pre>dpkg -l</pre>
+
+Check a package:
+
+<pre>dpkg -l | grep PACKAGE</pre>
+
+List files installed by a package:
+
+<pre>dpkg -L PACKAGE</pre>
+
+Find which package owns a file:
+
+<pre>dpkg -S /path/to/file</pre>
+</div>
+
+
+<div class="card">
+<h2>9. apt vs dpkg</h2>
+
+<p><b>apt</b></p>
+
+<ul>
+<li>Works with repositories</li>
+<li>Resolves dependencies</li>
+<li>Higher-level package management</li>
+</ul>
+
+<p><b>dpkg</b></p>
+
+<ul>
+<li>Lower-level package database/tool</li>
+<li>Works directly with Debian packages</li>
+<li>Does not perform repository dependency resolution in the same way</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>10. RHEL Package Management</h2>
+
+<p>Common commands:</p>
+
+<pre>dnf search PACKAGE
+
+dnf info PACKAGE
+
+dnf install PACKAGE
+
+dnf remove PACKAGE
+
+dnf upgrade</pre>
+
+<p>
+Older systems may use <b>yum</b>.
+</p>
+</div>
+
+
+<div class="card">
+<h2>11. RPM</h2>
+
+List installed packages:
+
+<pre>rpm -qa</pre>
+
+Inspect package:
+
+<pre>rpm -qi PACKAGE</pre>
+
+List package files:
+
+<pre>rpm -ql PACKAGE</pre>
+
+Find package owning a file:
+
+<pre>rpm -qf /path/to/file</pre>
+</div>
+
+
+<div class="card">
+<h2>12. dnf vs rpm</h2>
+
+<p><b>dnf</b></p>
+
+<ul>
+<li>Repository-aware</li>
+<li>Dependency resolution</li>
+<li>Higher-level package management</li>
+</ul>
+
+<p><b>rpm</b></p>
+
+<ul>
+<li>Lower-level RPM package management</li>
+<li>Package database inspection</li>
+<li>Direct package operations</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>13. Package Dependencies</h2>
+
+<p>
+Applications often require libraries or other packages.
+Package managers normally resolve those dependencies automatically.
+</p>
+
+On Ubuntu:
+
+<pre>apt-cache depends PACKAGE</pre>
+
+Reverse dependencies:
+
+<pre>apt-cache rdepends PACKAGE</pre>
+</div>
+
+
+<div class="card">
+<h2>14. Package Versions</h2>
+
+Installed version:
+
+<pre>dpkg -l | grep PACKAGE</pre>
+
+Available versions:
+
+<pre>apt-cache policy PACKAGE</pre>
+
+RHEL-style:
+
+<pre>dnf list installed PACKAGE
+
+dnf info PACKAGE</pre>
+</div>
+
+
+<div class="card">
+<h2>15. Architecture</h2>
+
+Check system architecture:
+
+<pre>uname -m
+
+dpkg --print-architecture</pre>
+
+<p>
+Package architecture mismatches can cause installation problems.
+</p>
+</div>
+
+
+<div class="card">
+<h2>16. Repository Connectivity</h2>
+
+<p>
+Package installation depends on repository accessibility.
+</p>
+
+Check:
+
+<pre>apt update</pre>
+
+Then investigate networking if required:
+
+<pre>ip route
+
+getent hosts archive.ubuntu.com
+
+curl -I https://archive.ubuntu.com/</pre>
+</div>
+
+
+<div class="card">
+<h2>17. Package Database</h2>
+
+<p>
+Installed package state is maintained in a local package database.
+</p>
+
+On Debian/Ubuntu:
+
+<pre>dpkg -l</pre>
+
+On RPM systems:
+
+<pre>rpm -qa</pre>
+</div>
+
+
+<div class="card">
+<h2>18. Services After Package Installation</h2>
+
+<p>
+Some packages install or start systemd services.
+</p>
+
+After installing software, inspect:
+
+<pre>systemctl status SERVICE_NAME
+
+systemctl is-enabled SERVICE_NAME
+
+ss -ltnp</pre>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 1 — Package Not Found</h2>
+
+<p>You run:</p>
+
+<pre>apt install PACKAGE</pre>
+
+and receive a package-not-found error.
+
+Check:
+
+<pre>apt update
+
+apt search PACKAGE
+
+apt-cache policy PACKAGE
+
+cat /etc/apt/sources.list 2>/dev/null
+
+ls /etc/apt/sources.list.d/</pre>
+
+<p>Possible causes:</p>
+
+<ul>
+<li>Package metadata is stale</li>
+<li>Repository missing</li>
+<li>Wrong package name</li>
+<li>Package unavailable for that OS version</li>
+<li>Repository disabled</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 2 — apt update Fails</h2>
+
+<pre>apt update</pre>
+
+Then investigate:
+
+<pre>ip route
+
+getent hosts archive.ubuntu.com
+
+cat /etc/resolv.conf
+
+df -h</pre>
+
+<p>Possible causes:</p>
+
+<ul>
+<li>DNS failure</li>
+<li>No network route</li>
+<li>Repository unavailable</li>
+<li>Invalid repository configuration</li>
+<li>Disk full</li>
+<li>Certificate/time-related issues</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 3 — Dependency Problem</h2>
+
+<p>
+A package installation fails because dependencies cannot be satisfied.
+</p>
+
+Inspect:
+
+<pre>apt-cache policy PACKAGE
+
+apt-cache depends PACKAGE
+
+dpkg -l</pre>
+
+<p>
+Check whether repositories, package versions and OS release are compatible.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 4 — Works Before Upgrade, Fails After</h2>
+
+<p>
+An application stops working after package updates.
+</p>
+
+Investigate:
+
+<pre>grep -i "upgrade" /var/log/dpkg.log 2>/dev/null
+
+systemctl status APP_SERVICE
+
+journalctl -u APP_SERVICE
+
+dpkg -l | grep PACKAGE</pre>
+
+<p>
+Correlate changed package versions with the application failure.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 5 — Package Installed but Command Missing</h2>
+
+<p>Check:</p>
+
+<pre>dpkg -L PACKAGE
+
+command -v COMMAND
+
+echo $PATH</pre>
+
+<p>Possible causes:</p>
+
+<ul>
+<li>Executable has a different name</li>
+<li>Binary is outside PATH</li>
+<li>Wrong package installed</li>
+<li>Installation incomplete</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 6 — Package Manager Locked</h2>
+
+<p>
+Another package-management process may already be running.
+</p>
+
+Inspect processes first:
+
+<pre>ps aux | grep -E 'apt|dpkg'</pre>
+
+<p>
+Do not blindly delete package-manager lock files.
+First determine whether another legitimate package operation is active.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🔥 Production Scenario 7 — Disk Full During Installation</h2>
+
+<pre>df -h
+
+df -i
+
+du -xhd1 /var 2>/dev/null</pre>
+
+<p>
+Package management requires working disk space and available inodes.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🧪 Safe Hands-On Lab</h2>
+
+<p>
+Use read-only package inspection commands:
+</p>
+
+<pre>apt --version
+
+apt search curl
+
+apt show curl
+
+apt-cache policy curl
+
+dpkg -l | head
+
+dpkg -l | grep curl
+
+dpkg -L coreutils | head
+
+dpkg -S /bin/ls 2>/dev/null || true</pre>
+
+<p>
+No package installation is required for this lab.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🧪 Repository Lab</h2>
+
+<pre>cat /etc/os-release
+
+cat /etc/apt/sources.list 2>/dev/null
+
+ls -la /etc/apt/sources.list.d/
+
+apt-cache policy</pre>
+
+<p>
+Understand which operating system and repositories your machine uses.
+</p>
+</div>
+
+
+<div class="card">
+<h2>🎯 Interview Questions</h2>
+
+<ol>
+<li>What is a Linux package?</li>
+<li>What is a repository?</li>
+<li>What does apt update do?</li>
+<li>What is the difference between apt update and apt upgrade?</li>
+<li>What is the difference between apt and dpkg?</li>
+<li>How do you check whether a package is installed?</li>
+<li>How do you identify which package owns a file?</li>
+<li>How do dependencies work?</li>
+<li>How do you check available package versions?</li>
+<li>What is apt-cache policy useful for?</li>
+<li>What is the difference between remove and purge?</li>
+<li>What does apt autoremove do?</li>
+<li>What is DNF?</li>
+<li>What is RPM?</li>
+<li>What is the difference between DNF and RPM?</li>
+<li>How would you troubleshoot Package not found?</li>
+<li>How would you troubleshoot apt update failure?</li>
+<li>How would you troubleshoot a package dependency issue?</li>
+<li>How would you investigate an application failure after package upgrades?</li>
+<li>Why should production package upgrades be controlled?</li>
+</ol>
+</div>
+
+
+<div class="card">
+<h2>🧩 Quick Recall</h2>
+
+<h3>What does apt update actually do?</h3>
+
+<button onclick="toggle('a1')">Show Answer</button>
+
+<div id="a1" class="answer">
+<p>
+It downloads/refreshed package metadata from configured repositories.
+It does not automatically upgrade all installed packages.
+</p>
+</div>
+
+
+<h3>What is the difference between apt and dpkg?</h3>
+
+<button onclick="toggle('a2')">Show Answer</button>
+
+<div id="a2" class="answer">
+<p>
+apt is repository-aware and resolves dependencies.
+dpkg is a lower-level Debian package management tool and package database interface.
+</p>
+</div>
+
+
+<h3>Package not found. What are your first checks?</h3>
+
+<button onclick="toggle('a3')">Show Answer</button>
+
+<div id="a3" class="answer">
+
+<pre>apt update
+apt search PACKAGE
+apt-cache policy PACKAGE
+cat /etc/apt/sources.list
+ls /etc/apt/sources.list.d/</pre>
+
+</div>
+
+</div>
+
+
+<div class="card">
+<h2>🗣️ Strong Interview Answer</h2>
+
+<p>
+“When troubleshooting package installation, I first verify the operating
+system and configured repositories. I refresh package metadata, check whether
+the requested package and version are actually available, and inspect dependency
+requirements. If repository access fails, I troubleshoot DNS, routing and
+repository configuration separately. In production I also correlate package
+upgrades with application changes because library or service updates can affect
+runtime behavior.”
+</p>
+</div>
+
+
+<div class="card">
+<h2>📖 Official Documentation</h2>
+
+<p>Useful local manuals:</p>
+
+<pre>man apt
+man apt-get
+man apt-cache
+man dpkg
+man sources.list
+man dnf
+man rpm</pre>
+
+<p>
+Also use your distribution's official package-management documentation
+for repository and release-specific behavior.
+</p>
+</div>
+
+
+<div class="card">
+<h2>✅ Completion Standard</h2>
+
+<ul>
+<li>Explain package and repository concepts</li>
+<li>Understand apt update vs upgrade</li>
+<li>Use apt search/show/policy</li>
+<li>Explain apt vs dpkg</li>
+<li>Explain DNF vs RPM</li>
+<li>Understand dependencies</li>
+<li>Inspect installed and available versions</li>
+<li>Troubleshoot package-not-found problems</li>
+<li>Troubleshoot repository connectivity</li>
+<li>Investigate package-related production incidents</li>
+</ul>
+</div>
+
+
+<div class="card">
+<h2>✅ Topic Progress</h2>
+
+<p id="completeStatus">
+Mark this topic complete when you are confident with it.
+</p>
+
+<button onclick="markTopicComplete()">
+Mark Topic Complete
+</button>
+</div>
+
+</div>
+
+
+<script>
+const currentTopic = "Package Management";
+
+function toggle(id) {
+  const element = document.getElementById(id);
+
+  element.style.display =
+    element.style.display === "block"
+      ? "none"
+      : "block";
+}
+
+function loadTopicCompletion() {
+  if (localStorage.getItem(currentTopic) === "done") {
+    document.getElementById("completeStatus").innerHTML =
+      "✅ <b>Completed</b>";
+  }
+}
+
+function markTopicComplete() {
+  localStorage.setItem(currentTopic, "done");
+
+  document.getElementById("completeStatus").innerHTML =
+    "✅ <b>Completed</b>";
+}
+
+loadTopicCompletion();
+</script>
+
+</body>
+</html>

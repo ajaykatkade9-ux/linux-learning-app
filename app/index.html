@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A focused Linux learning dashboard for daily study, revision and practice.">
+  <title>Linux Learning Dashboard</title>
+  <script>
+    try {
+      document.documentElement.dataset.theme =
+        localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="ui.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i class="bi bi-terminal" aria-hidden="true"></i></span>
+        <span>Linux Learning</span>
+      </a>
+
+      <nav>
+        <ul class="nav-list">
+          <li><a class="nav-link active" href="index.html" aria-current="page"><i class="bi bi-house-door"></i>Dashboard</a></li>
+          <li><a class="nav-link" href="linux.html"><i class="bi bi-book"></i>Learn</a></li>
+          <li><a class="nav-link" href="linux-assistant.html"><i class="bi bi-chat-dots"></i>Linux Assistant</a></li>
+          <li><a class="nav-link" href="revision.html"><i class="bi bi-arrow-repeat"></i>Revision</a></li>
+          <li><a class="nav-link" href="practice.html"><i class="bi bi-tools"></i>Practice</a></li>
+          <li><a class="nav-link" href="interview.html"><i class="bi bi-bullseye"></i>Interview</a></li>
+          <li><a class="nav-link nav-label-secondary" href="progress.html"><i class="bi bi-bar-chart"></i>Progress</a></li>
+          <li><a class="nav-link" href="notes.html"><i class="bi bi-journal-text"></i>Quick Notes</a></li>
+          <li><a class="nav-link" href="backup.html"><i class="bi bi-floppy"></i>Backup & Restore</a></li>
+          <li><a class="nav-link" href="docs.html"><i class="bi bi-file-earmark-text"></i>Official Docs</a></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="homeThemeToggle" type="button" aria-label="Switch to dark theme">
+          <i class="bi bi-moon-stars" aria-hidden="true"></i>
+          <span>Dark theme</span>
+        </button>
+        <div class="profile-row">
+          <span class="avatar" aria-hidden="true">LL</span>
+          <span class="profile-copy"><strong>Learner</strong><span>Keep learning!</span></span>
+        </div>
+      </div>
+    </aside>
+
+    <button class="sidebar-overlay" id="sidebarOverlay" aria-label="Close navigation"></button>
+
+    <main class="main">
+      <div class="main-inner">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Your learning dashboard</p>
+            <h1>Welcome back</h1>
+            <p class="topbar-copy">Continue your Linux learning journey.</p>
+          </div>
+          <div class="top-actions">
+            <a class="btn btn-secondary" href="today.html"><i class="bi bi-lightning-charge"></i>Today's Study</a>
+            <div class="streak-pill"><i class="bi bi-calendar-check"></i>Study streak <strong id="homeStreak">0</strong></div>
+            <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-controls="sidebar" aria-expanded="false"><i class="bi bi-list"></i><span>Menu</span></button>
+          </div>
+        </header>
+
+        <section class="dashboard-grid" aria-label="Learning overview">
+          <article class="panel continue-panel">
+            <div class="continue-content">
+              <p class="panel-kicker">Continue learning</p>
+              <h2 id="continueTopic">Linux Foundations</h2>
+              <p class="panel-description">Build practical Linux knowledge one focused topic at a time.</p>
+
+              <div class="progress-block">
+                <div class="progress-number"><span id="homePercent">0%</span><span>complete</span></div>
+                <div>
+                  <div class="progress-track" id="homeProgressTrack" role="progressbar" aria-label="Course completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <div class="progress-fill" id="homeProgressFill"></div>
+                  </div>
+                  <div class="progress-meta"><span><strong id="homeCompleted">0</strong> of <strong id="homeTotal">22</strong> topics</span><span>Linux course</span></div>
+                </div>
+              </div>
+
+              <div class="button-row">
+                <a class="btn btn-primary" id="continueLink" href="linux-foundations.html"><i class="bi bi-play-fill"></i>Continue</a>
+                <a class="btn btn-secondary" href="linux.html">View course<i class="bi bi-arrow-right"></i></a>
+              </div>
+            </div>
+            <img class="continue-illustration" src="assets/linux-learning-illustration.png" alt="" aria-hidden="true">
+          </article>
+
+          <article class="panel revision-panel">
+            <div class="revision-heading">
+              <div><p class="panel-kicker success">Today's revision</p><h2><span id="homeDue">0</span> topics due</h2></div>
+              <span class="revision-icon"><i class="bi bi-calendar2-check"></i></span>
+            </div>
+            <p class="revision-copy">Keep your knowledge fresh with a focused 5–15 minute review.</p>
+            <ul class="due-list" id="dueTopics"></ul>
+            <a class="btn btn-secondary" href="revision.html"><i class="bi bi-arrow-repeat"></i>Start revision</a>
+          </article>
+
+          <article class="panel assistant-panel">
+            <div class="assistant-panel-copy">
+              <p class="panel-kicker">Course + verified official docs</p>
+              <h2>Ask your Linux Assistant</h2>
+              <p>
+                Search every lesson and curated official reference for Linux
+                concepts, commands, interview answers and production troubleshooting.
+              </p>
+              <div class="assistant-panel-benefits">
+                <span><i class="bi bi-shield-check"></i>No API key</span>
+                <span><i class="bi bi-lightning-charge"></i>Instant answers</span>
+                <span><i class="bi bi-book"></i>Official sources</span>
+              </div>
+              <a class="btn btn-primary" href="linux-assistant.html">
+                <i class="bi bi-chat-dots"></i>Open Linux Assistant
+              </a>
+            </div>
+            <div class="assistant-panel-preview" aria-hidden="true">
+              <div class="assistant-preview-question">How do I troubleshoot high CPU?</div>
+              <div class="assistant-preview-answer">
+                <span class="assistant-preview-mark"><i class="bi bi-terminal"></i></span>
+                <span>Start with <strong>top</strong> and identify the responsible process…</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel next-panel">
+            <div class="section-heading"><h2>Up next</h2><a class="text-link" href="linux.html">View all topics</a></div>
+            <ul class="topic-list" id="nextTopics"></ul>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="linux-course-progress.js"></script>
+  <script src="revision-data.js"></script>
+  <script src="home-dashboard.js"></script>
+</body>
+</html>
