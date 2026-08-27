@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Complete Git learning module for DevOps engineers with internals, commands, labs, troubleshooting, projects and official documentation.">
+  <title>Git Learning Module</title>
+  <script>
+    try {
+      document.documentElement.dataset.theme = localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="git-module.css">
+</head>
+<body>
+  <div class="app-shell git-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Git navigation">
+      <a class="brand" href="git.html">
+        <span class="brand-mark"><i class="bi bi-git" aria-hidden="true"></i></span>
+        <span>Git Learning</span>
+      </a>
+
+      <nav>
+        <ul class="nav-list">
+          <li><a class="nav-link active" href="#overview"><i class="bi bi-house-door"></i>Overview</a></li>
+          <li><a class="nav-link" href="#internals"><i class="bi bi-diagram-3"></i>Internal Working</a></li>
+          <li><a class="nav-link" href="#curriculum"><i class="bi bi-book"></i>Curriculum</a></li>
+          <li><a class="nav-link" href="#commands"><i class="bi bi-terminal"></i>Commands</a></li>
+          <li><a class="nav-link" href="#labs"><i class="bi bi-flask"></i>Labs</a></li>
+          <li><a class="nav-link" href="#troubleshooting"><i class="bi bi-wrench-adjustable"></i>Troubleshooting</a></li>
+          <li><a class="nav-link" href="#project"><i class="bi bi-kanban"></i>Project</a></li>
+          <li><a class="nav-link" href="#interview"><i class="bi bi-bullseye"></i>Interview</a></li>
+          <li><a class="nav-link" href="#docs"><i class="bi bi-file-earmark-text"></i>Official Docs</a></li>
+          <li><a class="nav-link nav-label-secondary" href="devops.html"><i class="bi bi-grid"></i>DevOps Hub</a></li>
+          <li><a class="nav-link" href="index.html"><i class="bi bi-terminal-fill"></i>Linux Module</a></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="gitThemeToggle" type="button" aria-label="Switch theme">
+          <i class="bi bi-moon-stars"></i><span>Dark theme</span>
+        </button>
+        <div class="profile-row">
+          <span class="avatar">GT</span>
+          <span class="profile-copy"><strong>Git Track</strong><span>Source control foundation</span></span>
+        </div>
+      </div>
+    </aside>
+
+    <button class="sidebar-overlay" id="sidebarOverlay" aria-label="Close navigation"></button>
+
+    <main class="main">
+      <div class="main-inner git-main-inner">
+        <header class="topbar git-topbar" id="overview">
+          <div>
+            <p class="eyebrow">DevOps Stage 02 · Source Control</p>
+            <h1>Git</h1>
+            <p class="topbar-copy" id="gitSubtitle">Version control from first commit to production workflows.</p>
+          </div>
+          <div class="top-actions">
+            <a class="btn btn-secondary" href="devops.html"><i class="bi bi-arrow-left"></i>DevOps Hub</a>
+            <a class="btn btn-primary" href="#curriculum"><i class="bi bi-play-fill"></i>Start Git</a>
+            <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-controls="sidebar" aria-expanded="false"><i class="bi bi-list"></i><span>Menu</span></button>
+          </div>
+        </header>
+
+        <section class="git-hero-grid">
+          <article class="panel git-hero">
+            <p class="panel-kicker">Why Git exists</p>
+            <h2>Git is the history engine behind modern DevOps</h2>
+            <p id="gitWhy"></p>
+            <div class="connection-row" id="gitConnections"></div>
+          </article>
+
+          <article class="panel prerequisites-card">
+            <p class="panel-kicker success">Before you start</p>
+            <h2>Prerequisites</h2>
+            <div id="gitPrerequisites" class="prerequisite-list"></div>
+            <p class="small-note">Linux is recommended first because most Git automation and CI/CD work happens from terminals, servers and build agents.</p>
+          </article>
+        </section>
+
+        <section class="section-block" id="internals">
+          <div class="section-heading git-section-heading">
+            <div>
+              <p class="panel-kicker">What is happening internally?</p>
+              <h2>The Git data flow</h2>
+              <p>Do not memorize commands blindly. Understand where your change lives at every step.</p>
+            </div>
+          </div>
+          <div class="git-flow" id="gitFlow"></div>
+
+          <article class="panel internals-explainer">
+            <div>
+              <span class="step-badge">Example</span>
+              <h3>You run <code>git add app.js</code></h3>
+              <p><strong>What you did:</strong> selected the current contents of <code>app.js</code> for the next snapshot.</p>
+              <p><strong>What Git changes:</strong> Git updates its index (staging area) so the next commit knows exactly which version of the file should be recorded.</p>
+            </div>
+            <div class="internal-arrow">Working Tree <i class="bi bi-arrow-right"></i> Index <i class="bi bi-arrow-right"></i> Commit</div>
+          </article>
+        </section>
+
+        <section class="section-block" id="curriculum">
+          <div class="section-heading git-section-heading">
+            <div>
+              <p class="panel-kicker">Beginner → Advanced → Production</p>
+              <h2>Complete Git curriculum</h2>
+              <p>This includes practical class-style topics plus the missing concepts required for real DevOps work.</p>
+            </div>
+            <label class="git-search"><i class="bi bi-search"></i><input id="gitTopicSearch" type="search" placeholder="Search branch, reflog, rebase, security..."></label>
+          </div>
+          <div class="curriculum-grid" id="gitCurriculum"></div>
+        </section>
+
+        <section class="section-block" id="commands">
+          <div class="section-heading git-section-heading">
+            <div>
+              <p class="panel-kicker">Command reference</p>
+              <h2>Commands with purpose</h2>
+              <p>Every command tells you what it changes, not just what to type.</p>
+            </div>
+          </div>
+          <div class="command-grid" id="gitCommands"></div>
+        </section>
+
+        <section class="section-block" id="labs">
+          <div class="section-heading git-section-heading">
+            <div>
+              <p class="panel-kicker">Hands-on practice</p>
+              <h2>Git labs</h2>
+              <p>Each lab has a goal, expected behavior and verification path.</p>
+            </div>
+          </div>
+          <div class="lab-grid" id="gitLabs"></div>
+        </section>
+
+        <section class="section-block" id="troubleshooting">
+          <div class="section-heading git-section-heading">
+            <div>
+              <p class="panel-kicker">Production troubleshooting</p>
+              <h2>Common Git failures</h2>
+              <p>Understand the failure before choosing a recovery command.</p>
+            </div>
+          </div>
+          <div class="troubleshooting-list" id="gitTroubleshooting"></div>
+        </section>
+
+        <section class="section-block" id="project">
+          <div class="section-heading git-section-heading">
+            <div>
+              <p class="panel-kicker">Real project</p>
+              <h2 id="gitProjectTitle">Git-Based DevOps Delivery Project</h2>
+              <p id="gitProjectProblem"></p>
+            </div>
+          </div>
+
+          <article class="panel project-explainer">
+            <div class="project-flow-track" id="gitProjectFlow"></div>
+            <div class="why-grid" id="gitProjectWhy"></div>
+          </article>
+        </section>
+
+        <section class="section-block" id="interview">
+          <div class="section-heading git-section-heading">
+            <div>
+              <p class="panel-kicker">Interview + revision</p>
+              <h2>Questions you should be able to explain</h2>
+            </div>
+          </div>
+          <div class="interview-grid" id="gitInterview"></div>
+        </section>
+
+        <section class="section-block" id="docs">
+          <article class="panel docs-panel">
+            <div>
+              <p class="panel-kicker">Source of truth</p>
+              <h2>Official Git documentation</h2>
+              <p>Use our easy explanation first, then validate and go deeper with the official reference.</p>
+            </div>
+            <div class="docs-links" id="gitDocs"></div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="git-course-data.js"></script>
+  <script src="git-module.js"></script>
+</body>
+</html>
