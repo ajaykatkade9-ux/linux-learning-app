@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Complete GitHub learning module for DevOps: repositories, pull requests, governance, security, releases and automation.">
+  <title>GitHub Learning Module</title>
+  <script>
+    try { document.documentElement.dataset.theme = localStorage.getItem('linuxStudyTheme') || 'light'; }
+    catch (error) { document.documentElement.dataset.theme = 'light'; }
+  </script>
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="github-module.css">
+</head>
+<body>
+  <div class="app-shell github-shell">
+    <aside class="sidebar" id="sidebar" aria-label="GitHub navigation">
+      <a class="brand" href="github.html">
+        <span class="brand-mark"><i class="bi bi-github" aria-hidden="true"></i></span>
+        <span>GitHub Learning</span>
+      </a>
+      <nav>
+        <ul class="nav-list">
+          <li><a class="nav-link active" href="#overview"><i class="bi bi-house-door"></i>Overview</a></li>
+          <li><a class="nav-link" href="#workflow"><i class="bi bi-diagram-3"></i>How It Works</a></li>
+          <li><a class="nav-link" href="#curriculum"><i class="bi bi-book"></i>Curriculum</a></li>
+          <li><a class="nav-link" href="#commands"><i class="bi bi-terminal"></i>Commands</a></li>
+          <li><a class="nav-link" href="#labs"><i class="bi bi-flask"></i>Labs</a></li>
+          <li><a class="nav-link" href="#troubleshooting"><i class="bi bi-wrench-adjustable"></i>Troubleshooting</a></li>
+          <li><a class="nav-link" href="#project"><i class="bi bi-kanban"></i>Production Project</a></li>
+          <li><a class="nav-link" href="#interview"><i class="bi bi-bullseye"></i>Interview</a></li>
+          <li><a class="nav-link" href="#docs"><i class="bi bi-file-earmark-text"></i>Official Docs</a></li>
+          <li><a class="nav-link nav-label-secondary" href="git.html"><i class="bi bi-git"></i>Git Module</a></li>
+          <li><a class="nav-link" href="devops.html"><i class="bi bi-grid"></i>DevOps Hub</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="githubThemeToggle" type="button" aria-label="Switch theme"><i class="bi bi-moon-stars"></i><span>Dark theme</span></button>
+        <div class="profile-row"><span class="avatar">GH</span><span class="profile-copy"><strong>GitHub Track</strong><span>Collaboration + governance</span></span></div>
+      </div>
+    </aside>
+
+    <button class="sidebar-overlay" id="sidebarOverlay" aria-label="Close navigation"></button>
+
+    <main class="main">
+      <div class="main-inner github-main-inner">
+        <header class="topbar github-topbar" id="overview">
+          <div>
+            <p class="eyebrow">DevOps Stage 02 · Source Control</p>
+            <h1>GitHub</h1>
+            <p class="topbar-copy" id="githubSubtitle">Repository collaboration, governance, automation and secure delivery.</p>
+          </div>
+          <div class="top-actions">
+            <a class="btn btn-secondary" href="git.html"><i class="bi bi-arrow-left"></i>Git</a>
+            <a class="btn btn-primary" href="#curriculum"><i class="bi bi-play-fill"></i>Start GitHub</a>
+            <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-controls="sidebar" aria-expanded="false"><i class="bi bi-list"></i><span>Menu</span></button>
+          </div>
+        </header>
+
+        <section class="github-hero-grid">
+          <article class="panel github-hero-card">
+            <p class="panel-kicker">Why GitHub exists</p>
+            <h2>Git stores history. GitHub turns that history into team delivery.</h2>
+            <p id="githubWhy"></p>
+            <div class="connection-row" id="githubConnections"></div>
+          </article>
+          <article class="panel compare-card">
+            <p class="panel-kicker success">Git vs GitHub</p>
+            <div class="compare-line"><strong>Git</strong><span>Local version-control engine</span></div>
+            <div class="compare-line"><strong>GitHub</strong><span>Hosted collaboration, review, governance, security and automation platform</span></div>
+            <div class="compare-arrow">Git commit → GitHub push → PR → checks → review → merge → delivery</div>
+          </article>
+        </section>
+
+        <section class="section-block" id="workflow">
+          <div class="section-heading module-heading"><div><p class="panel-kicker">What happens internally?</p><h2>Real team workflow</h2><p>Follow one change from a developer laptop to an approved release.</p></div></div>
+          <div class="workflow-grid" id="githubFlow"></div>
+        </section>
+
+        <section class="section-block" id="curriculum">
+          <div class="section-heading module-heading tool-heading">
+            <div><p class="panel-kicker">Complete coverage</p><h2>GitHub curriculum</h2><p>Beginner concepts through secure production repository governance.</p></div>
+            <label class="module-search"><i class="bi bi-search"></i><input id="githubTopicSearch" type="search" placeholder="Search PRs, CODEOWNERS, releases, security..."></label>
+          </div>
+          <div class="curriculum-grid" id="githubCurriculum"></div>
+        </section>
+
+        <section class="section-block" id="commands">
+          <div class="section-heading module-heading"><div><p class="panel-kicker">Practice</p><h2>Git + GitHub CLI commands</h2><p>Every command includes why you run it.</p></div></div>
+          <div class="command-grid" id="githubCommands"></div>
+        </section>
+
+        <section class="section-block" id="labs">
+          <div class="section-heading module-heading"><div><p class="panel-kicker">Hands-on</p><h2>GitHub labs</h2><p>Repository creation → PR workflow → protected production delivery.</p></div></div>
+          <div class="lab-grid" id="githubLabs"></div>
+        </section>
+
+        <section class="section-block" id="troubleshooting">
+          <div class="section-heading module-heading"><div><p class="panel-kicker">Production mindset</p><h2>Troubleshooting</h2><p>Learn what to check when collaboration or governance blocks a change.</p></div></div>
+          <div class="trouble-list" id="githubTroubleshooting"></div>
+        </section>
+
+        <section class="section-block" id="project">
+          <article class="panel production-project" id="githubProject"></article>
+        </section>
+
+        <section class="section-block" id="interview">
+          <div class="section-heading module-heading"><div><p class="panel-kicker">Interview + revision</p><h2>Questions you should be able to explain</h2></div></div>
+          <div class="interview-grid" id="githubInterview"></div>
+        </section>
+
+        <section class="section-block" id="docs">
+          <div class="section-heading module-heading"><div><p class="panel-kicker">Source of truth</p><h2>Official GitHub documentation</h2><p>Use official docs for current feature behavior, then return here for simplified explanation and labs.</p></div></div>
+          <div class="docs-grid" id="githubDocs"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="github-course-data.js"></script>
+  <script src="github-module.js"></script>
+</body>
+</html>
