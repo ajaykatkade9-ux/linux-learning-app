@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DevOps learning stage with connected tools, modules and recommended study order.">
+  <title>DevOps Learning Stage</title>
+  <script>
+    try { document.documentElement.dataset.theme = localStorage.getItem('linuxStudyTheme') || 'light'; }
+    catch (error) { document.documentElement.dataset.theme = 'light'; }
+  </script>
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="devops-hub.css">
+</head>
+<body>
+  <div class="app-shell devops-shell">
+    <aside class="sidebar" id="sidebar" aria-label="DevOps navigation">
+      <a class="brand" href="devops.html">
+        <span class="brand-mark"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+        <span>DevOps Learning</span>
+      </a>
+      <nav>
+        <ul class="nav-list">
+          <li><a class="nav-link" href="devops.html"><i class="bi bi-grid"></i>Dashboard</a></li>
+          <li><a class="nav-link active" href="devops.html#learning-path" aria-current="page"><i class="bi bi-signpost-split"></i>Learning Path</a></li>
+          <li><a class="nav-link" href="devops.html#tool-library"><i class="bi bi-tools"></i>Tool Library</a></li>
+          <li><a class="nav-link" href="integration.html"><i class="bi bi-diagram-2"></i>Integration Hub</a></li>
+          <li><a class="nav-link" href="projects.html"><i class="bi bi-kanban"></i>Projects</a></li>
+          <li><a class="nav-link nav-label-secondary" href="index.html"><i class="bi bi-box-arrow-up-right"></i>Linux Dashboard</a></li>
+          <li><a class="nav-link" href="devops-docs.html"><i class="bi bi-file-earmark-text"></i>Official Docs</a></li>
+          <li><a class="nav-link" href="devops-notes.html"><i class="bi bi-journal-text"></i>Quick Notes</a></li>
+          <li><a class="nav-link" href="devops-backup.html"><i class="bi bi-floppy"></i>Backup & Restore</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="stageThemeToggle" type="button" aria-label="Switch theme">
+          <i class="bi bi-moon-stars" aria-hidden="true"></i><span>Dark theme</span>
+        </button>
+        <div class="profile-row">
+          <span class="avatar" aria-hidden="true">DO</span>
+          <span class="profile-copy"><strong>DevOps Learner</strong><span>Study one stage at a time.</span></span>
+        </div>
+      </div>
+    </aside>
+
+    <button class="sidebar-overlay" id="sidebarOverlay" type="button" aria-label="Close navigation"></button>
+
+    <main class="main">
+      <div class="main-inner devops-main-inner">
+        <header class="topbar devops-topbar">
+          <div>
+            <p class="eyebrow" id="stageEyebrow">DevOps learning path</p>
+            <h1 id="stageTitle">Loading stage...</h1>
+            <p class="topbar-copy" id="stageDescription">Loading the tools in this learning stage.</p>
+          </div>
+          <div class="top-actions">
+            <a class="btn btn-secondary" href="devops.html#learning-path"><i class="bi bi-arrow-left"></i>All stages</a>
+            <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-controls="sidebar" aria-expanded="false"><i class="bi bi-list"></i><span>Menu</span></button>
+          </div>
+        </header>
+
+        <section class="hero-grid" aria-label="Stage overview">
+          <article class="panel devops-hero-panel">
+            <div class="hero-copy">
+              <span class="hero-badge" id="stageBadge">Learning Stage</span>
+              <h2 id="stageHeroTitle">Learn the tools in the correct order</h2>
+              <p id="stageHeroText">Open any tool below to study theory, architecture, internal working, commands, labs, troubleshooting, production usage, projects and official documentation.</p>
+            </div>
+            <div class="hero-flow" id="stageFlow" aria-label="Recommended tool order"></div>
+          </article>
+
+          <article class="panel status-panel">
+            <p class="panel-kicker success">Stage status</p>
+            <h2>Modules available</h2>
+            <p>Every card below opens its actual learning content.</p>
+            <div class="status-stack">
+              <div><span>Stage number</span><strong id="stageNumber">--</strong></div>
+              <div><span>Tools in stage</span><strong id="stageToolCount">--</strong></div>
+              <div><span>Content format</span><strong>Full module</strong></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-block" id="stage-tools">
+          <div class="section-heading hub-heading">
+            <div>
+              <p class="panel-kicker">Open and learn</p>
+              <h2>Modules in this stage</h2>
+              <p>Start from the first tool when you are new, or open the exact module you want to study.</p>
+            </div>
+          </div>
+          <div class="tool-grid" id="stageTools"></div>
+        </section>
+
+        <section class="section-block">
+          <article class="panel lab-panel">
+            <div>
+              <p class="panel-kicker">Inside every module</p>
+              <h2>Not just theory</h2>
+              <p>You will see why the tool exists, architecture, internals, commands, labs, connections, failures, security, production patterns, projects, interview preparation and official docs.</p>
+            </div>
+            <div class="lab-format-grid">
+              <span>Why</span><span>Architecture</span><span>Internals</span><span>Commands</span><span>Labs</span><span>Troubleshoot</span><span>Security</span><span>Production</span><span>Project</span>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="devops-tool-data.js"></script>
+  <script src="devops-registry.js"></script>
+  <script src="stage.js"></script>
+</body>
+</html>
