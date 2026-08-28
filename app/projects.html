@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>DevOps Projects Hub</title>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem('linuxStudyTheme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
+  <link rel="stylesheet" href="ui.css"><link rel="stylesheet" href="tool-module.css">
+</head>
+<body>
+<div class="app-shell module-shell">
+  <aside class="sidebar" id="sidebar"><a class="brand" href="projects.html"><span class="brand-mark"><i class="bi bi-kanban"></i></span><span>Projects Hub</span></a><nav><ul class="nav-list">
+    <li><a class="nav-link active" href="#catalog"><i class="bi bi-grid"></i>Project Catalog</a></li><li><a class="nav-link" href="#detail"><i class="bi bi-diagram-3"></i>Project Detail</a></li><li><a class="nav-link nav-label-secondary" href="devops.html"><i class="bi bi-grid-fill"></i>DevOps Hub</a></li><li><a class="nav-link" href="integration.html"><i class="bi bi-diagram-2"></i>Integration Hub</a></li>
+  </ul></nav><div class="sidebar-footer"><button class="theme-toggle" id="projectTheme"><i class="bi bi-moon-stars"></i><span>Dark theme</span></button><div class="profile-row"><span class="avatar">PJ</span><span class="profile-copy"><strong>Project Track</strong><span>Why + how + failures</span></span></div></div></aside>
+  <button class="sidebar-overlay" id="sidebarOverlay"></button>
+  <main class="main"><div class="main-inner module-main-inner">
+    <header class="topbar"><div><p class="eyebrow">Scenario-first DevOps learning</p><h1>Projects Hub</h1><p class="topbar-copy">Every project explains why we are doing it, what is happening internally, how tools connect, how to verify it, what can fail, and how production changes the design.</p></div><div class="top-actions"><a class="btn btn-secondary" href="devops.html">DevOps Hub</a><button class="mobile-menu-button" id="mobileMenuButton"><i class="bi bi-list"></i><span>Menu</span></button></div></header>
+    <section class="section-block" id="catalog"><div class="section-heading module-heading tool-heading"><div><p class="panel-kicker">Beginner → Capstone</p><h2>Project catalog</h2><p>Pick a project and study the whole system, not isolated commands.</p></div><label class="module-search"><i class="bi bi-search"></i><input id="projectSearch" type="search" placeholder="Search Kubernetes, CI/CD, cloud..."></label></div><div class="lab-grid" id="projectGrid"></div></section>
+    <section class="section-block" id="detail"><article class="panel production-project" id="projectDetail"></article></section>
+  </div></main>
+</div>
+<script src="projects-data.js"></script><script src="projects.js"></script>
+</body></html>
