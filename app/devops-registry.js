@@ -1,54 +1,28 @@
-window.DEVOPS_TOOLS = [
-  { id: 'linux', name: 'Linux', category: 'Foundation', stage: 1, status: 'available', href: 'index.html', purpose: 'Operating-system fundamentals, administration, troubleshooting and production operations.', connectsTo: ['bash','networking','git','docker','kubernetes','ansible','cloud'], prerequisites: [], nextTools: ['git','docker','networking'] },
-  { id: 'bash', name: 'Bash & Shell', category: 'Foundation', stage: 1, status: 'planned', purpose: 'Automate repetitive Linux and DevOps workflows with shell scripts.', connectsTo: ['linux','git','jenkins','github-actions','ansible'], prerequisites: ['linux'], nextTools: ['git','jenkins'] },
-  { id: 'networking', name: 'Networking', category: 'Foundation', stage: 1, status: 'planned', purpose: 'Understand TCP/IP, DNS, routing, ports, firewalls, proxies and load balancing.', connectsTo: ['linux','docker','kubernetes','aws','azure','gcp'], prerequisites: ['linux'], nextTools: ['docker','kubernetes','cloud'] },
-  { id: 'python', name: 'Python for DevOps', category: 'Foundation', stage: 1, status: 'planned', purpose: 'Write automation, APIs, cloud scripts and operational tooling.', connectsTo: ['linux','aws','terraform','automation'], prerequisites: ['linux'], nextTools: ['cloud','automation'] },
-  { id: 'git', name: 'Git', category: 'Source Control', stage: 2, status: 'available', href: 'git.html', purpose: 'Version code, infrastructure and configuration safely.', connectsTo: ['github','gitlab','github-actions','jenkins','argocd','terraform'], prerequisites: ['linux'], nextTools: ['github','gitlab','github-actions'] },
-  { id: 'github', name: 'GitHub', category: 'Source Control', stage: 2, status: 'available', href: 'github.html', purpose: 'Host repositories, collaborate with pull requests, issues, packages and automation.', connectsTo: ['git','github-actions','docker','argocd'], prerequisites: ['git'], nextTools: ['github-actions','docker'] },
-  { id: 'gitlab', name: 'GitLab', category: 'Source Control', stage: 2, status: 'available', href: 'gitlab.html', purpose: 'Source control, merge requests, registry and integrated CI/CD.', connectsTo: ['git','gitlab-ci','docker','kubernetes'], prerequisites: ['git'], nextTools: ['gitlab-ci','docker'] },
-  { id: 'docker', name: 'Docker', category: 'Containers', stage: 3, status: 'planned', purpose: 'Package applications and dependencies into portable container images.', connectsTo: ['git','github-actions','jenkins','registry','kubernetes','terraform'], prerequisites: ['linux','networking'], nextTools: ['compose','kubernetes','registry'] },
-  { id: 'compose', name: 'Docker Compose', category: 'Containers', stage: 3, status: 'planned', purpose: 'Run multi-container applications with declarative local environments.', connectsTo: ['docker','networking','storage'], prerequisites: ['docker'], nextTools: ['kubernetes'] },
-  { id: 'podman', name: 'Podman', category: 'Containers', stage: 3, status: 'planned', purpose: 'Manage OCI containers and pods with daemonless and rootless workflows.', connectsTo: ['buildah','skopeo','kubernetes','systemd'], prerequisites: ['linux'], nextTools: ['buildah','kubernetes'] },
-  { id: 'buildah', name: 'Buildah', category: 'Containers', stage: 3, status: 'planned', purpose: 'Build OCI container images without a long-running Docker daemon.', connectsTo: ['podman','registry'], prerequisites: ['linux'], nextTools: ['podman','registry'] },
-  { id: 'skopeo', name: 'Skopeo', category: 'Containers', stage: 3, status: 'planned', purpose: 'Inspect, copy and manage container images across registries.', connectsTo: ['podman','docker','registry'], prerequisites: ['containers'], nextTools: ['registry'] },
-  { id: 'jenkins', name: 'Jenkins', category: 'CI/CD', stage: 4, status: 'planned', purpose: 'Build flexible CI/CD pipelines with agents, plugins and Jenkinsfiles.', connectsTo: ['git','docker','sonarqube','kubernetes','terraform'], prerequisites: ['git','linux'], nextTools: ['docker','kubernetes'] },
-  { id: 'github-actions', name: 'GitHub Actions', category: 'CI/CD', stage: 4, status: 'planned', purpose: 'Automate CI/CD directly from GitHub workflows and events.', connectsTo: ['github','docker','registry','kubernetes','terraform'], prerequisites: ['git','github'], nextTools: ['docker','kubernetes'] },
-  { id: 'gitlab-ci', name: 'GitLab CI/CD', category: 'CI/CD', stage: 4, status: 'planned', purpose: 'Build pipelines using GitLab runners, stages, artifacts and environments.', connectsTo: ['gitlab','docker','registry','kubernetes'], prerequisites: ['gitlab'], nextTools: ['docker','kubernetes'] },
-  { id: 'terraform', name: 'Terraform', category: 'IaC & Automation', stage: 5, status: 'planned', purpose: 'Provision repeatable cloud and platform infrastructure as code.', connectsTo: ['git','aws','azure','gcp','kubernetes','ansible'], prerequisites: ['git','cloud-basics'], nextTools: ['aws','azure','gcp','kubernetes'] },
-  { id: 'opentofu', name: 'OpenTofu', category: 'IaC & Automation', stage: 5, status: 'planned', purpose: 'Open-source infrastructure as code using Terraform-compatible workflows.', connectsTo: ['git','aws','azure','gcp'], prerequisites: ['git','iac-basics'], nextTools: ['cloud'] },
-  { id: 'ansible', name: 'Ansible', category: 'IaC & Automation', stage: 5, status: 'planned', purpose: 'Configure systems and automate operational tasks agentlessly.', connectsTo: ['linux','ssh','terraform','cloud','kubernetes'], prerequisites: ['linux','ssh'], nextTools: ['terraform','cloud'] },
-  { id: 'kubernetes', name: 'Kubernetes', category: 'Kubernetes', stage: 6, status: 'planned', purpose: 'Orchestrate containers with self-healing, scaling, networking and storage.', connectsTo: ['docker','podman','helm','argocd','prometheus','cloud','security'], prerequisites: ['linux','networking','containers'], nextTools: ['helm','argocd','prometheus'] },
-  { id: 'helm', name: 'Helm', category: 'Kubernetes', stage: 6, status: 'planned', purpose: 'Package and templatize Kubernetes applications for repeatable deployment.', connectsTo: ['kubernetes','argocd','git'], prerequisites: ['kubernetes'], nextTools: ['argocd'] },
-  { id: 'kustomize', name: 'Kustomize', category: 'Kubernetes', stage: 6, status: 'planned', purpose: 'Customize Kubernetes YAML across environments without templates.', connectsTo: ['kubernetes','git','argocd'], prerequisites: ['kubernetes'], nextTools: ['argocd'] },
-  { id: 'openshift', name: 'OpenShift', category: 'Kubernetes', stage: 6, status: 'planned', purpose: 'Enterprise Kubernetes platform with integrated developer and operations capabilities.', connectsTo: ['kubernetes','podman','buildah','helm','gitops'], prerequisites: ['kubernetes'], nextTools: ['gitops','observability'] },
-  { id: 'argocd', name: 'Argo CD', category: 'GitOps', stage: 7, status: 'planned', purpose: 'Continuously reconcile Kubernetes desired state from Git repositories.', connectsTo: ['git','github','kubernetes','helm','kustomize'], prerequisites: ['git','kubernetes'], nextTools: ['observability'] },
-  { id: 'flux', name: 'Flux CD', category: 'GitOps', stage: 7, status: 'planned', purpose: 'GitOps toolkit for continuously reconciling Kubernetes resources and images.', connectsTo: ['git','kubernetes','helm'], prerequisites: ['git','kubernetes'], nextTools: ['observability'] },
-  { id: 'aws', name: 'AWS', category: 'Cloud', stage: 8, status: 'planned', purpose: 'Learn IAM, networking, compute, storage, databases, containers, serverless and observability.', connectsTo: ['terraform','kubernetes','jenkins','github-actions','prometheus'], prerequisites: ['linux','networking'], nextTools: ['eks','multi-cloud'] },
-  { id: 'azure', name: 'Azure', category: 'Cloud', stage: 8, status: 'planned', purpose: 'Learn Entra ID, VNets, VMs, storage, AKS, Key Vault and Azure Monitor.', connectsTo: ['terraform','kubernetes','github-actions','prometheus'], prerequisites: ['linux','networking'], nextTools: ['aks','multi-cloud'] },
-  { id: 'gcp', name: 'GCP', category: 'Cloud', stage: 8, status: 'planned', purpose: 'Learn IAM, VPC, Compute Engine, GKE, Cloud Storage, Cloud Run and monitoring.', connectsTo: ['terraform','kubernetes','github-actions','prometheus'], prerequisites: ['linux','networking'], nextTools: ['gke','multi-cloud'] },
-  { id: 'multi-cloud', name: 'Multi-Cloud', category: 'Cloud', stage: 9, status: 'planned', purpose: 'Design identity, networking, Kubernetes, GitOps, DR and cost across multiple clouds.', connectsTo: ['aws','azure','gcp','terraform','kubernetes','argocd'], prerequisites: ['aws','azure','gcp','terraform'], nextTools: ['sre','platform-engineering'] },
-  { id: 'prometheus', name: 'Prometheus', category: 'Observability', stage: 10, status: 'planned', purpose: 'Collect metrics and build alerting around systems and applications.', connectsTo: ['kubernetes','grafana','alertmanager'], prerequisites: ['linux','monitoring-basics'], nextTools: ['grafana','sre'] },
-  { id: 'grafana', name: 'Grafana', category: 'Observability', stage: 10, status: 'planned', purpose: 'Visualize metrics, logs and traces in operational dashboards.', connectsTo: ['prometheus','loki','opentelemetry'], prerequisites: ['observability-basics'], nextTools: ['sre'] },
-  { id: 'loki', name: 'Loki', category: 'Observability', stage: 10, status: 'planned', purpose: 'Aggregate and query logs with a Grafana-native workflow.', connectsTo: ['grafana','kubernetes'], prerequisites: ['linux','kubernetes'], nextTools: ['sre'] },
-  { id: 'opentelemetry', name: 'OpenTelemetry', category: 'Observability', stage: 10, status: 'planned', purpose: 'Collect vendor-neutral metrics, logs and distributed traces.', connectsTo: ['grafana','jaeger','tempo','applications'], prerequisites: ['observability-basics'], nextTools: ['sre'] },
-  { id: 'trivy', name: 'Trivy', category: 'DevSecOps', stage: 11, status: 'planned', purpose: 'Scan container images, filesystems, IaC and Kubernetes for vulnerabilities and misconfigurations.', connectsTo: ['docker','github-actions','jenkins','kubernetes'], prerequisites: ['containers'], nextTools: ['policy','security'] },
-  { id: 'vault', name: 'HashiCorp Vault', category: 'DevSecOps', stage: 11, status: 'planned', purpose: 'Centralize secret management, dynamic credentials and encryption workflows.', connectsTo: ['kubernetes','terraform','jenkins','cloud'], prerequisites: ['security-basics'], nextTools: ['platform-engineering'] },
-  { id: 'sonarqube', name: 'SonarQube', category: 'DevSecOps', stage: 11, status: 'planned', purpose: 'Analyze code quality, bugs, vulnerabilities and technical debt in CI pipelines.', connectsTo: ['git','jenkins','github-actions'], prerequisites: ['git','ci'], nextTools: ['devsecops'] },
-  { id: 'sre', name: 'SRE', category: 'SRE & Platform', stage: 12, status: 'planned', purpose: 'Apply SLI/SLO/SLA, error budgets, incident response, capacity planning and reliability engineering.', connectsTo: ['prometheus','grafana','kubernetes','cloud'], prerequisites: ['observability','cloud','kubernetes'], nextTools: ['platform-engineering'] },
-  { id: 'platform-engineering', name: 'Platform Engineering', category: 'SRE & Platform', stage: 12, status: 'planned', purpose: 'Build internal developer platforms, golden paths and self-service infrastructure.', connectsTo: ['kubernetes','gitops','terraform','backstage','observability'], prerequisites: ['kubernetes','gitops','iac','sre'], nextTools: [] }
-];
-
-window.DEVOPS_PATH = [
-  { step: '01', title: 'Foundation', text: 'Linux, Bash, Networking, Python' },
-  { step: '02', title: 'Source Control', text: 'Git, GitHub, GitLab' },
-  { step: '03', title: 'Containers', text: 'Docker, Compose, Podman, Buildah, Skopeo' },
-  { step: '04', title: 'CI/CD', text: 'Jenkins, GitHub Actions, GitLab CI/CD' },
-  { step: '05', title: 'IaC & Automation', text: 'Terraform, OpenTofu, Ansible' },
-  { step: '06', title: 'Kubernetes', text: 'Kubernetes, Helm, Kustomize, OpenShift' },
-  { step: '07', title: 'GitOps', text: 'Argo CD, Flux CD' },
-  { step: '08', title: 'Cloud', text: 'AWS, Azure, GCP' },
-  { step: '09', title: 'Multi-Cloud', text: 'Identity, networking, Kubernetes, DR, cost' },
-  { step: '10', title: 'Observability', text: 'Prometheus, Grafana, Loki, OpenTelemetry' },
-  { step: '11', title: 'DevSecOps', text: 'Trivy, Vault, SonarQube, policy and runtime security' },
-  { step: '12', title: 'SRE & Platform', text: 'Reliability, incidents, platform engineering, FinOps' }
-];
+(function(){
+  const custom=[
+    {id:'linux',name:'Linux',category:'Foundation',stage:1,status:'available',href:'index.html',purpose:'Operating-system fundamentals, administration, troubleshooting and production operations.',connectsTo:['Bash & Shell','Networking','Git','Docker','Kubernetes','Ansible'],prerequisites:[],nextTools:['Git','Docker','Networking']},
+    {id:'git',name:'Git',category:'Source Control',stage:2,status:'available',href:'git.html',purpose:'Version code, infrastructure and configuration safely.',connectsTo:['GitHub','GitLab','GitHub Actions','Jenkins','Argo CD','Terraform'],prerequisites:['Linux'],nextTools:['GitHub','GitLab','CI/CD']},
+    {id:'github',name:'GitHub',category:'Source Control',stage:2,status:'available',href:'github.html',purpose:'Host repositories, collaborate with pull requests, issues, packages and automation.',connectsTo:['Git','GitHub Actions','Docker','Argo CD'],prerequisites:['Git'],nextTools:['GitHub Actions','Docker']},
+    {id:'gitlab',name:'GitLab',category:'Source Control',stage:2,status:'available',href:'gitlab.html',purpose:'Source control, merge requests, registry and integrated CI/CD.',connectsTo:['Git','GitLab CI/CD','Docker','Kubernetes'],prerequisites:['Git'],nextTools:['GitLab CI/CD','Docker']}
+  ];
+  const generated=Object.values(window.DEVOPS_MODULES||{}).map(m=>({
+    id:m.id,name:m.name,category:m.category,stage:m.stage,status:'available',href:`tool.html?id=${encodeURIComponent(m.id)}`,
+    purpose:m.purpose,connectsTo:m.connectsTo||[],prerequisites:m.prerequisites||[],nextTools:m.after||[]
+  }));
+  const seen=new Set(custom.map(x=>x.id));
+  window.DEVOPS_TOOLS=[...custom,...generated.filter(x=>!seen.has(x.id))].sort((a,b)=>a.stage-b.stage||a.category.localeCompare(b.category)||a.name.localeCompare(b.name));
+  window.DEVOPS_PATH=[
+    {step:'01',title:'Foundation',text:'Linux, networking, Bash, Python, PowerShell, virtualization, cloud-native basics'},
+    {step:'02',title:'Source Control',text:'Git, GitHub, GitLab, Bitbucket and collaboration workflows'},
+    {step:'03',title:'Containers',text:'Docker, Compose, Podman, Buildah, Skopeo, containerd and registries'},
+    {step:'04',title:'Build & CI/CD',text:'Maven, Gradle, npm, Jenkins, GitHub Actions, GitLab CI/CD, Azure Pipelines, CircleCI, Tekton'},
+    {step:'05',title:'IaC & Automation',text:'Terraform, OpenTofu, Ansible, Pulumi, CloudFormation, Bicep, configuration management'},
+    {step:'06',title:'Kubernetes',text:'Core Kubernetes, Helm, Kustomize, OpenShift, local clusters, networking, storage and operators'},
+    {step:'07',title:'GitOps',text:'Argo CD and Flux reconciliation workflows'},
+    {step:'08',title:'Cloud',text:'AWS, Azure and Google Cloud services and production architectures'},
+    {step:'09',title:'Multi-Cloud',text:'Identity, networking, Kubernetes, GitOps, DR and cost across clouds'},
+    {step:'10',title:'Observability',text:'Prometheus, Grafana, Loki, OpenTelemetry, ELK/OpenSearch, tracing and commercial monitoring'},
+    {step:'11',title:'Security, Network & Data',text:'DevSecOps, policy, secrets, service mesh, proxies, storage, databases and messaging'},
+    {step:'12',title:'SRE & Platform',text:'SLI/SLO/SLA, incidents, chaos, FinOps, Backstage and platform engineering'}
+  ];
+})();
