@@ -1,0 +1,32 @@
+(function(){
+  const id=new URLSearchParams(location.search).get('id');
+  const data=(window.DEVOPS_MODULES||{})[id];
+  const $=x=>document.getElementById(x);
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  if(!data){document.body.innerHTML='<main style="padding:40px;font-family:system-ui"><h1>Module not found</h1><p><a href="devops.html">Back to DevOps Hub</a></p></main>';return;}
+
+  document.title=data.name+' Learning Module';
+  $('toolName').textContent=data.name;$('sideToolName').textContent=data.name;$('toolTrack').textContent=data.name+' Track';$('toolAvatar').textContent=(data.name.match(/[A-Z0-9]/g)||data.name.split(/\s+/).map(x=>x[0])).join('').slice(0,2).toUpperCase();
+  $('toolStage').textContent=`DevOps Stage ${String(data.stage).padStart(2,'0')} · ${data.category}`;$('toolSubtitle').textContent=data.subtitle;$('toolHeroTitle').textContent=data.hero||data.purpose;$('toolWhy').textContent=data.why;
+  $('toolBefore').textContent=(data.before||data.prerequisites||[]).join(' → ')||'Foundation';$('toolCurrent').textContent=data.name;$('toolAfter').textContent=(data.after||data.nextTools||[]).join(' → ')||'Production operations';$('toolRoles').textContent=(data.roles||['DevOps Engineer']).join(' · ');
+  $('toolConnections').innerHTML=(data.connectsTo||[]).map(x=>`<span>${esc(x)}</span>`).join('');
+
+  $('toolArchitecture').innerHTML=(data.architecture||[]).map((x,i,a)=>`<div class="architecture-node"><small>Step ${String(i+1).padStart(2,'0')}</small><strong>${esc(typeof x==='string'?x:x.title)}</strong>${typeof x==='object'&&x.text?`<p>${esc(x.text)}</p>`:''}</div>${i<a.length-1?'<div class="architecture-arrow"><i class="bi bi-arrow-right"></i></div>':''}`).join('');
+  $('toolInternals').innerHTML=(data.internals||[]).map((x,i)=>`<article class="panel internal-card"><span>0${i+1}</span><h3>${esc(x.title||x[0])}</h3><p>${esc(x.text||x[1])}</p></article>`).join('');
+
+  function curriculum(){const q=($('topicSearch').value||'').toLowerCase().trim();const groups=(data.curriculum||[]).map(g=>({...g,topics:(g.topics||[]).filter(t=>!q||[g.group,g.description,t].join(' ').toLowerCase().includes(q))})).filter(g=>g.topics.length);$('toolCurriculum').innerHTML=groups.length?groups.map(g=>`<article class="panel curriculum-card"><p class="panel-kicker">${esc(g.group)}</p><p>${esc(g.description||'')}</p><ul>${g.topics.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></article>`).join(''):'<div class="module-empty">No matching topics found.</div>'}
+  curriculum();$('topicSearch').addEventListener('input',curriculum);
+
+  $('toolCommands').innerHTML=(data.commandGroups||[]).map(g=>`<article class="panel command-card"><h3>${esc(g.title)}</h3><div class="command-list">${g.commands.map(c=>`<div class="command-row"><code>${esc(c[0])}</code><p>${esc(c[1])}</p></div>`).join('')}</div></article>`).join('');
+  $('toolLabs').innerHTML=(data.labs||[]).map((l,i)=>`<article class="panel lab-card"><div class="lab-top"><span class="lab-level">${esc(l.level)}</span><span>#${String(i+1).padStart(2,'0')}</span></div><h3>${esc(l.title)}</h3><p><strong>Goal:</strong> ${esc(l.goal)}</p><ol>${(l.steps||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ol></article>`).join('');
+  $('toolConnectionDetails').innerHTML=[['Prerequisites',data.prerequisites],['Connects with',data.connectsTo],['Comes before',data.before],['Comes after',data.after],['Common scenarios',data.scenarios],['Roles',data.roles]].map(([k,v])=>`<article class="panel connection-card"><h3>${esc(k)}</h3><div class="connection-row">${(v||[]).map(x=>`<span>${esc(x)}</span>`).join('')}</div></article>`).join('');
+  $('toolTroubleshooting').innerHTML=(data.troubleshooting||[]).map(x=>`<article class="panel trouble-card"><i class="bi bi-exclamation-triangle"></i><div><h3>${esc(x[0])}</h3><p>${esc(x[1])}</p></div></article>`).join('');
+  $('toolSecurity').innerHTML=(data.security||[]).map(x=>`<li>${esc(x)}</li>`).join('');$('toolBest').innerHTML=(data.bestPractices||[]).map(x=>`<li>${esc(x)}</li>`).join('');$('toolMistakes').innerHTML=(data.mistakes||[]).map(x=>`<li>${esc(x)}</li>`).join('');
+
+  const p=data.project||{};$('toolProject').innerHTML=`<div class="project-heading"><div><p class="panel-kicker">Production project</p><h2>${esc(p.title||data.name+' Production Project')}</h2><p>${esc(p.problem||'Use this tool inside a realistic DevOps workflow.')}</p></div><span class="production-badge">Production</span></div><div class="project-architecture">${(p.architecture||data.architecture||[]).map((n,i,a)=>`<span>${esc(typeof n==='string'?n:n.title)}</span>${i<a.length-1?'<i class="bi bi-arrow-right"></i>':''}`).join('')}</div><h3>Why each part exists</h3><div class="why-grid">${(p.why||[]).map(x=>`<div><strong>${esc(x[0])}</strong><p>${esc(x[1])}</p></div>`).join('')}</div><div class="what-happens"><strong>What is happening?</strong><p>${esc(p.internal||data.internalSummary||`The workflow moves through ${data.name}, validates desired state, performs its responsibility, and hands the result to connected systems.`)}</p></div>`;
+  $('toolInterview').innerHTML=(data.interview||[]).map((q,i)=>`<article class="panel interview-card"><span>Q${String(i+1).padStart(2,'0')}</span><p>${esc(q)}</p></article>`).join('');
+  $('toolDocs').innerHTML=(data.docs||[]).map(d=>`<a class="panel docs-card" href="${esc(d.url)}" target="_blank" rel="noopener noreferrer"><i class="bi bi-box-arrow-up-right"></i><div><strong>${esc(d.name)}</strong><span>Official source</span></div></a>`).join('');
+
+  const theme=$('toolThemeToggle');function sync(){const dark=document.documentElement.dataset.theme==='dark';theme.innerHTML=`<i class="bi ${dark?'bi-sun':'bi-moon-stars'}"></i><span>${dark?'Light theme':'Dark theme'}</span>`}theme.addEventListener('click',()=>{const n=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=n;try{localStorage.setItem('linuxStudyTheme',n)}catch(e){}sync()});sync();
+  const sidebar=$('sidebar'),overlay=$('sidebarOverlay'),menu=$('mobileMenuButton');function close(){sidebar?.classList.remove('open');document.body.classList.remove('sidebar-open');menu?.setAttribute('aria-expanded','false')}menu?.addEventListener('click',()=>{const o=sidebar?.classList.toggle('open');document.body.classList.toggle('sidebar-open',!!o);menu.setAttribute('aria-expanded',o?'true':'false')});overlay?.addEventListener('click',close);document.querySelectorAll('.sidebar a').forEach(a=>a.addEventListener('click',close));
+})();

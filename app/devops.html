@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A complete DevOps learning platform connecting Linux, Git, containers, Kubernetes, CI/CD, IaC, cloud, observability and security.">
+  <title>DevOps Learning Hub</title>
+  <script>
+    try {
+      document.documentElement.dataset.theme = localStorage.getItem("linuxStudyTheme") || "light";
+    } catch (error) {
+      document.documentElement.dataset.theme = "light";
+    }
+  </script>
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="devops-hub.css">
+</head>
+<body>
+  <div class="app-shell devops-shell">
+    <aside class="sidebar" id="sidebar" aria-label="DevOps navigation">
+      <a class="brand" href="devops.html">
+        <span class="brand-mark"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+        <span>DevOps Learning</span>
+      </a>
+
+      <nav>
+        <ul class="nav-list">
+          <li><a class="nav-link active" href="devops.html" aria-current="page"><i class="bi bi-grid"></i>Dashboard</a></li>
+          <li><a class="nav-link" href="#learning-path"><i class="bi bi-signpost-split"></i>Learning Path</a></li>
+          <li><a class="nav-link" href="#tool-library"><i class="bi bi-tools"></i>Tool Library</a></li>
+          <li><a class="nav-link" href="#integration-hub"><i class="bi bi-diagram-2"></i>Integration Hub</a></li>
+          <li><a class="nav-link" href="#projects"><i class="bi bi-kanban"></i>Projects</a></li>
+          <li><a class="nav-link" href="#labs"><i class="bi bi-terminal"></i>Labs</a></li>
+          <li><a class="nav-link nav-label-secondary" href="index.html"><i class="bi bi-box-arrow-up-right"></i>Linux Dashboard</a></li>
+          <li><a class="nav-link" href="docs.html"><i class="bi bi-file-earmark-text"></i>Official Docs</a></li>
+          <li><a class="nav-link" href="notes.html"><i class="bi bi-journal-text"></i>Quick Notes</a></li>
+          <li><a class="nav-link" href="backup.html"><i class="bi bi-floppy"></i>Backup & Restore</a></li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="devopsThemeToggle" type="button" aria-label="Switch theme">
+          <i class="bi bi-moon-stars" aria-hidden="true"></i>
+          <span>Dark theme</span>
+        </button>
+        <div class="profile-row">
+          <span class="avatar" aria-hidden="true">DO</span>
+          <span class="profile-copy"><strong>DevOps Learner</strong><span>Learn how everything connects.</span></span>
+        </div>
+      </div>
+    </aside>
+
+    <button class="sidebar-overlay" id="sidebarOverlay" aria-label="Close navigation"></button>
+
+    <main class="main">
+      <div class="main-inner devops-main-inner">
+        <header class="topbar devops-topbar">
+          <div>
+            <p class="eyebrow">Complete DevOps study platform</p>
+            <h1>Learn every tool. Understand every connection.</h1>
+            <p class="topbar-copy">Theory, internal working, official docs, commands, hands-on labs, production troubleshooting and real end-to-end projects.</p>
+          </div>
+          <div class="top-actions">
+            <a class="btn btn-primary" href="#learning-path"><i class="bi bi-play-fill"></i>Start learning</a>
+            <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-controls="sidebar" aria-expanded="false"><i class="bi bi-list"></i><span>Menu</span></button>
+          </div>
+        </header>
+
+        <section class="hero-grid" aria-label="Platform overview">
+          <article class="panel devops-hero-panel">
+            <div class="hero-copy">
+              <span class="hero-badge">DevOps + Cloud + SRE + DevSecOps</span>
+              <h2>From Linux fundamentals to production multi-cloud systems</h2>
+              <p>Every module follows one learning pattern: <strong>Why → Architecture → Internal Working → Commands → Lab → Integration → Production → Troubleshooting → Project → Official Docs.</strong></p>
+              <div class="hero-actions">
+                <a class="btn btn-primary" href="index.html"><i class="bi bi-terminal"></i>Continue Linux</a>
+                <a class="btn btn-secondary" href="#integration-hub"><i class="bi bi-diagram-3"></i>See tool connections</a>
+              </div>
+            </div>
+            <div class="hero-flow" aria-label="DevOps lifecycle flow">
+              <span>CODE</span><i class="bi bi-arrow-right"></i><span>BUILD</span><i class="bi bi-arrow-right"></i><span>PACKAGE</span><i class="bi bi-arrow-right"></i><span>DEPLOY</span><i class="bi bi-arrow-right"></i><span>OBSERVE</span>
+            </div>
+          </article>
+
+          <article class="panel status-panel">
+            <p class="panel-kicker success">Platform status</p>
+            <h2>Linux is the foundation</h2>
+            <p>Your existing Linux course stays intact and becomes the first module of the larger DevOps platform.</p>
+            <div class="status-stack">
+              <div><span>Linux module</span><strong>Available</strong></div>
+              <div><span>DevOps hub</span><strong>Building</strong></div>
+              <div><span>Tool connections</span><strong>Foundation ready</strong></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-block" id="learning-path">
+          <div class="section-heading hub-heading">
+            <div>
+              <p class="panel-kicker">Recommended order</p>
+              <h2>Learning path</h2>
+              <p>Build foundations first, then move toward automation, cloud, production operations and platform engineering.</p>
+            </div>
+          </div>
+          <div class="path-grid" id="learningPath"></div>
+        </section>
+
+        <section class="section-block" id="integration-hub">
+          <div class="section-heading hub-heading">
+            <div>
+              <p class="panel-kicker">Internal connections</p>
+              <h2>DevOps Integration Hub</h2>
+              <p>See why each tool exists, when to use it, what comes before it, what comes after it and how production systems connect.</p>
+            </div>
+          </div>
+
+          <article class="panel integration-panel">
+            <div class="integration-track">
+              <div class="integration-node"><small>Source</small><strong>Git + GitHub</strong></div>
+              <i class="bi bi-arrow-right"></i>
+              <div class="integration-node"><small>CI</small><strong>Actions / Jenkins</strong></div>
+              <i class="bi bi-arrow-right"></i>
+              <div class="integration-node"><small>Package</small><strong>Docker / Podman</strong></div>
+              <i class="bi bi-arrow-right"></i>
+              <div class="integration-node"><small>Infrastructure</small><strong>Terraform</strong></div>
+              <i class="bi bi-arrow-right"></i>
+              <div class="integration-node"><small>Orchestrate</small><strong>Kubernetes</strong></div>
+              <i class="bi bi-arrow-right"></i>
+              <div class="integration-node"><small>GitOps</small><strong>Argo CD</strong></div>
+              <i class="bi bi-arrow-right"></i>
+              <div class="integration-node"><small>Observe</small><strong>Prometheus + Grafana</strong></div>
+            </div>
+            <div class="integration-features">
+              <span><i class="bi bi-question-circle"></i>Why this tool?</span>
+              <span><i class="bi bi-link-45deg"></i>Connects with</span>
+              <span><i class="bi bi-shuffle"></i>Tool vs tool</span>
+              <span><i class="bi bi-exclamation-triangle"></i>Failure chain</span>
+              <span><i class="bi bi-building"></i>Real architecture</span>
+              <span><i class="bi bi-diagram-3"></i>Request + deployment flow</span>
+            </div>
+          </article>
+        </section>
+
+        <section class="section-block" id="tool-library">
+          <div class="section-heading hub-heading tool-heading">
+            <div>
+              <p class="panel-kicker">Complete curriculum</p>
+              <h2>Tool library</h2>
+              <p>Top-level tools stay clean; related services and ecosystem components live inside the correct module.</p>
+            </div>
+            <label class="tool-search">
+              <i class="bi bi-search"></i>
+              <input id="toolSearch" type="search" placeholder="Search Linux, Docker, Kubernetes, AWS..." autocomplete="off">
+            </label>
+          </div>
+          <div class="tool-filter-row" id="toolFilters" aria-label="Tool categories"></div>
+          <div class="tool-grid" id="toolGrid"></div>
+        </section>
+
+        <section class="section-block" id="projects">
+          <div class="section-heading hub-heading">
+            <div>
+              <p class="panel-kicker">Scenario-first learning</p>
+              <h2>Projects that explain the “why”</h2>
+              <p>No command dumping. Every project explains the business problem, architecture, tool choice, internal flow, verification, failures, security and production improvements.</p>
+            </div>
+          </div>
+          <div class="project-grid">
+            <article class="panel project-card">
+              <span class="project-level">Beginner</span>
+              <h3>Linux Web Server</h3>
+              <p>Understand processes, services, ports, logs and HTTP by deploying a real web server.</p>
+              <div class="project-flow">Linux → systemd → Apache/Nginx → Logs</div>
+            </article>
+            <article class="panel project-card">
+              <span class="project-level">Intermediate</span>
+              <h3>Container CI/CD</h3>
+              <p>Push code, build an image, scan it and publish it to a registry automatically.</p>
+              <div class="project-flow">GitHub → Actions → Docker → Registry</div>
+            </article>
+            <article class="panel project-card">
+              <span class="project-level">Advanced</span>
+              <h3>Kubernetes GitOps</h3>
+              <p>Deploy through Git as the source of truth and understand the complete reconciliation flow.</p>
+              <div class="project-flow">Git → CI → Registry → Argo CD → Kubernetes</div>
+            </article>
+            <article class="panel project-card featured-project">
+              <span class="project-level">Production</span>
+              <h3>Enterprise DevOps Platform</h3>
+              <p>Infrastructure, security, deployment, observability and operations connected in one end-to-end architecture.</p>
+              <div class="project-flow">GitHub → CI → Security → Registry → Terraform → Kubernetes → GitOps → Observability</div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section-block" id="labs">
+          <article class="panel lab-panel">
+            <div>
+              <p class="panel-kicker">Learning format</p>
+              <h2>Every topic becomes practical</h2>
+              <p>Each module will contain focused labs, production scenarios, troubleshooting chains, quizzes, interview questions, quick notes, cheat sheets and verified official references.</p>
+            </div>
+            <div class="lab-format-grid">
+              <span>Theory</span><span>Architecture</span><span>Commands</span><span>Hands-on Lab</span><span>Internal Working</span><span>Troubleshooting</span><span>Production</span><span>Project</span><span>Official Docs</span>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="devops-registry.js"></script>
+  <script src="devops-hub.js"></script>
+</body>
+</html>
