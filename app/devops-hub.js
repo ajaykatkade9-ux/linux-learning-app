@@ -8,10 +8,19 @@
   function renderFilters(){if(!toolFilters)return;const cats=['All',...new Set(tools.map(t=>t.category))];if(!cats.includes(activeCategory))activeCategory='All';toolFilters.innerHTML=cats.map(c=>`<button type="button" class="tool-filter${c===activeCategory?' active':''}" data-category="${c}">${c}</button>`).join('');toolFilters.querySelectorAll('.tool-filter').forEach(b=>b.addEventListener('click',()=>{activeCategory=b.dataset.category;renderFilters();renderTools()}))}
   function renderTools(){if(!toolGrid)return;const q=(toolSearch?.value||'').trim().toLowerCase();const filtered=tools.filter(t=>(activeCategory==='All'||t.category===activeCategory)&&(!q||[t.name,t.category,t.purpose,...(t.connectsTo||[])].join(' ').toLowerCase().includes(q)));toolGrid.innerHTML=filtered.length?filtered.map(t=>{const connected=(t.connectsTo||[]).slice(0,3).join(' · ')||'Core platform';return `<article class="panel tool-card"><div class="tool-card-top"><span class="tool-icon"><i class="bi ${iconFor(t.category)}"></i></span><span class="tool-status available">Available</span></div><p class="tool-category">${t.category}</p><h3>${t.name}</h3><p class="tool-purpose">${t.purpose}</p><div class="tool-meta"><span>Connects with</span><strong>${connected}</strong></div><a class="tool-link" href="${t.href}">Open module <i class="bi bi-arrow-right"></i></a></article>`}).join(''):'<div class="empty-state">No matching tools found.</div>'}
   function refresh(){tools=Array.isArray(window.DEVOPS_TOOLS)?window.DEVOPS_TOOLS:[];path=Array.isArray(window.DEVOPS_PATH)?window.DEVOPS_PATH:[];renderPath();renderFilters();renderTools()}
-  window.addEventListener('devops:registry-ready',refresh);
-  toolSearch?.addEventListener('input',renderTools);
+  window.addEventListener('devops:registry-ready',refresh);toolSearch?.addEventListener('input',renderTools);
+  function wirePlatformLinks(){
+    document.querySelectorAll('a[href="#integration-hub"]').forEach(a=>a.href='integration.html');
+    document.querySelectorAll('a[href="#projects"]').forEach(a=>a.href='projects.html');
+    document.querySelectorAll('a[href="notes.html"]').forEach(a=>a.href='devops-notes.html');
+    document.querySelectorAll('a[href="backup.html"]').forEach(a=>a.href='devops-backup.html');
+    document.querySelectorAll('a[href="docs.html"]').forEach(a=>a.href='devops-docs.html');
+    const integration=document.querySelector('#integration-hub .integration-panel');if(integration&&!integration.querySelector('.platform-open-link')){const a=document.createElement('a');a.className='btn btn-primary platform-open-link';a.href='integration.html';a.innerHTML='<i class="bi bi-diagram-3"></i> Open full Integration Hub';a.style.marginTop='16px';integration.appendChild(a)}
+    const projects=document.querySelector('#projects .project-grid');if(projects&&!document.querySelector('#projects .platform-open-link')){const a=document.createElement('a');a.className='btn btn-primary platform-open-link';a.href='projects.html';a.innerHTML='<i class="bi bi-kanban"></i> Open all projects';a.style.marginTop='16px';projects.insertAdjacentElement('afterend',a)}
+    const status=document.querySelectorAll('.status-stack strong');if(status[1])status[1].textContent='Available';if(status[2])status[2].textContent='Available';
+  }
   function syncTheme(){if(!themeToggle)return;const dark=document.documentElement.dataset.theme==='dark';themeToggle.innerHTML=`<i class="bi ${dark?'bi-sun':'bi-moon-stars'}"></i><span>${dark?'Light theme':'Dark theme'}</span>`}
   themeToggle?.addEventListener('click',()=>{const n=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=n;try{localStorage.setItem('linuxStudyTheme',n)}catch(e){}syncTheme()});
   function close(){sidebar?.classList.remove('open');document.body.classList.remove('sidebar-open');mobileMenuButton?.setAttribute('aria-expanded','false')}mobileMenuButton?.addEventListener('click',()=>{const o=sidebar?.classList.toggle('open');document.body.classList.toggle('sidebar-open',!!o);mobileMenuButton.setAttribute('aria-expanded',o?'true':'false')});overlay?.addEventListener('click',close);document.querySelectorAll('.sidebar a').forEach(a=>a.addEventListener('click',close));
-  refresh();syncTheme();
+  refresh();wirePlatformLinks();syncTheme();
 })();
