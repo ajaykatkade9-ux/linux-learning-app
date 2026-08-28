@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Complete DevOps tool learning module with architecture, internals, commands, labs, troubleshooting, security, projects and official documentation.">
+  <title>DevOps Tool Module</title>
+  <script>
+    try { document.documentElement.dataset.theme = localStorage.getItem('linuxStudyTheme') || 'light'; }
+    catch (error) { document.documentElement.dataset.theme = 'light'; }
+  </script>
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="tool-module.css">
+</head>
+<body>
+  <div class="app-shell module-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Tool navigation">
+      <a class="brand" href="devops.html"><span class="brand-mark"><i class="bi bi-tools"></i></span><span id="sideToolName">DevOps Tool</span></a>
+      <nav><ul class="nav-list">
+        <li><a class="nav-link active" href="#overview"><i class="bi bi-house-door"></i>Overview</a></li>
+        <li><a class="nav-link" href="#architecture"><i class="bi bi-diagram-3"></i>Architecture</a></li>
+        <li><a class="nav-link" href="#internals"><i class="bi bi-cpu"></i>Internal Working</a></li>
+        <li><a class="nav-link" href="#curriculum"><i class="bi bi-book"></i>Curriculum</a></li>
+        <li><a class="nav-link" href="#commands"><i class="bi bi-terminal"></i>Commands</a></li>
+        <li><a class="nav-link" href="#labs"><i class="bi bi-flask"></i>Labs</a></li>
+        <li><a class="nav-link" href="#connections"><i class="bi bi-link-45deg"></i>Connections</a></li>
+        <li><a class="nav-link" href="#troubleshooting"><i class="bi bi-wrench-adjustable"></i>Troubleshooting</a></li>
+        <li><a class="nav-link" href="#production"><i class="bi bi-building"></i>Production</a></li>
+        <li><a class="nav-link" href="#project"><i class="bi bi-kanban"></i>Project</a></li>
+        <li><a class="nav-link" href="#interview"><i class="bi bi-bullseye"></i>Interview</a></li>
+        <li><a class="nav-link" href="#docs"><i class="bi bi-file-earmark-text"></i>Official Docs</a></li>
+        <li><a class="nav-link nav-label-secondary" href="devops.html"><i class="bi bi-grid"></i>DevOps Hub</a></li>
+        <li><a class="nav-link" href="projects.html"><i class="bi bi-kanban-fill"></i>Projects Hub</a></li>
+        <li><a class="nav-link" href="integration.html"><i class="bi bi-diagram-2"></i>Integration Hub</a></li>
+      </ul></nav>
+      <div class="sidebar-footer">
+        <button class="theme-toggle" id="toolThemeToggle" type="button"><i class="bi bi-moon-stars"></i><span>Dark theme</span></button>
+        <div class="profile-row"><span class="avatar" id="toolAvatar">DO</span><span class="profile-copy"><strong id="toolTrack">DevOps Track</strong><span>Why + how + production</span></span></div>
+      </div>
+    </aside>
+    <button class="sidebar-overlay" id="sidebarOverlay" aria-label="Close navigation"></button>
+
+    <main class="main"><div class="main-inner module-main-inner">
+      <header class="topbar module-topbar" id="overview">
+        <div><p class="eyebrow" id="toolStage">DevOps module</p><h1 id="toolName">Tool</h1><p class="topbar-copy" id="toolSubtitle"></p></div>
+        <div class="top-actions"><a class="btn btn-secondary" href="devops.html"><i class="bi bi-arrow-left"></i>DevOps Hub</a><a class="btn btn-primary" href="#curriculum"><i class="bi bi-play-fill"></i>Start module</a><button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-controls="sidebar" aria-expanded="false"><i class="bi bi-list"></i><span>Menu</span></button></div>
+      </header>
+
+      <section class="module-hero-grid">
+        <article class="panel module-hero-card"><p class="panel-kicker">Why this tool exists</p><h2 id="toolHeroTitle"></h2><p id="toolWhy"></p><div class="connection-row" id="toolConnections"></div></article>
+        <article class="panel context-card"><p class="panel-kicker success">Where it fits</p><div class="context-row"><span>Before</span><strong id="toolBefore"></strong></div><div class="context-row"><span>This tool</span><strong id="toolCurrent"></strong></div><div class="context-row"><span>After</span><strong id="toolAfter"></strong></div><div class="context-row"><span>Roles</span><strong id="toolRoles"></strong></div></article>
+      </section>
+
+      <section class="section-block" id="architecture"><div class="section-heading module-heading"><div><p class="panel-kicker">Big picture</p><h2>Architecture & flow</h2><p>See the components in the order data, control or deployment moves through them.</p></div></div><div class="architecture-track" id="toolArchitecture"></div></section>
+
+      <section class="section-block" id="internals"><div class="section-heading module-heading"><div><p class="panel-kicker">What is happening internally?</p><h2>Internal working</h2><p>Understand the mechanism instead of memorizing commands.</p></div></div><div class="internal-grid" id="toolInternals"></div></section>
+
+      <section class="section-block" id="curriculum"><div class="section-heading module-heading tool-heading"><div><p class="panel-kicker">Complete coverage</p><h2>Curriculum</h2><p>Foundation → intermediate → advanced → production.</p></div><label class="module-search"><i class="bi bi-search"></i><input id="topicSearch" type="search" placeholder="Search this module..."></label></div><div class="curriculum-grid" id="toolCurriculum"></div></section>
+
+      <section class="section-block" id="commands"><div class="section-heading module-heading"><div><p class="panel-kicker">Commands & syntax</p><h2>Practice with purpose</h2><p>Every command is paired with why you use it.</p></div></div><div class="command-grid" id="toolCommands"></div></section>
+
+      <section class="section-block" id="labs"><div class="section-heading module-heading"><div><p class="panel-kicker">Hands-on</p><h2>Labs</h2><p>Build, break, verify and troubleshoot.</p></div></div><div class="lab-grid" id="toolLabs"></div></section>
+
+      <section class="section-block" id="connections"><div class="section-heading module-heading"><div><p class="panel-kicker">Integration</p><h2>How this tool connects</h2><p>Prerequisites, upstream/downstream systems and common real-world combinations.</p></div></div><div class="connections-grid" id="toolConnectionDetails"></div></section>
+
+      <section class="section-block" id="troubleshooting"><div class="section-heading module-heading"><div><p class="panel-kicker">Production mindset</p><h2>Troubleshooting</h2><p>Symptom → checks → likely cause → fix direction.</p></div></div><div class="trouble-list" id="toolTroubleshooting"></div></section>
+
+      <section class="section-block" id="production"><div class="section-heading module-heading"><div><p class="panel-kicker">Operate safely</p><h2>Security, best practices & mistakes</h2></div></div><div class="production-grid"><article class="panel"><h3>Security</h3><ul id="toolSecurity"></ul></article><article class="panel"><h3>Best practices</h3><ul id="toolBest"></ul></article><article class="panel"><h3>Common mistakes</h3><ul id="toolMistakes"></ul></article></div></section>
+
+      <section class="section-block" id="project"><article class="panel production-project" id="toolProject"></article></section>
+
+      <section class="section-block" id="interview"><div class="section-heading module-heading"><div><p class="panel-kicker">Interview + revision</p><h2>Questions you should explain</h2></div></div><div class="interview-grid" id="toolInterview"></div></section>
+
+      <section class="section-block" id="docs"><div class="section-heading module-heading"><div><p class="panel-kicker">Source of truth</p><h2>Official documentation</h2><p>Official docs → easy explanation → example → lab → production usage.</p></div></div><div class="docs-grid" id="toolDocs"></div></section>
+    </div></main>
+  </div>
+  <script src="devops-tool-data.js"></script>
+  <script src="tool-module.js"></script>
+</body>
+</html>
