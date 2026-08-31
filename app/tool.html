@@ -164,6 +164,12 @@
 
   <script src="devops-tool-data.js"></script>
   <script src="tool-course-v2-data.js"></script>
+  <script src="tool-course-v2-projects.js"></script>
+  <script>
+    Object.entries(window.DEVOPS_DEEP_PROJECTS || {}).forEach(([key, project]) => {
+      if (window.DEVOPS_DEEP_COURSES && window.DEVOPS_DEEP_COURSES[key]) window.DEVOPS_DEEP_COURSES[key].project = project;
+    });
+  </script>
   <script src="tool-module.js"></script>
 </body>
 </html>
